@@ -3,7 +3,7 @@
 #include "gmp.h"
 
 int generateKey_RSA(mpz_t e, mpz_t d) {
-    // TO DO
+    // TO DOO
 }
 
 int encrypt_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
