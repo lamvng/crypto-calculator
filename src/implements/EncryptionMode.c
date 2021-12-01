@@ -1,30 +1,48 @@
 #include "../libs/EncryptionMode.h"
 #include <stdio.h>
+#include "../libs/Module.h"
+#include "../libs/RSA.h"
 
-int encrypt_ECB(char* fileName, char* keyFileName)
+int encryptFile_ECB(char* fileName, char* keyFileName)
 {
     // TO DO
     return 0;
 }
-int decrypt_ECB(char* fileName, char* keyFileName)
-{
-    // TO DO
-    return 0;
-}
-
-int encrypt_CBC(char* fileName, char* keyFileName)
-{
-    // TO DO
-    return 0;
-}
-
-int decrypt_CBC(char* fileName, char* keyFileName)
+int decryptFile_ECB(char* fileName, char* keyFileName)
 {
     // TO DO
     return 0;
 }
 
-int encrypt_RSA(char* fileName, char* keyFileName, int mode)
+int encryptFile_CBC(char* fileName, char* keyFileName)
+{
+    // TO DO
+    return 0;
+}
+
+int decryptFile_CBC(char* fileName, char* keyFileName)
+{
+    // TO DO
+    return 0;
+}
+
+int encryptFile_RSA(char* fileName, char* keyFileName, int mode)
+{
+    switch (mode)
+    {
+    case MODE_STANDARD:
+        // char* key = readFile(keyFileName);
+        
+        break;
+    case MODE_CRT:
+        /* code */
+        break;
+    default:
+        return -1;
+    }
+    return 0;
+}
+int decryptFile_RSA(char* fileName, char* keyFileName, int mode)
 {
     switch (mode)
     {
@@ -39,7 +57,8 @@ int encrypt_RSA(char* fileName, char* keyFileName, int mode)
     }
     return 0;
 }
-int decrypt_RSA(char* fileName, char* keyFileName, int mode)
+
+int signFile_RSA(char* fileName, char* keyFileName, int mode)
 {
     switch (mode)
     {
@@ -55,7 +74,7 @@ int decrypt_RSA(char* fileName, char* keyFileName, int mode)
     return 0;
 }
 
-int sign_RSA(char* fileName, char* keyFileName, int mode)
+int verifyFile_RSA(char* fileName, char* keyFileName, int mode)
 {
     switch (mode)
     {
@@ -71,18 +90,10 @@ int sign_RSA(char* fileName, char* keyFileName, int mode)
     return 0;
 }
 
-int verify_RSA(char* fileName, char* keyFileName, int mode)
-{
-    switch (mode)
-    {
-    case MODE_STANDARD:
-        /* code */
-        break;
-    case MODE_CRT:
-        /* code */
-        break;
-    default:
-        return -1;
-    }
-    return 0;
+int generateFileKey_RSA(){
+    // get key for RSA z_e, z_d, z_n
+    generateKey_RSA(z_e, z_d);
+
+    // Save to file
+    writeFileByLine(NAME_FILE_KEY_RSA, "abc");
 }
