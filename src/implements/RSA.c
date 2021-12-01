@@ -1,6 +1,25 @@
 #include "../libs/RSA.h"
 #include <stdio.h>
 
-int encrypt_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
+
+int generateKey_RSA();
+
+
+int encrypt_RSA(){
     // TO DO
+}
+
+
+int decrypt_RSA() {
+    // TODO
+}
+
+
+int sign_RSA() {
+    //TODO
+}
+
+
+int verify_RSA() {
+    //TODO
 }
