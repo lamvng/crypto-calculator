@@ -91,12 +91,14 @@ int decrypt_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
 
 
 int sign_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
-    //TO DO
+    //Cours Gaborit
+    // Pour signer un message m, Alice calcule m' = h(m) pour une fonction de hachage h sans collision. Elle détermine s = (m)^d (mod N) avec sa clef privée
 }
 
 
 int verify_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
-    // TO DO
+    // Cours Gaborit
+    // Bob reçoit un couple (m',s'). Pour vérifier la signature, il teste si h(m')=(s')^e (mond N) avec la clef publique d'Alice
 }
 
 int main(){
