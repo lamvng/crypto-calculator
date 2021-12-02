@@ -24,7 +24,7 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
 
   do{
     // Part : Generate at random a k/2-bit prime p such that gcd(e,p-1) = 1 (512 bits)
-    while((mpz_probab_prime_p(p,15) == 0) || (mpz_cmp_ui(for_gcd,1) !=0 )){
+    while((mpz_probab_prime_p(p,100) == 0) || (mpz_cmp_ui(for_gcd,1) !=0 )){
       mpz_urandomb(p, generator, length2-1);
       mpz_ui_pow_ui(temp,2, length2-1);
       mpz_add(p, p, temp);
@@ -122,7 +122,7 @@ int main(){
   mpz_set_ui(n1,0);
   encrypt_RSA(m1,c1,e,n1);*/
 
-  /*PART 3
+  /*PART 3*/
   mpz_t m2, c2, d, n2;
   mpz_inits(m2, c2, d, n2, NULL);
 
@@ -130,7 +130,7 @@ int main(){
   mpz_set_ui(c2, 562);
   mpz_set_ui(d,0);
   mpz_set_ui(n2,0);
-  decrypt_RSA(m2, c2, d, n2);*/
+  decrypt_RSA(m2, c2, d, n2);
 
   //encrypt();
   return 0;
