@@ -3,9 +3,14 @@
 #define MODE_STANDARD 0
 #define MODE_CRT 1
 
-#define NAME_FILE_KEY_RSA "key_standard_RSA.txt"
+#define NAME_FILE_PK_RSA "PK_standard_RSA.txt"
+#define NAME_FILE_SK_RSA "SK_standard_RSA.txt"
 
-mpz_t z_n, z_e, z_c, z_d, z_keyDES;
+#define NAME_FILE_CIPHER "cipher.txt"
+#define NAME_FILE_PLAIN "message.txt"
+
+
+mpz_t z_n, z_e, z_c, z_d, z_keyDES, z_dp, z_dq, z_Ip, z_p, z_q;
 
 int encryptFile_ECB(char* fileName, char* keyFileName);
 int decryptFile_ECB(char* fileName, char* keyFileName);
