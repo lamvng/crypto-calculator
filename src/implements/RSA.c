@@ -8,7 +8,7 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
 
 
   mpz_t p, q, temp, for_gcd, p_1, q_1, phi_n;
-  mpz_inits(p,q, temp, for_gcd, p_1, q_1, phi_n, NULL);
+  mpz_inits(p,q, temp, for_gcd, p_1, q_1, phi_n , NULL);
 
   int length_RSA= 1024;
   int length2 = length_RSA / 2; //length for p and q
