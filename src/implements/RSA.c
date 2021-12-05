@@ -62,6 +62,51 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
 
     //Publish pk={n,e}  /  Keep secret sk={d}
 }
+/*int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, mpz_t Ip){
+  mpz_t p, q, temp, for_gcd, p_1, q_1;
+  mpz_inits(p,q, temp, for_gcd, p_1, q_1, NULL);
+
+  int length_RSA= 1024;
+  int length2 = length_RSA / 2; //length for p and q
+
+  // random creation
+  gmp_randstate_t generator;
+  gmp_randinit_default(generator);
+  int t = time(NULL);
+  gmp_randseed_ui(generator,t);
+
+  mpz_set_ui(p, 4); //init value (temporary)
+  mpz_set_ui(q, 4); //init value (temporary)
+
+  do{
+    // Part : Generate at random a k/2-bit prime p such that gcd(e,p-1) = 1 (512 bits)
+    while((mpz_probab_prime_p(p,100) == 0) || (mpz_cmp_ui(for_gcd,1) !=0 )){
+      mpz_urandomb(p, generator, length2-1);
+      mpz_ui_pow_ui(temp,2, length2-1);
+      mpz_add(p, p, temp);
+      mpz_sub_ui(p_1, p, 1);
+      mpz_gcd(for_gcd, p_1, e);
+    }
+
+    // Part : Generate at random a k/2-bit prime p such that gcd(e,p-1) = 1 (512 bits)
+    while((mpz_probab_prime_p(q,15) == 0) || (mpz_cmp_ui(for_gcd,1) !=0 )){
+      mpz_urandomb(q, generator, length2-1);
+      mpz_ui_pow_ui(temp,2, length2-1);
+      mpz_add(q, q, temp);
+      mpz_sub_ui(q_1, q, 1);
+      mpz_gcd(for_gcd, q_1, e);
+    }
+
+    // Part : n = pq
+    mpz_mul(n,p,q);
+
+  }while((mpz_sizeinbase(n,2)!=length_RSA) && (mpz_cmp(p,q) == 0)); //check that p and q are different
+
+
+
+
+
+}*/
 
 int encrypt_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
   mpz_t d;
@@ -73,8 +118,10 @@ int encrypt_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
   mpz_powm(c, m, e, n); //m^e mod n
   gmp_printf("c = %Zd\n", c);
 
-
 }
+
+int encrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n){}
+
 
 int decrypt_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
   mpz_t e;
@@ -89,17 +136,24 @@ int decrypt_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
 
 }
 
+int decrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t q){}
+
 
 int sign_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
     //Cours Gaborit
     // Pour signer un message m, Alice calcule m' = h(m) pour une fonction de hachage h sans collision. Elle détermine s = (m)^d (mod N) avec sa clef privée
 }
 
+int sign_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t q){}
+
+
 
 int verify_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
     // Cours Gaborit
     // Bob reçoit un couple (m',s'). Pour vérifier la signature, il teste si h(m')=(s')^e (mond N) avec la clef publique d'Alice
 }
+
+int verify_RSA_(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {}
 
 int main(){
   /* PART 1
