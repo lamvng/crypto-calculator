@@ -118,9 +118,9 @@ int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, 
 
 
 int encrypt_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
-  mpz_t d;
-  mpz_init_set_ui(d,1);
-  generateKey_RSA(e,d,n); //key recovery
+  //mpz_t d;
+  //mpz_init_set_ui(d,1);
+  //generateKey_RSA(e,d,n); //key recovery
 
   printf(" === ENCRYPTION RSA === \n");
 
@@ -129,7 +129,9 @@ int encrypt_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
 
 }
 
-int encrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n){}
+int encrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
+  encrypt_RSA(c,m,e,n);
+}
 
 
 int decrypt_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
