@@ -1,9 +1,11 @@
 #include "gmp.h"
 
-
-#define SetBit(A,k)     ( A[(k/32)] |= (1 << (k%32)) )
-#define ClearBit(A,k)   ( A[(k/32)] &= ~(1 << (k%32)) )
-#define TestBit(A,k)    ( A[(k/32)] & (1 << (k%32)) )
+// // Bit manipulation on array
+// // http://www.mathcs.emory.edu/~cheung/Courses/255/Syllabus/1-C-intro/bit-array.html
+// // This time, each element (unsigned char) is 1 byte = 8 bits
+// #define setBit(A,k)     ( A[(k/8)] |= (1 << (k%8)) )
+// #define clearBit(A,k)   ( A[(k/8)] &= ~(1 << (k%8)) )
+// #define testBit(A,k)    ( A[(k/8)] & (1 << (k%8)) )
 
 
 unsigned char* readBinary(char* filename);
