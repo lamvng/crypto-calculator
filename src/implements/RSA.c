@@ -166,15 +166,13 @@ int decrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz
   mpz_mul(temp2, p, temp);// p*((mq-mp)*Ip mod q)
   mpz_add(m, mp,temp2);  //m = mp + p * ((mq-mp)*Ip mod q)
 
-
-
-  gmp_printf("mp = %Zd\n", mp);
-  gmp_printf("mq = %Zd\n", mq);
-  gmp_printf("mq_mp = %Zd\n", mq_mp);
-  gmp_printf("mq_mp_Ip = %Zd\n", mq_mp_Ip);
-  gmp_printf("(mq-mp)*Ip mod q = %Zd\n", temp);
-  gmp_printf("p*((mq-mp)*Ip mod q) = %Zd\n", temp2);
-  gmp_printf("m = %Zd\n", m);
+  // gmp_printf("mp = %Zd\n", mp);
+  // gmp_printf("mq = %Zd\n", mq);
+  // gmp_printf("mq_mp = %Zd\n", mq_mp);
+  // gmp_printf("mq_mp_Ip = %Zd\n", mq_mp_Ip);
+  // gmp_printf("(mq-mp)*Ip mod q = %Zd\n", temp);
+  // gmp_printf("p*((mq-mp)*Ip mod q) = %Zd\n", temp2);
+  // gmp_printf("m = %Zd\n", m);
 
 }
 
@@ -184,7 +182,33 @@ int sign_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
     // Pour signer un message m, Alice calcule m' = h(m) pour une fonction de hachage h sans collision. Elle détermine s = (m)^d (mod N) avec sa clef privée
 }
 
-int sign_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t q){}
+int sign_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t q){
+  mpz_t sp, sq, t, u, tu, tu_mod,tu_q, c_temp;
+  mpz_inits(sp,sq,t,u,tu, tu_mod, tu_q, c_temp,NULL);
+
+  // u = q^-1 mod p
+  mpz_invert(u,q,p);
+
+  //Part : sp = m^dp mod p
+  mpz_powm(sp, m, dp, p);
+
+  //Part : sq = m^dq mod q
+  mpz_powm(sq, m, dp, q);
+
+  //Part t = sp - sq
+  mpz_sub(t, sp, sq);
+
+  if (mpz_sgn(t) == -1) { // -1 if op < 0
+    mpz_add(t,t,p);
+  }
+
+  //Part S = sq + ((t*u)mod p)*q
+  mpz_mul(tu, t, u);// t*u
+  mpz_mod(tu_mod,tu,p);// (t*u) mod p
+  mpz_mul(tu_q,tu_mod,q); // ((t*u)mod p)*q
+  mpz_add(c_temp, sq, tu_q);// S = sq + ((t*u)mod p)*q
+
+}
 
 
 
@@ -193,7 +217,7 @@ int verify_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
     // Bob reçoit un couple (m',s'). Pour vérifier la signature, il teste si h(m')=(s')^e (mond N) avec la clef publique d'Alice
 }
 
-int verify_RSA_(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {}
+int verify_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {}
 
 int main(){
   /* PART 1
@@ -226,7 +250,7 @@ int main(){
   mpz_set_ui(n2,0);
   decrypt_RSA(m2, c2, d, n2);*/
 
-  /* Decrypt RSA CRT Mode */
+  /* Decrypt RSA CRT Mode
   mpz_t m, c, dp, dq, Ip, p, q;
   mpz_inits(m,c, dp, dq, Ip, p, q, NULL);
 
@@ -236,7 +260,7 @@ int main(){
   mpz_set_ui(dq, 579);
   mpz_set_ui(Ip, 424);
   mpz_set_ui(c, 77111);
-  decrypt_RSA_CRT(m, c, dp,  dq, Ip, p, q);
+  decrypt_RSA_CRT(m, c, dp,  dq, Ip, p, q);*/
 
   //encrypt();
   return 0;
