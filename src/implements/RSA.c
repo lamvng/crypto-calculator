@@ -62,7 +62,9 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
 
     //Publish pk={n,e}  /  Keep secret sk={d}
 }
-/*int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, mpz_t Ip){
+
+
+int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, mpz_t lp){
   mpz_t p, q, temp, for_gcd, p_1, q_1;
   mpz_inits(p,q, temp, for_gcd, p_1, q_1, NULL);
 
@@ -102,11 +104,18 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
 
   }while((mpz_sizeinbase(n,2)!=length_RSA) && (mpz_cmp(p,q) == 0)); //check that p and q are different
 
+  //Part : dp = e⁻1 mod (p-1)
+  mpz_invert(dp, e, p_1);
+
+  //Part : dq = e⁻1 mod (q-1)
+  mpz_invert(dq, e, q_1);
+
+  //Part : lp = p⁻1 mod q
+  mpz_invert(lp, p, q);
 
 
+}
 
-
-}*/
 
 int encrypt_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
   mpz_t d;
