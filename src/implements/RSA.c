@@ -52,12 +52,12 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
   //Part : d = e⁻1 mod phi(n)
   mpz_invert(d, e, phi_n);
 
-  printf(" === RSA STANDARD KEY GENERATION ===\n" );
-  gmp_printf("q = %Zd and size q = %d \n", q, mpz_sizeinbase(q,2));
-  gmp_printf("p = %Zd and size p = %d \n", p, mpz_sizeinbase(p,2));
-  gmp_printf("n = %Zd and size n = %d\n", n, mpz_sizeinbase(n,2));
-  gmp_printf("phi_n = %Zd and size = %d\n", phi_n, mpz_sizeinbase(phi_n,2));
-  gmp_printf("d = %Zd \n", d);
+  // printf(" === RSA STANDARD KEY GENERATION ===\n" );
+  // gmp_printf("q = %Zd and size q = %d \n", q, mpz_sizeinbase(q,2));
+  // gmp_printf("p = %Zd and size p = %d \n", p, mpz_sizeinbase(p,2));
+  // gmp_printf("n = %Zd and size n = %d\n", n, mpz_sizeinbase(n,2));
+  // gmp_printf("phi_n = %Zd and size = %d\n", phi_n, mpz_sizeinbase(phi_n,2));
+  // gmp_printf("d = %Zd \n", d);
 
 
     //Publish pk={n,e}  /  Keep secret sk={d}
@@ -208,6 +208,8 @@ int sign_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t 
   mpz_mul(tu_q,tu_mod,q); // ((t*u)mod p)*q
   mpz_add(c_temp, sq, tu_q);// S = sq + ((t*u)mod p)*q
 
+
+
 }
 
 
@@ -215,9 +217,15 @@ int sign_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t 
 int verify_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
     // Cours Gaborit
     // Bob reçoit un couple (m',s'). Pour vérifier la signature, il teste si h(m')=(s')^e (mond N) avec la clef publique d'Alice
+
+    return 1; //similar
+
+    return 0; // no similar
 }
 
-int verify_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {}
+int verify_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
+
+}
 
 int main(){
   /* PART 1
