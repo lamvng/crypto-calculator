@@ -65,8 +65,8 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
 
 
 int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, mpz_t Ip){
-  mpz_t p, q, temp, for_gcd, p_1, q_1;
-  mpz_inits(p,q, temp, for_gcd, p_1, q_1, NULL);
+  mpz_t temp, for_gcd, p_1, q_1;
+  mpz_inits( temp, for_gcd, p_1, q_1, NULL);
 
   int length_RSA= 1024;
   int length2 = length_RSA / 2; //length for p and q
@@ -147,7 +147,36 @@ int decrypt_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
 
 }
 
-int decrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t q){}
+int decrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t q){
+  //Slide 16 of RSA course
+
+  mpz_t mp, mq, mq_mp, mq_mp_Ip, temp, temp2;
+  mpz_inits(mp, mq, mq_mp, mq_mp_Ip, temp, temp2,NULL);
+
+  //mp = c^dp mod p
+  mpz_powm(mp, c, dp, p);
+
+  //mq = c^dq mod q
+  mpz_powm(mq, c, dq, q);
+
+  //Garner's formula -> m = mp + p * ((mq-mp)*Ip mod q)
+  mpz_sub(mq_mp, mq, mp); //(mq-mp)
+  mpz_mul(mq_mp_Ip, mq_mp, Ip); //(mq-mp)*Ip
+  mpz_mod(temp, mq_mp_Ip, q); // (mq-mp)*Ip mod q
+  mpz_mul(temp2, p, temp);// p*((mq-mp)*Ip mod q)
+  mpz_add(m, mp,temp2);  //m = mp + p * ((mq-mp)*Ip mod q)
+
+
+
+  gmp_printf("mp = %Zd\n", mp);
+  gmp_printf("mq = %Zd\n", mq);
+  gmp_printf("mq_mp = %Zd\n", mq_mp);
+  gmp_printf("mq_mp_Ip = %Zd\n", mq_mp_Ip);
+  gmp_printf("(mq-mp)*Ip mod q = %Zd\n", temp);
+  gmp_printf("p*((mq-mp)*Ip mod q) = %Zd\n", temp2);
+  gmp_printf("m = %Zd\n", m);
+
+}
 
 
 int sign_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
@@ -187,7 +216,7 @@ int main(){
   mpz_set_ui(n1,0);
   encrypt_RSA(m1,c1,e,n1);*/
 
-  /*PART 3*/
+  /*PART 3
   mpz_t m2, c2, d, n2;
   mpz_inits(m2, c2, d, n2, NULL);
 
@@ -195,7 +224,19 @@ int main(){
   mpz_set_ui(c2, 562);
   mpz_set_ui(d,0);
   mpz_set_ui(n2,0);
-  decrypt_RSA(m2, c2, d, n2);
+  decrypt_RSA(m2, c2, d, n2);*/
+
+  /* Decrypt RSA CRT Mode */
+  mpz_t m, c, dp, dq, Ip, p, q;
+  mpz_inits(m,c, dp, dq, Ip, p, q, NULL);
+
+  mpz_set_ui(p, 547);
+  mpz_set_ui(q, 797);
+  mpz_set_ui(dp, 149);
+  mpz_set_ui(dq, 579);
+  mpz_set_ui(Ip, 424);
+  mpz_set_ui(c, 77111);
+  decrypt_RSA_CRT(m, c, dp,  dq, Ip, p, q);
 
   //encrypt();
   return 0;
