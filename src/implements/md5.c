@@ -76,10 +76,8 @@ unsigned char* readBinary(char* filename) {
 }
 
 
-// Padding data
-unsigned char* padding(unsigned char* file_buffer, int file_size) {
-
-    unsigned int i;
+// Calculate total data size after padding (in bytes)
+unsigned int getDataSize(unsigned char* file_buffer, unsigned int file_size) {
     unsigned int file_size_padding, num_block, size_last_block, total_size;
     long unsigned int file_size_padding_bit; // 64 bits
 
@@ -93,14 +91,22 @@ unsigned char* padding(unsigned char* file_buffer, int file_size) {
         num_block += 1;
     }
 
-    // Get file size in 64 bits = 8 bytes
-    // AND with 0xFF (2 F - since file_size_padding is in bytes)
-    file_size_padding = (file_size & 0xFF);
+    total_size = num_block * BLOCK_SIZE;
+
+    return total_size;
+}
+
+
+// Padding data
+unsigned char* padding(unsigned char* file_buffer, unsigned int file_size, unsigned int total_size) {
+
+    unsigned int i;
+    unsigned int file_size_padding;
+    long unsigned int file_size_padding_bit;
 
     // Pad data_buffer
 
     // Allocate array to store data of all blocks
-    total_size = num_block * BLOCK_SIZE;
     unsigned char* data_buffer = (unsigned char*) malloc(total_size * sizeof(unsigned char)); // Return a copy of file_buffer with more space
     if (!data_buffer) {
         printf("Cannot allocate buffer.\n");
@@ -117,8 +123,13 @@ unsigned char* padding(unsigned char* file_buffer, int file_size) {
     long unsigned int pad_bit = file_size*8 + 7;
     toggleBit(data_buffer, 1, pad_bit);
 
+    // Get file size in 64 bits = 8 bytes
+    // AND with 0xFF (2 F - since file_size_padding is in bytes)
+    file_size_padding = (file_size & 0xFF);
+
     // Pad the last 64 bits (8 bytes) as data size
     file_size_padding_bit = file_size_padding << 3; // Data size in bit
+
     unsigned int byte_position = 0;
     for (i=total_size-1; i>=total_size-8; i--) {
         data_buffer[i] = getByte(file_size_padding_bit, byte_position);
@@ -134,7 +145,7 @@ unsigned char* padding(unsigned char* file_buffer, int file_size) {
 
 // Input: Array of int (0 or 1)
 // Output: Array of hexa char as md5 hash
-char* hashmd5(char* inputBinString) {
+unsigned char* hashmd5(unsigned char* data_buffer, unsigned int total_size) {
     
 }
 
@@ -143,7 +154,7 @@ void main(int argc, char *argv[]) {
     unsigned char *file_buffer, *data_buffer;
     char filename[] = "md5_data_test";
     unsigned int i, j;
-    unsigned int file_size; // 32 bits
+    unsigned int file_size, total_size; // 32 bits
 
     // Determine file size
     file_size = findSize(filename);
@@ -155,12 +166,15 @@ void main(int argc, char *argv[]) {
     // Read file
     file_buffer = readBinary(filename);
 
-    // Allocate blocks
-    data_buffer = padding(file_buffer, file_size);
+    // Calculate total data size
+    total_size = getDataSize(file_buffer, file_size);
+
+
+    // Padding
+    data_buffer = padding(file_buffer, file_size, total_size);
 
 
     // Print testing
-    
     for (i=0; i<2*BLOCK_SIZE; i++) {
         printf("%4u", data_buffer[i]);
     }

@@ -9,4 +9,4 @@
 
 
 unsigned char* readBinary(char* filename);
-char* hashmd5(char* inputBinString);
+unsigned char* hashmd5(unsigned char* data_buffer, unsigned int total_size);
