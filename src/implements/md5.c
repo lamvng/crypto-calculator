@@ -175,8 +175,10 @@ void main(int argc, char *argv[]) {
 
 
     // Print testing
-    for (i=0; i<2*BLOCK_SIZE; i++) {
+    for (i=0; i<total_size; i++) {
         printf("%4u", data_buffer[i]);
     }
     printf("\n");
+
+    // Main MD5 functions
 }
