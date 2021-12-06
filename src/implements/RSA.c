@@ -64,7 +64,7 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
 }
 
 
-int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, mpz_t lp){
+int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, mpz_t Ip){
   mpz_t p, q, temp, for_gcd, p_1, q_1;
   mpz_inits(p,q, temp, for_gcd, p_1, q_1, NULL);
 
@@ -110,8 +110,8 @@ int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, 
   //Part : dq = e⁻1 mod (q-1)
   mpz_invert(dq, e, q_1);
 
-  //Part : lp = p⁻1 mod q
-  mpz_invert(lp, p, q);
+  //Part : Ip = p⁻1 mod q
+  mpz_invert(Ip, p, q);
 
 
 }
