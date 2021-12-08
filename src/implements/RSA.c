@@ -4,9 +4,6 @@
 #include "time.h"
 
 int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
-  // SHOULD WE CHECK THE PRIMALITY OF E ??
-
-
   mpz_t p, q, temp, for_gcd, p_1, q_1, phi_n;
   mpz_inits(p,q, temp, for_gcd, p_1, q_1, phi_n , NULL);
 
@@ -64,7 +61,7 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
 }
 
 
-int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, mpz_t Ip){
+int generateKey_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, mpz_t Ip){
   mpz_t temp, for_gcd, p_1, q_1;
   mpz_inits( temp, for_gcd, p_1, q_1, NULL);
 
