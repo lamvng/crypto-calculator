@@ -168,7 +168,9 @@ int decrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz
 
 int sign_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
     //Cours Gaborit
-    // Pour signer un message m, Alice calcule m' = h(m) pour une fonction de hachage h sans collision. Elle détermine s = (m)^d (mod N) avec sa clef privée
+    // Pour signer un message m, Alice calcule m' = h(m) pour une fonction de hachage h sans collision. Elle détermine s = (m')^d (mod N) avec sa clef privée
+    mpz_powm(c, m, d, n);
+
 }
 
 int sign_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t q){
@@ -207,9 +209,25 @@ int verify_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
     // Cours Gaborit
     // Bob reçoit un couple (m',s'). Pour vérifier la signature, il teste si h(m')=(s')^e (mond N) avec la clef publique d'Alice
 
-    return 1; //similar
+    //HERE s' ====== c
 
-    return 0; // no similar
+    mpz_t right_part;
+    mpz_init(right_part);
+    //Part : s' ^ e mod N
+    mpz_powm(right_part, c, e, n);
+
+    //Part : comp h(m)= s' ^ e mod N
+
+    int comp = mpz_cmp(m,right_part);
+
+    if (comp == 0) {
+      return 1; //similar
+    }
+    else{
+      return 0; // no similar
+    }
+
+
 }
 
 int verify_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
