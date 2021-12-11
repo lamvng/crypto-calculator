@@ -231,11 +231,12 @@ int verify_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
 }
 
 int verify_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
+  verify_RSA(m,c,e,n);
 
 }
 
 int main(){
-  /* PART 1 */
+  /* PART 1 
   mpz_t e, n, d;
   mpz_inits(e,n,d,NULL);
 
@@ -243,7 +244,7 @@ int main(){
   mpz_set_ui(d,1);
   mpz_set_ui(n,1);
 
-  generateKey_RSA(e,d,n);
+  generateKey_RSA(e,d,n);*/
 
   /* PART 2
   mpz_t m1, c1, e, n1;
