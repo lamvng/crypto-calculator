@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "../libs/md5.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -184,4 +185,13 @@ void main(int argc, char *argv[]) {
 
     // Main MD5 functions
     hashmd5(data_buffer, total_size);
+=======
+#include "../libs/RSA.h"
+#include <stdio.h>
+#include <string.h>
+
+
+char* hashmd5() {
+    
+>>>>>>> main
 }
