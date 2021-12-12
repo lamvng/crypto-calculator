@@ -4,9 +4,6 @@
 #include "time.h"
 
 int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
-  // SHOULD WE CHECK THE PRIMALITY OF E ??
-
-
   mpz_t p, q, temp, for_gcd, p_1, q_1, phi_n;
   mpz_inits(p,q, temp, for_gcd, p_1, q_1, phi_n , NULL);
 
@@ -33,7 +30,7 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
     }
 
     // Part : Generate at random a k/2-bit prime p such that gcd(e,p-1) = 1 (512 bits)
-    while((mpz_probab_prime_p(q,15) == 0) || (mpz_cmp_ui(for_gcd,1) !=0 )){
+    while((mpz_probab_prime_p(q,100) == 0) || (mpz_cmp_ui(for_gcd,1) !=0 )){
       mpz_urandomb(q, generator, length2-1);
       mpz_ui_pow_ui(temp,2, length2-1);
       mpz_add(q, q, temp);
@@ -59,12 +56,13 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
   // gmp_printf("phi_n = %Zd and size = %d\n", phi_n, mpz_sizeinbase(phi_n,2));
   // gmp_printf("d = %Zd \n", d);
 
+  mpz_clears(p,q,temp,for_gcd,p_1,q_1,phi_n,NULL);
 
     //Publish pk={n,e}  /  Keep secret sk={d}
 }
 
 
-int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, mpz_t Ip){
+int generateKey_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, mpz_t Ip){
   mpz_t temp, for_gcd, p_1, q_1;
   mpz_inits( temp, for_gcd, p_1, q_1, NULL);
 
@@ -85,8 +83,8 @@ int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, 
     while((mpz_probab_prime_p(p,100) == 0) || (mpz_cmp_ui(for_gcd,1) !=0 )){
       mpz_urandomb(p, generator, length2-1);
       mpz_ui_pow_ui(temp,2, length2-1);
-      mpz_add(p, p, temp);
-      mpz_sub_ui(p_1, p, 1);
+      mpz_add(p, p, temp); // p length 512 bits
+      mpz_sub_ui(p_1, p, 1); // p-1
       mpz_gcd(for_gcd, p_1, e);
     }
 
@@ -113,37 +111,27 @@ int generateKEY_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, 
   //Part : Ip = p⁻1 mod q
   mpz_invert(Ip, p, q);
 
-
+  mpz_clears(temp, for_gcd, p_1, q_1,NULL);
 }
 
 
 int encrypt_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
-  //mpz_t d;
-  //mpz_init_set_ui(d,1);
-  //generateKey_RSA(e,d,n); //key recovery
-
   printf(" === ENCRYPTION RSA === \n");
-
   mpz_powm(c, m, e, n); //m^e mod n
   gmp_printf("c = %Zd\n", c);
-
 }
 
 int encrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
+  printf(" === CRT MODE === \n");
   encrypt_RSA(c,m,e,n);
 }
 
 
 int decrypt_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
-  mpz_t e;
-  mpz_init_set_ui(e,5);
-  generateKey_RSA(e,d,n); //key recovery
-
+  //Receive the value of d (don't need to use e to recovery d)
   printf(" === DECRYPTION RSA === \n");
-
   mpz_powm(m, c, d, n);
   gmp_printf("m = %Zd\n", m);
-
 
 }
 
@@ -174,12 +162,15 @@ int decrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz
   // gmp_printf("p*((mq-mp)*Ip mod q) = %Zd\n", temp2);
   // gmp_printf("m = %Zd\n", m);
 
+  mpz_clears(mp, mq, mq_mp, mq_mp_Ip, temp, temp2,NULL);
 }
 
 
 int sign_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
     //Cours Gaborit
-    // Pour signer un message m, Alice calcule m' = h(m) pour une fonction de hachage h sans collision. Elle détermine s = (m)^d (mod N) avec sa clef privée
+    // Pour signer un message m, Alice calcule m' = h(m) pour une fonction de hachage h sans collision. Elle détermine s = (m')^d (mod N) avec sa clef privée
+    mpz_powm(c, m, d, n);
+
 }
 
 int sign_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t q){
@@ -208,7 +199,7 @@ int sign_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t 
   mpz_mul(tu_q,tu_mod,q); // ((t*u)mod p)*q
   mpz_add(c_temp, sq, tu_q);// S = sq + ((t*u)mod p)*q
 
-
+  mpz_clears(sp, sq, t, u, tu, tu_mod,tu_q, c_temp,NULL);
 
 }
 
@@ -218,17 +209,34 @@ int verify_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
     // Cours Gaborit
     // Bob reçoit un couple (m',s'). Pour vérifier la signature, il teste si h(m')=(s')^e (mond N) avec la clef publique d'Alice
 
-    return 1; //similar
+    //HERE s' ====== c
 
-    return 0; // no similar
+    mpz_t right_part;
+    mpz_init(right_part);
+    //Part : s' ^ e mod N
+    mpz_powm(right_part, c, e, n);
+
+    //Part : comp h(m)= s' ^ e mod N
+
+    int comp = mpz_cmp(m,right_part);
+
+    if (comp == 0) {
+      return 1; //similar
+    }
+    else{
+      return 0; // no similar
+    }
+
+
 }
 
 int verify_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
+  verify_RSA(m,c,e,n);
 
 }
 
 int main(){
-  /* PART 1
+  /* PART 1 
   mpz_t e, n, d;
   mpz_inits(e,n,d,NULL);
 
