@@ -146,6 +146,7 @@ unsigned char* padding(unsigned char* file_buffer, unsigned int file_size, unsig
 // Input: Array of int (0 or 1)
 // Output: Array of hexa char as md5 hash
 unsigned char* hashmd5(unsigned char* data_buffer, unsigned int total_size) {
+    //TODO: Split data_buffer into block, each block is splitted into messages
     
 }
 
@@ -180,5 +181,7 @@ void main(int argc, char *argv[]) {
     }
     printf("\n");
 
+
     // Main MD5 functions
+    hashmd5(data_buffer, total_size);
 }
