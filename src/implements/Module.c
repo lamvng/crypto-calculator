@@ -24,7 +24,7 @@ char *readFile(char *fileName)
 
 char *readFileByLine(char *fileName, int line)
 {
-    int bufferLength = 255;
+    int bufferLength = 1000;
     char *buffer = (char *)malloc(bufferLength * sizeof(char));
     FILE *fptr;
     fptr = fopen(fileName, "r");
