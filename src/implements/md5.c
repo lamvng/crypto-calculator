@@ -140,7 +140,7 @@ unsigned char* padding(unsigned char* file_buffer, unsigned int file_size, unsig
     return data_buffer;
 }
 
-
+//TODO
 // Initialize buffer of 128 bits = 16 bytes --> Output hash
 // 16 bytes --> 4 words of A B C D, each 4 bytes
 unsigned char* initBuffer() {
@@ -152,12 +152,28 @@ unsigned char* initBuffer() {
 
 // F (B, C, D) = (B & C) | (~B & D)
 unsigned char* F (unsigned char* B, unsigned char* C, unsigned char* D) {
-    return ((int)B & (int)C) | (~(int)B & (int)D);
+    return (unsigned char*)(((int)B & (int)C) | (~(int)B & (int)D));
+}
+
+// G (B, C, D) = (B & D) | (C & ~D)
+unsigned char* G (unsigned char* B, unsigned char* C, unsigned char* D) {
+    return (unsigned char*)(((int)B & (int)D) | ((int)C & ~(int)D));
+}
+
+// H (B, C, D) = B XOR C XOR D
+unsigned char* H (unsigned char* B, unsigned char* C, unsigned char* D) {
+    return (unsigned char*)((int)B ^ (int)C ^ (int)D);
+}
+
+// I (B, C, D) = C XOR (B | ~D)
+unsigned char* I (unsigned char* B, unsigned char* C, unsigned char* D) {
+    return (unsigned char*)((int)C ^ ((int)B | ~(int)D));
 }
 
 
 
 
+//TODO
 // Process each block of 512 bits = 64 bytes
 void processBlock (unsigned char* block) {
 
@@ -184,6 +200,14 @@ void main(int argc, char *argv[]) {
     char filename[] = "md5_data_test";
     unsigned int i, j;
     unsigned int file_size, total_size; // 32 bits
+    int A, B, C, D; // Buffer value
+
+    // Buffer initialization
+    A = 0x01234567;
+    B = 0x89abcdef;
+    C = 0xfedcba98;
+    D = 0x76543210;
+
 
     // Determine file size
     file_size = findSize(filename);
