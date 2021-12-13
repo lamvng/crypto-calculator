@@ -257,8 +257,13 @@ unsigned int* getCurrentBlock(unsigned int* message_all_block, unsigned int i) {
 // T[i] : Constant T, index i
 // NOTE // Attention: In the algo, T[i] is T[1..64] --> Need conversion to T[0..63]
 void processBlock (unsigned int* current_message, unsigned int* T, unsigned int A, unsigned int B, unsigned int C, unsigned int D) {
-    unsigned int i;
     unsigned int AA, BB, CC, DD;
+
+    // Init
+    AA = A;
+    BB = B;
+    CC = C;
+    DD = D;
 
     // Round 1: 16 operations
     A = R1(A,B,C,D,current_message[0], T, 7, 1);
@@ -346,7 +351,7 @@ void processBlock (unsigned int* current_message, unsigned int* T, unsigned int 
 // Input: Array of int (or char...)
 // Output: Array of hexa char as md5 hash
 unsigned char* hashmd5(unsigned char* data_buffer, unsigned int total_size) {
-    //TODO 3
+    //TODO 2
     
 }
 
@@ -416,7 +421,7 @@ void main(int argc, char *argv[]) {
         printf("%4u", data_buffer[i]);
     }
     printf("\n\n");
-    printf("Message in word (int)\n");
+    printf("Message in word (int):\n");
     for (j=0; j<message_len; j++) {
         printf("%u ", message_all_block[j]);
     }
@@ -432,3 +437,7 @@ void main(int argc, char *argv[]) {
     // Main MD5 functions
     hashmd5(data_buffer, total_size);
 }
+
+
+// TODO 2: https://stackoverflow.com/questions/23667497/update-int-variable-in-c-inside-a-function
+// Pass a pointer to change int inside func params
