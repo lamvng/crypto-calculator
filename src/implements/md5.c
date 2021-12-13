@@ -193,19 +193,19 @@ int rotleft(int num, int shift) {
 // X : Message (32 bits) in block (512 bits)
 // T[i] : Constant T, index i (T[i] = T[1..64])
 unsigned int R1(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
-    return a + (rotleft(a + F(b, c, d) + X + T[i-1], s));
+    return b + rotleft(a + F(b, c, d) + X + T[i-1], s);
 }
 
 unsigned int R2(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
-    return a + (rotleft(a + G(b, c, d) + X + T[i-1], s));
+    return b + rotleft(a + G(b, c, d) + X + T[i-1], s);
 }
 
 unsigned int R3(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
-    return a + (rotleft(a + H(b, c, d) + X + T[i-1], s));
+    return b + rotleft(a + H(b, c, d) + X + T[i-1], s);
 }
 
 unsigned int R4(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
-    return a + (rotleft(a + I(b, c, d) + X + T[i-1], s));
+    return b + rotleft(a + I(b, c, d) + X + T[i-1], s);
 }
 
 
@@ -249,10 +249,9 @@ unsigned int* getCurrentBlock(unsigned int* message_all_block, unsigned int i) {
     return current_message;
 }
 
-// TODO 2
+
 // http://herongyang.com/Cryptography/MD5-Message-Digest-Algorithm-Overview.html
 // Process each block of 512 bits = 16 elements of message_all_block
-
 // A B C D: Buffer
 // X : Message (32 bits) in block (512 bits)
 // T[i] : Constant T, index i
@@ -298,40 +297,40 @@ void processBlock (unsigned int* current_message, unsigned int* T, unsigned int 
     B = R2(B,C,D,A,current_message[12], T, 20, 32);
 
     // Round 3: 16 operations
-    A = R3(A,B,C,D,current_message[5], T, 4,33);
-    D = R3(D,A,B,C,current_message[8], T, 11,34);
-    C = R3(C,D,A,B,current_message[11],T, 16,35);
-    B = R3(B,C,D,A,current_message[14], T, 23,36);
-    A = R3(A,B,C,D,current_message[1], T, 4,37);
-    D = R3(D,A,B,C,current_message[4], T, 11,38);
-    C = R3(C,D,A,B,current_message[7], T, 16,39);
-    B = R3(B,C,D,A,current_message[10], T, 23,40);
-    A = R3(A,B,C,D,current_message[13], T, 4,41);
-    D = R3(D,A,B,C,current_message[0], T, 11,42);
-    C = R3(C,D,A,B,current_message[3], T, 16,43);
-    B = R3(B,C,D,A,current_message[6], T, 23,44);
-    A = R3(A,B,C,D,current_message[9], T, 4,45);
-    D = R3(D,A,B,C,current_message[12], T, 11,46);
-    C = R3(C,D,A,B,current_message[15], T, 16,47);
-    B = R3(B,C,D,A,current_message[2], T, 23,48);
+    A = R3(A,B,C,D,current_message[5], T, 4, 33);
+    D = R3(D,A,B,C,current_message[8], T, 11, 34);
+    C = R3(C,D,A,B,current_message[11],T, 16, 35);
+    B = R3(B,C,D,A,current_message[14], T, 23, 36);
+    A = R3(A,B,C,D,current_message[1], T, 4, 37);
+    D = R3(D,A,B,C,current_message[4], T, 11, 38);
+    C = R3(C,D,A,B,current_message[7], T, 16, 39);
+    B = R3(B,C,D,A,current_message[10], T, 23, 40);
+    A = R3(A,B,C,D,current_message[13], T, 4, 41);
+    D = R3(D,A,B,C,current_message[0], T, 11, 42);
+    C = R3(C,D,A,B,current_message[3], T, 16, 43);
+    B = R3(B,C,D,A,current_message[6], T, 23, 44);
+    A = R3(A,B,C,D,current_message[9], T, 4, 45);
+    D = R3(D,A,B,C,current_message[12], T, 11, 46);
+    C = R3(C,D,A,B,current_message[15], T, 16, 47);
+    B = R3(B,C,D,A,current_message[2], T, 23, 48);
 
     // Round 4: 16 operations
-    A = R4(A,B,C,D,current_message[0], T, 6,49);
-    D = R4(D,A,B,C,current_message[7], T, 10,50);
-    C = R4(C,D,A,B,current_message[14], T, 15,51);
-    B = R4(B,C,D,A,current_message[5], T, 21,52);
-    A = R4(A,B,C,D,current_message[12], T, 6,53);
-    D = R4(D,A,B,C,current_message[3], T, 10,54);
-    C = R4(C,D,A,B,current_message[10], T, 15,55);
-    B = R4(B,C,D,A,current_message[1], T, 21,56);
-    A = R4(A,B,C,D,current_message[8], T, 6,57);
-    D = R4(D,A,B,C,current_message[15], T, 10,58);
-    C = R4(C,D,A,B,current_message[6], T, 15,59);
-    B = R4(B,C,D,A,current_message[13], T, 21,60);
-    A = R4(A,B,C,D,current_message[4], T, 6,61);
-    D = R4(D,A,B,C,current_message[11], T, 10,62);
-    C = R4(C,D,A,B,current_message[2], T, 15,63);
-    B = R4(B,C,D,A,current_message[9], T, 21,64);
+    A = R4(A,B,C,D,current_message[0], T, 6, 49);
+    D = R4(D,A,B,C,current_message[7], T, 10, 50);
+    C = R4(C,D,A,B,current_message[14], T, 15, 51);
+    B = R4(B,C,D,A,current_message[5], T, 21, 52);
+    A = R4(A,B,C,D,current_message[12], T, 6, 53);
+    D = R4(D,A,B,C,current_message[3], T, 10, 54);
+    C = R4(C,D,A,B,current_message[10], T, 15, 55);
+    B = R4(B,C,D,A,current_message[1], T, 21, 56);
+    A = R4(A,B,C,D,current_message[8], T, 6, 57);
+    D = R4(D,A,B,C,current_message[15], T, 10, 58);
+    C = R4(C,D,A,B,current_message[6], T, 15, 59);
+    B = R4(B,C,D,A,current_message[13], T, 21, 60);
+    A = R4(A,B,C,D,current_message[4], T, 6, 61);
+    D = R4(D,A,B,C,current_message[11], T, 10, 62);
+    C = R4(C,D,A,B,current_message[2], T, 15, 63);
+    B = R4(B,C,D,A,current_message[9], T, 21, 64);
 
      // Last step:
      A = (A + AA) % __UINT32_MAX__;
@@ -342,13 +341,6 @@ void processBlock (unsigned int* current_message, unsigned int* T, unsigned int 
     // Print test
     printf("A = %X\nB = %X\nC = %X\nD = %X\n", A, B, C, D);
 }
-
-
-// Give output hash 128 bits = 16 bytes
-unsigned char* outputHash () {
-
-}
-
 
 
 // Input: Array of int (or char...)
@@ -413,23 +405,29 @@ void main(int argc, char *argv[]) {
         processBlock(current_message, T, A, B, C, D);
     }
 
+    // md5sum md5_data_test
+    // 23db6982caef9e9152f1a5b2589e6ca3
 
+    // Print test message
+    printf("\n");
+    printf("File size: %u bytes\nPadded size: %u bytes = %u uint32\n", file_size, total_size, message_len);
+    printf("\nMessage bytes:\n");
+    for (i=0; i<total_size; i++) {
+        printf("%4u", data_buffer[i]);
+    }
+    printf("\n\n");
+    printf("Message in word (int)\n");
+    for (j=0; j<message_len; j++) {
+        printf("%u ", message_all_block[j]);
+    }
+    printf("\n");
 
-    // // Print test message
-    // printf("File size: %u bytes\nPadded size: %u bytes = %u uint32\n", file_size, total_size, message_len);
-    // for (i=0; i<total_size; i++) {
-    //     printf("%4u", data_buffer[i]);
-    // }
-    // printf("\n");
-    // for (j=0; j<message_len; j++) {
-    //     printf("%u ", message_all_block[j]);
-    // }
-    // printf("\n");
-
-    // // Print constant
+    // // Print test constant
+    // printf("\nConstant T: \n");
     // for (i=0; i<64; i++) {
     //     printf("%X\n", T[i]);
     // }
+
 
     // Main MD5 functions
     hashmd5(data_buffer, total_size);
