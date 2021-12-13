@@ -15,6 +15,7 @@ char *readFile(char *fileName)
         if (buffer != NULL)
         {
             fread(buffer, stell, 1, fp);
+            buffer[stell] = 0;
             fclose(fp);
             fp = NULL;
         }

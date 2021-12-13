@@ -367,7 +367,7 @@ int encryptFile_RSA(char *fileName, char *keyFileName, int mode)
         int numberBlock = dataSize / blockSize;
         int encDataSize = (blockSize + 1) * numberBlock;
 
-        char cipher[encDataSize+1];
+        char cipher[encDataSize + 1];
         cipher[encDataSize] = '\0';
         for (i = 0; i < dataSize; i++)
         {
@@ -380,6 +380,11 @@ int encryptFile_RSA(char *fileName, char *keyFileName, int mode)
                 convertDecimalToBytes(z_c, subData, blockSize + 1);
                 for (; count > -1; count--)
                 {
+                    if (subData[count] == 127)
+                    {
+                        printf("error---------------\n");
+                    }
+
                     if (subData[count] == 0)
                     {
                         subData[count] = 127;
@@ -444,7 +449,7 @@ int decryptFile_RSA(char *fileName, char *keyFileName, int mode)
         mpz_inits(z_m, z_c, NULL);
         int numberBlock = cipherSize / blockSize;
         int dataSize = (blockSize - 1) * numberBlock;
-        char data[dataSize+1];
+        char data[dataSize + 1];
         data[dataSize] = 0;
         for (i = 0; i < cipherSize; i++)
         {
@@ -461,7 +466,7 @@ int decryptFile_RSA(char *fileName, char *keyFileName, int mode)
                 decrypt_RSA(z_m, z_c, z_d, z_n);
                 convertDecimalToBytes(z_m, subCipher, blockSize - 1);
 
-                for (count-=2; count > -1; count--)
+                for (count -= 2; count > -1; count--)
                 {
                     data[j + count] = subCipher[count];
                 }
@@ -483,31 +488,31 @@ int decryptFile_RSA(char *fileName, char *keyFileName, int mode)
         char str[1000];
 
         // read dp
-        buffer = readFileByLine(keyFileName, 0);
+        buffer = readFileByLine(keyFileName, 1);
         strncpy(str, buffer + 4, 996);
         mpz_set_str(z_dp, str, 0);
         free(buffer);
 
         // read dq
-        buffer = readFileByLine(keyFileName, 1);
+        buffer = readFileByLine(keyFileName, 2);
         strncpy(str, buffer + 4, 996);
         mpz_set_str(z_dq, str, 0);
         free(buffer);
 
         // read Ip
-        buffer = readFileByLine(keyFileName, 2);
+        buffer = readFileByLine(keyFileName, 3);
         strncpy(str, buffer + 4, 996);
         mpz_set_str(z_Ip, str, 0);
         free(buffer);
 
         // read p
-        buffer = readFileByLine(keyFileName, 3);
+        buffer = readFileByLine(keyFileName, 4);
         strncpy(str, buffer + 4, 996);
         mpz_set_str(z_p, str, 0);
         free(buffer);
 
         // read q
-        buffer = readFileByLine(keyFileName, 4);
+        buffer = readFileByLine(keyFileName, 5);
         strncpy(str, buffer + 4, 996);
         mpz_set_str(z_q, str, 0);
         free(buffer);
@@ -528,7 +533,7 @@ int decryptFile_RSA(char *fileName, char *keyFileName, int mode)
         mpz_inits(z_m, z_c, NULL);
         int numberBlock = cipherSize / blockSize;
         int dataSize = (blockSize - 1) * numberBlock;
-        char data[dataSize+1];
+        char data[dataSize + 1];
         data[dataSize] = 0;
         for (i = 0; i < cipherSize; i++)
         {
@@ -544,11 +549,10 @@ int decryptFile_RSA(char *fileName, char *keyFileName, int mode)
                 convertBytesToDecimal(z_c, subCipher, blockSize);
 
                 decrypt_RSA_CRT(z_m, z_c, z_dp, z_dq, z_Ip, z_p, z_q);
-                // TO DO RSA_CRT
 
                 convertDecimalToBytes(z_m, subCipher, blockSize - 1);
 
-                for (count-=2; count > -1; count--)
+                for (count -= 2; count > -1; count--)
                 {
                     data[j + count] = subCipher[count];
                 }
@@ -594,8 +598,6 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
         // read data
         char *data = readFile(fileName);
 
-        // gmp_printf("%Zd, %Zd\n", z_n, z_e);
-
         mpz_get_str(str, 16, z_n);
         int blockSize = strlen(str) / 2 - 1;
 
@@ -619,8 +621,10 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
         int numberBlock = dataSize / blockSize;
         int signSize = (blockSize + 1) * numberBlock;
 
-        char signature[signSize];
+        char signature[signSize + 1];
         signature[signSize] = '\0';
+        // printf("signSize 1: %d\n",signSize);
+
         for (i = 0; i < dataSize; i++)
         {
             subData[count] = paddData[i];
@@ -628,10 +632,17 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
             if (count == blockSize)
             {
                 convertBytesToDecimal(z_m, subData, blockSize);
+
                 sign_RSA(z_m, z_s, z_d, z_n);
+
                 convertDecimalToBytes(z_s, subData, blockSize + 1);
                 for (; count > -1; count--)
                 {
+                    if (subData[count] == 127)
+                    {
+                        printf("error---------------\n");
+                    }
+
                     if (subData[count] == 0)
                     {
                         subData[count] = 127;
@@ -655,40 +666,44 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
         char *buffer;
         char str[1000];
 
-        // read dp
+        // read n
         buffer = readFileByLine(keyFileName, 0);
+        strncpy(str, buffer + 4, 996);
+        mpz_set_str(z_n, str, 0);
+        free(buffer);
+
+        // read dp
+        buffer = readFileByLine(keyFileName, 1);
         strncpy(str, buffer + 4, 996);
         mpz_set_str(z_dp, str, 0);
         free(buffer);
 
         // read dq
-        buffer = readFileByLine(keyFileName, 1);
+        buffer = readFileByLine(keyFileName, 2);
         strncpy(str, buffer + 4, 996);
         mpz_set_str(z_dq, str, 0);
         free(buffer);
 
         // read Ip
-        buffer = readFileByLine(keyFileName, 2);
+        buffer = readFileByLine(keyFileName, 3);
         strncpy(str, buffer + 4, 996);
         mpz_set_str(z_Ip, str, 0);
         free(buffer);
 
         // read p
-        buffer = readFileByLine(keyFileName, 3);
+        buffer = readFileByLine(keyFileName, 4);
         strncpy(str, buffer + 4, 996);
         mpz_set_str(z_p, str, 0);
         free(buffer);
 
         // read q
-        buffer = readFileByLine(keyFileName, 4);
+        buffer = readFileByLine(keyFileName, 5);
         strncpy(str, buffer + 4, 996);
         mpz_set_str(z_q, str, 0);
         free(buffer);
 
         // read data
         char *data = readFile(fileName);
-
-        // gmp_printf("%Zd, %Zd\n", z_n, z_e);
 
         mpz_get_str(str, 16, z_n);
         int blockSize = strlen(str) / 2 - 1;
@@ -713,8 +728,9 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
         int numberBlock = dataSize / blockSize;
         int signSize = (blockSize + 1) * numberBlock;
 
-        char signature[signSize];
+        char signature[signSize + 1];
         signature[signSize] = '\0';
+
         for (i = 0; i < dataSize; i++)
         {
             subData[count] = paddData[i];
@@ -722,13 +738,18 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
             if (count == blockSize)
             {
                 convertBytesToDecimal(z_m, subData, blockSize);
-
-                // sign_RSA(z_m, z_s, z_d, z_n);
-                // TO DO
+                gmp_printf("z_m = %Zd\n", z_m);
+                sign_RSA_CRT(z_m, z_s, z_dp, z_dq, z_Ip, z_p, z_q);
+                gmp_printf("z_s = %Zd\n", z_s);
 
                 convertDecimalToBytes(z_s, subData, blockSize + 1);
                 for (; count > -1; count--)
                 {
+                    if (subData[count] == 127)
+                    {
+                        printf("error---------------\n");
+                    }
+
                     if (subData[count] == 0)
                     {
                         subData[count] = 127;
@@ -752,8 +773,10 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
     return 0;
 }
 
-int verifyFile_RSA(char *fileName, char *keyFileName, int mode)
+int verifyFile_RSA(char *filename, char *signfileName, char *keyFileName, int mode)
 {
+    int verify = -1;
+
     switch (mode)
     {
     case MODE_STANDARD:
@@ -775,21 +798,34 @@ int verifyFile_RSA(char *fileName, char *keyFileName, int mode)
         free(buffer);
 
         // read signature
-        char *signature = readFile(fileName);
+        char *signature = readFile(signfileName);
 
         mpz_get_str(str, 16, z_n);
         int blockSize = strlen(str) / 2;
 
         int signSize = strlen(signature);
-        // printf("%s\n", signature);
 
         char subSign[blockSize];
         int count = 0, j = 0, i;
-        mpz_t z_m, z_c;
-        mpz_inits(z_m, z_c, NULL);
-        int numberBlock = signSize / blockSize;
-        int dataSize = (blockSize - 1) * numberBlock;
-        char data[dataSize];
+        mpz_t z_m, z_s;
+        mpz_inits(z_m, z_s, NULL);
+
+        // read data
+        char *data = readFile(filename);
+
+        int dataSize = strlen(data);
+        int paddSize = (blockSize - 1) - (dataSize % (blockSize - 1));
+        char paddData[dataSize + paddSize + 1];
+
+        strcpy(paddData, data);
+        for (i = paddSize; i > 0; i--)
+        {
+            paddData[dataSize + i - 1] = 0;
+        }
+        dataSize = dataSize + paddSize;
+        paddData[dataSize] = '\0';
+        char subData[blockSize - 1];
+
         for (i = 0; i < signSize; i++)
         {
             if (signature[i] == 127)
@@ -798,32 +834,53 @@ int verifyFile_RSA(char *fileName, char *keyFileName, int mode)
             }
             subSign[count] = signature[i];
 
+            if (count != (blockSize - 1))
+            {
+                subData[count] = paddData[j];
+                j++;
+            }
+
             count++;
             if (count == blockSize)
             {
-                convertBytesToDecimal(z_c, subSign, blockSize);
+                convertBytesToDecimal(z_s, subSign, blockSize);
+                convertBytesToDecimal(z_m, subData, blockSize - 1);
+                gmp_printf("z_s = %Zd\n", z_s);
+                gmp_printf("z_m = %Zd\n", z_m);
 
-                int verify = verify_RSA(z_m, z_c, z_e, z_n);
 
-                // TO DO VERIFY
+                verify = verify_RSA(z_m, z_s, z_e, z_n);
+                if (verify == 0)
+                {
+                    break;
+                }
 
                 count = 0;
             }
         }
 
-        // writeNewFile(NAME_FILE_PLAIN, data);
-
+        if (verify == 1)
+        {
+            printf("Valid\n");
+        }
+        else
+        {
+            printf("Invalid\n");
+        }
         free(signature);
-        mpz_clears(z_n, z_e, z_m, z_c, NULL);
+        free(data);
+        mpz_clears(z_n, z_e, z_m, z_s, NULL);
         break;
     }
     case MODE_CRT:
-        verifyFile_RSA(fileName, keyFileName, MODE_STANDARD);
+    {
+        verifyFile_RSA(filename, signfileName, keyFileName, MODE_STANDARD);
         break;
+    }
     default:
         return -1;
     }
-    return 0;
+    return verify;
 }
 
 int generateFileKey_RSA()
@@ -866,7 +923,7 @@ int generateFileKey_RSA_CRT()
     mpz_set_d(z_e, 11);
 
     // TO DO
-    generateKey_RSA_CRT(z_n, z_e, z_p, z_q, z_dp, z_dq , z_Ip);
+    generateKey_RSA_CRT(z_n, z_e, z_p, z_q, z_dp, z_dq, z_Ip);
 
     // Save to file
     char key[1000];
@@ -875,6 +932,7 @@ int generateFileKey_RSA_CRT()
     strcat(str, key);
     strcat(str, "\n");
     writeNewFile(NAME_FILE_PK_RSA, str);
+    writeNewFile(NAME_FILE_SK_RSA, str);
 
     strcpy(str, "e = 0x");
     mpz_get_str(key, 16, z_e);
@@ -885,7 +943,7 @@ int generateFileKey_RSA_CRT()
     mpz_get_str(key, 16, z_dp);
     strcat(str, key);
     strcat(str, "\n");
-    writeNewFile(NAME_FILE_SK_RSA, str);
+    writeFileByLine(NAME_FILE_SK_RSA, str);
 
     strcpy(str, "dq= 0x");
     mpz_get_str(key, 16, z_dq);
@@ -913,7 +971,8 @@ int generateFileKey_RSA_CRT()
     mpz_clears(z_n, z_e, z_dp, z_dq, z_p, z_q, z_Ip, NULL);
 }
 
-int generateFileKey_DES(){
+int generateFileKey_DES()
+{
     mpz_inits(z_keyDES, NULL);
 
     // get key for DES z_keyDES

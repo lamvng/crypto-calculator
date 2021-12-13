@@ -26,7 +26,7 @@ int encryptFile_RSA(char* fileName, char* keyFileName, int mode);
 int decryptFile_RSA(char* fileName, char* keyFileName, int mode);
 
 int signFile_RSA(char* fileName, char* keyFileName, int mode);
-int verifyFile_RSA(char* fileName, char* keyFileName, int mode);
+int verifyFile_RSA(char *filename, char *signfileName, char* keyFileName, int mode);
 
 int generateFileKey_RSA();
 int generateFileKey_RSA_CRT();
