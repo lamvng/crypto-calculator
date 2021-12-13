@@ -1,4 +1,4 @@
-#include "gmp.h"
+
 
 // // Bit manipulation on array
 // // http://www.mathcs.emory.edu/~cheung/Courses/255/Syllabus/1-C-intro/bit-array.html
