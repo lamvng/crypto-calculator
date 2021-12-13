@@ -157,24 +157,24 @@ unsigned int* convertUint (unsigned char* data_buffer, unsigned int total_size, 
 
 // 4 functions F G H I to manipulate the buffer
 
-// F (B, C, D) = (B & C) | (~B & D)
-unsigned int F (unsigned int B, unsigned int C, unsigned int D) {
-    return ((B & C) | (~B & D));
+// F (X, Y, Z) = (X & Y) | (~X & Z)
+unsigned int F (unsigned int X, unsigned int Y, unsigned int Z) {
+    return ((X & Y) | (~X & Z));
 }
 
-// G (B, C, D) = (B & D) | (C & ~D)
-unsigned int G (unsigned int B, unsigned int C, unsigned int D) {
-    return ((B & D) | (C & ~D));
+// G (X, Y, Z) = (X & Z) | (Y & ~Z)
+unsigned int G (unsigned int X, unsigned int Y, unsigned int Z) {
+    return ((X & Z) | (Y & ~Z));
 }
 
-// H (B, C, D) = B XOR C XOR D
-unsigned int H (unsigned int B, unsigned int C, unsigned int D) {
-    return (B ^ C ^ D);
+// H (X, Y, Z) = X XOR Y XOR Z
+unsigned int H (unsigned int X, unsigned int Y, unsigned int Z) {
+    return (X ^ Y ^ Z);
 }
 
-// I (B, C, D) = C XOR (B | ~D)
-unsigned int I (unsigned int B, unsigned int C, unsigned int D) {
-    return (C ^ (B | ~D));
+// I (X, Y, Z) = Y XOR (X | ~Z)
+unsigned int I (unsigned int X, unsigned int Y, unsigned int Z) {
+    return (Y ^ (X | ~Z));
 }
 
 
@@ -186,15 +186,28 @@ int rotleft(int num, int shift) {
 
 
 
-// 4 Rounds
-// TODO
-// (Divide the current block into 16 words) --> No need to, message already has 16 elements of uint32
-
-// Round 1
-// return A
-unsigned int round1(unsigned int A, unsigned int B, unsigned int C, unsigned int D) {
-    
+// 4 Rounds function
+// Divide the current block into 16 words --> No need to, message already has 16 elements of uint32
+// return a
+// a b c d: Buffer
+// X : Message (32 bits) in block (512 bits)
+// T[i] : Constant T, index i (T[i] = T[1..64])
+unsigned int R1(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
+    return a + (rotleft(a + F(b, c, d) + X + T[i-1], s));
 }
+
+unsigned int R2(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
+    return a + (rotleft(a + G(b, c, d) + X + T[i-1], s));
+}
+
+unsigned int R3(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
+    return a + (rotleft(a + H(b, c, d) + X + T[i-1], s));
+}
+
+unsigned int R4(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
+    return a + (rotleft(a + I(b, c, d) + X + T[i-1], s));
+}
+
 
 // Load constant T (pre-calculated) from file
 // T[1, 2, ..., 64]
@@ -227,11 +240,107 @@ unsigned int* getT(char* constant_t_file) {
 }
       
 
+// Get the current message block
+unsigned int* getCurrentBlock(unsigned int* message_all_block, unsigned int i) {
+    unsigned int* current_message = (unsigned int*) malloc(BLOCK_SIZE_INT * sizeof(unsigned int));
+    for (int j=0; j<BLOCK_SIZE_INT; j++) {
+        current_message[j] = message_all_block[i];
+    }
+    return current_message;
+}
 
-// TODO
+// TODO 2
+// http://herongyang.com/Cryptography/MD5-Message-Digest-Algorithm-Overview.html
 // Process each block of 512 bits = 16 elements of message_all_block
-void processBlock (unsigned int* message, unsigned int first_elem, unsigned int* T, unsigned int A, unsigned int B, unsigned int C, unsigned int D) {
 
+// A B C D: Buffer
+// X : Message (32 bits) in block (512 bits)
+// T[i] : Constant T, index i
+// NOTE // Attention: In the algo, T[i] is T[1..64] --> Need conversion to T[0..63]
+void processBlock (unsigned int* current_message, unsigned int* T, unsigned int A, unsigned int B, unsigned int C, unsigned int D) {
+    unsigned int i;
+    unsigned int AA, BB, CC, DD;
+
+    // Round 1: 16 operations
+    A = R1(A,B,C,D,current_message[0], T, 7, 1);
+    D = R1(D,A,B,C,current_message[1],T, 12, 2);
+    C = R1(C,D,A,B,current_message[2],T, 17, 3);
+    B = R1(B,C,D,A,current_message[3],T, 22, 4);
+    A = R1(A,B,C,D,current_message[4], T, 7, 5);
+    D = R1(D,A,B,C,current_message[5],T, 12, 6);
+    C = R1(C,D,A,B,current_message[6],T, 17, 7);
+    B = R1(B,C,D,A,current_message[7],T, 22, 8);
+    A = R1(A,B,C,D,current_message[8], T, 7, 9);
+    D = R1(D,A,B,C,current_message[9], T, 12, 10);
+    C = R1(C,D,A,B,current_message[10], T, 17, 11);
+    B = R1(B,C,D,A,current_message[11], T, 22, 12);
+    A = R1(A,B,C,D,current_message[12], T, 7, 13);
+    D = R1(D,A,B,C,current_message[13], T, 12, 14);
+    C = R1(C,D,A,B,current_message[14], T, 17, 15);
+    B = R1(B,C,D,A,current_message[15], T, 22, 16);
+
+     // Round 2: 16 operations
+    A = R2(A,B,C,D,current_message[1], T, 5, 17);
+    D = R2(D,A,B,C,current_message[6], T, 9, 18);
+    C = R2(C,D,A,B,current_message[11], T, 14, 19);
+    B = R2(B,C,D,A,current_message[0], T, 20, 20);
+    A = R2(A,B,C,D,current_message[5], T, 5, 21);
+    D = R2(D,A,B,C,current_message[10], T, 9, 22);
+    C = R2(C,D,A,B,current_message[15], T, 14, 23);
+    B = R2(B,C,D,A,current_message[4], T, 20, 24);
+    A = R2(A,B,C,D,current_message[9], T, 5, 25);
+    D = R2(D,A,B,C,current_message[14], T, 9, 26);
+    C = R2(C,D,A,B,current_message[3], T, 14, 27);
+    B = R2(B,C,D,A,current_message[8], T, 20, 28);
+    A = R2(A,B,C,D,current_message[13], T, 5, 29);
+    D = R2(D,A,B,C,current_message[2], T, 9, 30);
+    C = R2(C,D,A,B,current_message[7], T, 14, 31);
+    B = R2(B,C,D,A,current_message[12], T, 20, 32);
+
+    // Round 3: 16 operations
+    A = R3(A,B,C,D,current_message[5], T, 4,33);
+    D = R3(D,A,B,C,current_message[8], T, 11,34);
+    C = R3(C,D,A,B,current_message[11],T, 16,35);
+    B = R3(B,C,D,A,current_message[14], T, 23,36);
+    A = R3(A,B,C,D,current_message[1], T, 4,37);
+    D = R3(D,A,B,C,current_message[4], T, 11,38);
+    C = R3(C,D,A,B,current_message[7], T, 16,39);
+    B = R3(B,C,D,A,current_message[10], T, 23,40);
+    A = R3(A,B,C,D,current_message[13], T, 4,41);
+    D = R3(D,A,B,C,current_message[0], T, 11,42);
+    C = R3(C,D,A,B,current_message[3], T, 16,43);
+    B = R3(B,C,D,A,current_message[6], T, 23,44);
+    A = R3(A,B,C,D,current_message[9], T, 4,45);
+    D = R3(D,A,B,C,current_message[12], T, 11,46);
+    C = R3(C,D,A,B,current_message[15], T, 16,47);
+    B = R3(B,C,D,A,current_message[2], T, 23,48);
+
+    // Round 4: 16 operations
+    A = R4(A,B,C,D,current_message[0], T, 6,49);
+    D = R4(D,A,B,C,current_message[7], T, 10,50);
+    C = R4(C,D,A,B,current_message[14], T, 15,51);
+    B = R4(B,C,D,A,current_message[5], T, 21,52);
+    A = R4(A,B,C,D,current_message[12], T, 6,53);
+    D = R4(D,A,B,C,current_message[3], T, 10,54);
+    C = R4(C,D,A,B,current_message[10], T, 15,55);
+    B = R4(B,C,D,A,current_message[1], T, 21,56);
+    A = R4(A,B,C,D,current_message[8], T, 6,57);
+    D = R4(D,A,B,C,current_message[15], T, 10,58);
+    C = R4(C,D,A,B,current_message[6], T, 15,59);
+    B = R4(B,C,D,A,current_message[13], T, 21,60);
+    A = R4(A,B,C,D,current_message[4], T, 6,61);
+    D = R4(D,A,B,C,current_message[11], T, 10,62);
+    C = R4(C,D,A,B,current_message[2], T, 15,63);
+    B = R4(B,C,D,A,current_message[9], T, 21,64);
+
+     // Last step:
+     A = (A + AA) % __UINT32_MAX__;
+     B = (B + BB) % __UINT32_MAX__;
+     C = (C + CC) % __UINT32_MAX__;
+     D = (D + DD) % __UINT32_MAX__;
+
+    // Print test
+    printf("A = %X\nB = %X\nC = %X\nD = %X\n", A, B, C, D);
 }
 
 
@@ -242,17 +351,17 @@ unsigned char* outputHash () {
 
 
 
-// Input: Array of int (0 or 1)
+// Input: Array of int (or char...)
 // Output: Array of hexa char as md5 hash
 unsigned char* hashmd5(unsigned char* data_buffer, unsigned int total_size) {
-    //TODO: Split data_buffer into block, each block is splitted into messages
+    //TODO 3
     
 }
 
 
 void main(int argc, char *argv[]) {
     unsigned char *file_buffer, *data_buffer;
-    unsigned int *message_all_block, *T;
+    unsigned int *message_all_block, *current_message, *T;
 
     char input_file[] = "md5_data_test";
     char constant_t_file[] = "constant_t.txt";
@@ -297,7 +406,11 @@ void main(int argc, char *argv[]) {
     // Output: concat(A, B, C, D)
     for (i=0; i<message_len; i+=BLOCK_SIZE_INT) {
 
-        processBlock(message_all_block, i, T, A, B, C, D);
+        // Get the current block
+        current_message = getCurrentBlock(message_all_block, i);
+
+        // Process the current block
+        processBlock(current_message, T, A, B, C, D);
     }
 
 
