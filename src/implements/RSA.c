@@ -174,32 +174,9 @@ int sign_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
 }
 
 int sign_RSA_CRT(mpz_t m, mpz_t c, mpz_t dp, mpz_t dq, mpz_t Ip, mpz_t p, mpz_t q){
-  mpz_t sp, sq, t, u, tu, tu_mod,tu_q, c_temp;
-  mpz_inits(sp,sq,t,u,tu, tu_mod, tu_q, c_temp,NULL);
+    decrypt_RSA_CRT(c,m,dp,dq,Ip,p,q);
 
-  // u = q^-1 mod p
-  mpz_invert(u,q,p);
 
-  //Part : sp = m^dp mod p
-  mpz_powm(sp, m, dp, p);
-
-  //Part : sq = m^dq mod q
-  mpz_powm(sq, m, dp, q);
-
-  //Part t = sp - sq
-  mpz_sub(t, sp, sq);
-
-  if (mpz_sgn(t) == -1) { // -1 if op < 0
-    mpz_add(t,t,p);
-  }
-
-  //Part S = sq + ((t*u)mod p)*q
-  mpz_mul(tu, t, u);// t*u
-  mpz_mod(tu_mod,tu,p);// (t*u) mod p
-  mpz_mul(tu_q,tu_mod,q); // ((t*u)mod p)*q
-  mpz_add(c_temp, sq, tu_q);// S = sq + ((t*u)mod p)*q
-
-  mpz_clears(sp, sq, t, u, tu, tu_mod,tu_q, c_temp,NULL);
 
 }
 
