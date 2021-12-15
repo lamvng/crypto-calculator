@@ -7,6 +7,12 @@
 // #define clearBit(A,k)   ( A[(k/8)] &= ~(1 << (k%8)) )
 // #define testBit(A,k)    ( A[(k/8)] & (1 << (k%8)) )
 
-
+// Read input file
+// Output: Array unsigned char*
 unsigned char* readBinary(char* filename);
-unsigned char* hashmd5(unsigned char* data_buffer, unsigned int total_size);
+
+
+
+// Input: Array unsigned char* of input
+// Output: unsigned int* of 128 bits - output hash
+unsigned int* hashmd5(unsigned char* data_buffer);
