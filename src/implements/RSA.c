@@ -16,10 +16,11 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
   int t = time(NULL);
   gmp_randseed_ui(generator,t);
 
-  mpz_set_ui(p, 4); //init value (temporary)
-  mpz_set_ui(q, 4); //init value (temporary)
+  while((mpz_sizeinbase(n,2)!=length_RSA) || (mpz_cmp(q,p)==0)) {
+    // Part : Generate at random a k/2-bit prime p such that gcd(e,p-1) = 1 (512 bits)
+    mpz_set_ui(p, 4); //init value (temporary)
+    mpz_set_ui(q, 4); //init value (temporary)
 
-  do{
     // Part : Generate at random a k/2-bit prime p such that gcd(e,p-1) = 1 (512 bits)
     while((mpz_probab_prime_p(p,100) == 0) || (mpz_cmp_ui(for_gcd,1) !=0 )){
       mpz_urandomb(p, generator, length2-1);
@@ -44,17 +45,16 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
     //Part : phi(n) = (p-1)(q-1)
     mpz_mul(phi_n, p_1, q_1);
 
-  }while((mpz_sizeinbase(n,2)!=length_RSA) && (mpz_sizeinbase(phi_n,2) != length_RSA ) && (mpz_cmp(p,q) == 0)); //check that p and q are different
-
+  }
   //Part : d = e⁻1 mod phi(n)
   mpz_invert(d, e, phi_n);
 
-  // printf(" === RSA STANDARD KEY GENERATION ===\n" );
-  // gmp_printf("q = %Zd and size q = %d \n", q, mpz_sizeinbase(q,2));
-  // gmp_printf("p = %Zd and size p = %d \n", p, mpz_sizeinbase(p,2));
-  // gmp_printf("n = %Zd and size n = %d\n", n, mpz_sizeinbase(n,2));
-  // gmp_printf("phi_n = %Zd and size = %d\n", phi_n, mpz_sizeinbase(phi_n,2));
-  // gmp_printf("d = %Zd \n", d);
+  printf(" === RSA STANDARD KEY GENERATION ===\n" );
+  gmp_printf("q = %Zd and size q = %d \n", q, mpz_sizeinbase(q,2));
+  gmp_printf("p = %Zd and size p = %d \n", p, mpz_sizeinbase(p,2));
+  gmp_printf("n = %Zd and size n = %d\n", n, mpz_sizeinbase(n,2));
+  gmp_printf("phi_n = %Zd and size = %d\n", phi_n, mpz_sizeinbase(phi_n,2));
+  gmp_printf("d = %Zd \n", d);
 
   mpz_clears(p,q,temp,for_gcd,p_1,q_1,phi_n,NULL);
 
@@ -236,7 +236,7 @@ int verify_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
 }
 
 int main(){
-  /* PART 1 
+  /* PART 1*/
   mpz_t e, n, d;
   mpz_inits(e,n,d,NULL);
 
@@ -244,7 +244,7 @@ int main(){
   mpz_set_ui(d,1);
   mpz_set_ui(n,1);
 
-  generateKey_RSA(e,d,n);*/
+  generateKey_RSA(e,d,n);
 
   /* PART 2
   mpz_t m1, c1, e, n1;
