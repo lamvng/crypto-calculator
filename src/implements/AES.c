@@ -1,4 +1,4 @@
-#include "../libs/RSA.h"
+#include "../libs/AES.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -262,8 +262,8 @@ char *encrypt_AES(char *plainText, char *keyAES, unsigned char *cipherText)
     return cipherText;
 }
 
-// Input: a 64-bit STRING of data, and 48-bit STRING of key
-// Output: 64-bit string of decrypted data
+// Input: a 128-bit STRING of data, and 128-bit STRING of key
+// Output: 128-bit string of decrypted data
 char *decrypt_AES(unsigned char *cipherText, char *keyAES, char *plainText)
 {
     int i, j;
