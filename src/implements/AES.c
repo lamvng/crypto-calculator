@@ -173,7 +173,7 @@ void generateKey_AES(char *key)
     gmp_randseed_ui(generator,t);
 
     random_exact_k_bit(z_genkey, 128, generator);
-    
+    gmp_randclear(generator);
     char str[1000];
     mpz_get_str(str, 16, z_genkey);
     strcat(key, str);
