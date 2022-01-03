@@ -22,6 +22,7 @@ def frame_files(fInfos):
     button_text_file = Button(label_files,text = "Select Text File",command = browseFiles)
     button_text_file.grid(row=0,column=1)
 
+
     # button_key_file = Button(label_files,text = "Select Key File",command = browseFiles)
     # button_key_file.grid(row=1,column=1)
 
@@ -83,6 +84,34 @@ def popup_DES():
 
     Button(fInfos, text='Quit',fg="red", command=fInfos.destroy).pack(side=BOTTOM,ipady=10,padx=10, pady=5)
 
+def popup_AES():
+    fInfos = Toplevel()
+    fInfos.title('Cryptographic Calculator - AES')
+    fInfos.geometry('400x400')
+
+    frame_files(fInfos)
+
+    labelframe = LabelFrame(fInfos, text="Select mode")
+    labelframe.pack(fill="both",ipady=10,padx=5, pady=5)
+    # Frame mode
+    choice_cbc = Radiobutton(labelframe, text="CBC", value = "cbc").pack(side=LEFT)
+    choice_ecb = Radiobutton(labelframe, text = "ECB", value = "ecb").pack(side=LEFT)
+
+    #Frame button calcul
+    label_calcul = LabelFrame(fInfos, text="Select an operation")
+    label_calcul.pack(fill="both",ipady=10,padx=5, pady=5)
+    choice_encryption = Button(label_calcul, text="Encryption" ).pack(side=LEFT,padx=5) #add command
+    choice_decryption = Button(label_calcul, text = "Decryption").pack(side=LEFT,padx=5) #add command
+
+    # Frame bouton generation key
+    label_gen = LabelFrame(fInfos, text="Generate key")
+    label_gen.pack(fill="both",ipady=10,padx=5,pady=5 )
+    choice_gen = Button(label_gen, text="Generate Key" ).pack(side=LEFT,padx=5)
+
+
+
+    Button(fInfos, text='Quit',fg="red", command=fInfos.destroy).pack(side=BOTTOM,ipady=10,padx=10, pady=5)
+
 
 
 
@@ -116,13 +145,16 @@ fenetre.geometry('400x300')
 
 bouton_rsa=Button(fenetre, text="RSA", command=popup_RSA)
 bouton_rsa.pack(fill=X, ipady=10, padx=10,pady=5)
-bouton_rsa=Button(fenetre, text="DES", command=popup_DES)
-bouton_rsa.pack(fill=X, ipady=10, padx=10,pady=5)
-bouton_rsa=Button(fenetre, text="HASH", command=popup_HASH)
-bouton_rsa.pack(fill=X, ipady=10, padx=10,pady=5)
+bouton_des=Button(fenetre, text="DES", command=popup_DES)
+bouton_des.pack(fill=X, ipady=10, padx=10,pady=5)
+bouton_aes=Button(fenetre, text="AES", command=popup_AES)
+bouton_aes.pack(fill=X, ipady=10, padx=10,pady=5)
+bouton_hash=Button(fenetre, text="HASH", command=popup_HASH)
+bouton_hash.pack(fill=X, ipady=10, padx=10,pady=5)
 
-bouton_rsa=Button(fenetre, text="Quit", fg="red",command=fenetre.quit)
-bouton_rsa.pack(side=BOTTOM,ipady=10, padx=10,pady=5)
+
+bouton_quit=Button(fenetre, text="Quit", fg="red",command=fenetre.quit)
+bouton_quit.pack(side=BOTTOM,ipady=10, padx=10,pady=5)
 
 
 
