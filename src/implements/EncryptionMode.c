@@ -1146,7 +1146,7 @@ int verifyFile_RSA(char *fileName, char *signfileName, char *keyFileName, int mo
     }
     case MODE_CRT:
     {
-        verifyFile_RSA(fileName, signfileName, keyFileName, MODE_STANDARD);
+        verify = verifyFile_RSA(fileName, signfileName, keyFileName, MODE_STANDARD);
         break;
     }
     default:
