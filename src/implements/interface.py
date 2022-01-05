@@ -27,10 +27,10 @@ gl_keyfile = ''
 
 
 # Function for opening the file explorer window
-def browseFiles(textfile):
+def browseFiles(fInfos, textfile):
     global gl_filename
 
-    filename = tkFileDialog.askopenfilename(initialdir=os.getcwd(), title="Select a File",
+    filename = tkFileDialog.askopenfilename(parent=fInfos, initialdir=os.getcwd(), title="Select a File",
                                             filetypes=(("Text files", "*.txt*"), ("all files", "*.*")))
     gl_filename = filename
     if len(filename) > 50:
@@ -40,9 +40,9 @@ def browseFiles(textfile):
     print(filename)
 
 
-def browseKeyFiles(keyfile):
+def browseKeyFiles(fInfos, keyfile):
     global gl_keyfile
-    filename = tkFileDialog.askopenfilename(initialdir=os.getcwd(), title="Select a Key",
+    filename = tkFileDialog.askopenfilename(parent=fInfos, initialdir=os.getcwd(), title="Select a Key",
                                             filetypes=(("Text files", "*.txt*"), ("all files", "*.*")))
     gl_keyfile = filename
 
@@ -60,12 +60,12 @@ def frame_files(fInfos):
     label_files = LabelFrame(fInfos, text="Select files")
     label_files.pack(fill="both", ipady=10, padx=5, pady=5)
 
-    button_text_file = Button(label_files, text="Select Text File", command=partial(browseFiles, textfile))
+    button_text_file = Button(label_files, text="Select Text File", command=partial(browseFiles, fInfos, textfile))
     button_text_file.grid(row=0, column=1)
     file_name_label = Label(label_files, textvariable=textfile, background="white",width=40, anchor="w")
     file_name_label.grid(sticky=W, row=0, column=2)
 
-    button_key_file = Button(label_files, text="Select Key File", command=partial(browseKeyFiles, keyfile))
+    button_key_file = Button(label_files, text="Select Key File", command=partial(browseKeyFiles, fInfos, keyfile))
     button_key_file.grid(row=1, column=1)
     file_name_label = Label(label_files, textvariable=keyfile, background="white",width=40, anchor="w")
     file_name_label.grid(sticky=W, row=1, column=2)
