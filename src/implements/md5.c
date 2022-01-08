@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <math.h>
+#include <stdint.h>
 
 
 #define BLOCK_SIZE_BYTE 64 // Block size for hashing = 512 bits = 64 bytes
@@ -11,9 +12,23 @@
 #define BLOCK_SIZE_INT (BLOCK_SIZE_BYTE / 4)
 #define NUM_BITS_IN_INT (sizeof(int) * 8)
 
+// #define F(X, Y, Z) ((X & Y) | (~X & Z))
+// #define G(X, Y, Z) ((X & Z) | (Y & ~Z))
+// #define H(X, Y, Z) (X ^ Y ^ Z)
+// #define I(X, Y, Z) (Y ^ (X | ~Z))
+
+
+
+// Website to check for padding
+// https://fthb321.github.io/MD5-Hash/MD5OurVersion2.html
+
+
+
+
+
 // Assign value to a bit position k in an array
 // http://www.mathcs.emory.edu/%7Echeung/Courses/255/Syllabus/1-C-intro/bit-array.html
-void toggleBit(unsigned char* array, unsigned int value, long unsigned int k) {
+void toggleBit(unsigned char* array, uint32_t value, unsigned int k) {
     unsigned int i = k / 8; // char array index array[i]
     unsigned int pos = k % 8; // bit position in array[i] // Count from LSB, not MSB
     unsigned int flag = 1;
@@ -46,7 +61,7 @@ unsigned int findSize(const char* file_name)
 
 // Return the n-th byte of an integer (byte 0 counts as the LSB)
 // long int = 64 bits --> Shift 7 bytes maximum, shift 8 bytes will return the first byte
-unsigned int getByte(long unsigned int number, unsigned no_byte) {
+unsigned int getByte(uint64_t number, unsigned int no_byte) {
     return (number >> (no_byte * 8)) & 0xFF;    // Mask and return the required byte
 }
 
@@ -65,7 +80,7 @@ unsigned char* readBinary(char* input_file) {
 
     // Allocate buffer
     unsigned char* file_buffer = (unsigned char*) malloc(file_size * sizeof(unsigned char));
-    // BUG: Buffer do not allocate file_size elements
+
 
     // Read file
     FILE *ptr;
@@ -80,7 +95,6 @@ unsigned char* readBinary(char* input_file) {
 // Calculate total data size after padding (in bytes)
 unsigned int getDataSize(unsigned char* file_buffer, unsigned int file_size) {
     unsigned int file_size_padding, num_block, size_last_block, total_size;
-    long unsigned int file_size_padding_bit; // 64 bits
 
     // Determine the number of necessary blocks
     num_block = (unsigned int) ceil ((double)file_size / BLOCK_SIZE_BYTE);
@@ -103,7 +117,7 @@ unsigned char* padding(unsigned char* file_buffer, unsigned int file_size, unsig
 
     unsigned int i;
     unsigned int file_size_padding;
-    long unsigned int file_size_padding_bit;
+    uint64_t file_size_padding_bit;
 
     // Pad data_buffer
 
@@ -143,12 +157,12 @@ unsigned char* padding(unsigned char* file_buffer, unsigned int file_size, unsig
 
 // Convert char* data_buffer array to int* buffer array after padding
 // For later calculation on int
-unsigned int* convertUint (unsigned char* data_buffer, unsigned int total_size, unsigned int message_len) {
-    unsigned int* message_all_block = (unsigned int*) malloc(message_len * sizeof(unsigned int));
+uint32_t* convertUint (unsigned char* data_buffer, unsigned int total_size, unsigned int message_len) {
+    uint32_t* message_all_block = (uint32_t*) malloc(message_len * sizeof(uint32_t));
     int i,j;
     for (i=0; i<total_size; i+=4){
         // Left shift to append hex value
-        message_all_block[j] = ((unsigned int)data_buffer[i] << 24) | ((unsigned int)data_buffer[i+1] << 16) | ((unsigned int)data_buffer[i+2] << 8) | ((unsigned int)data_buffer[i+3]);
+        message_all_block[j] = ((uint32_t)data_buffer[i] << 24) | ((uint32_t)data_buffer[i+1] << 16) | ((uint32_t)data_buffer[i+2] << 8) | ((uint32_t)data_buffer[i+3]);
         j++;
     }
     return message_all_block;
@@ -157,33 +171,42 @@ unsigned int* convertUint (unsigned char* data_buffer, unsigned int total_size, 
 
 // 4 functions F G H I to manipulate the buffer
 
+// Test Ok
 // F (X, Y, Z) = (X & Y) | (~X & Z)
-unsigned int F (unsigned int X, unsigned int Y, unsigned int Z) {
+uint32_t F (uint32_t X, uint32_t Y, uint32_t Z) {
     return ((X & Y) | (~X & Z));
 }
 
 // G (X, Y, Z) = (X & Z) | (Y & ~Z)
-unsigned int G (unsigned int X, unsigned int Y, unsigned int Z) {
+uint32_t G (uint32_t X, uint32_t Y, uint32_t Z) {
     return ((X & Z) | (Y & ~Z));
 }
 
 // H (X, Y, Z) = X XOR Y XOR Z
-unsigned int H (unsigned int X, unsigned int Y, unsigned int Z) {
+uint32_t H (uint32_t X, uint32_t Y, uint32_t Z) {
     return (X ^ Y ^ Z);
 }
 
 // I (X, Y, Z) = Y XOR (X | ~Z)
-unsigned int I (unsigned int X, unsigned int Y, unsigned int Z) {
+uint32_t I (uint32_t X, uint32_t Y, uint32_t Z) {
     return (Y ^ (X | ~Z));
 }
 
 
-// Circular left shift in UNSIGNED INT variable
+// Circular left shift in uint32_t variable
 // https://stackoverflow.com/questions/7162454/circular-shifting-in-c
-int rotleft(int num, int shift) {
+uint32_t rotleft(uint32_t num, uint32_t shift) {
     return (num << shift) | (num >> (NUM_BITS_IN_INT - shift));
 }
 
+
+// Save buffer
+void *saveBuffer(uint32_t* buffer, uint32_t A, uint32_t B, uint32_t C, uint32_t D) {
+    buffer[0] = A;
+    buffer[1] = B;
+    buffer[2] = C;
+    buffer[3] = D;
+}
 
 
 // 4 Rounds function
@@ -192,35 +215,40 @@ int rotleft(int num, int shift) {
 // a b c d: Buffer
 // X : Message (32 bits) in block (512 bits)
 // T[i] : Constant T, index i (T[i] = T[1..64])
-unsigned int R1(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
-    return b + rotleft(a + F(b, c, d) + X + T[i-1], s);
+
+// a = b + ((a + F(b,c,d) + X + T[i]) <<< s)
+uint32_t R1(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t X, uint32_t* T, unsigned int s, unsigned int i) {
+    return b + rotleft((a + F(b, c, d) + X + T[i-1]) & __UINT32_MAX__, s);
 }
 
-unsigned int R2(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
-    return b + rotleft(a + G(b, c, d) + X + T[i-1], s);
+// a = b + ((a + G(b,c,d) + X + T[i]) <<< s)
+uint32_t R2(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t X, uint32_t* T, unsigned int s, unsigned int i) {
+    return b + rotleft((a + G(b, c, d) + X + T[i-1]) & __UINT32_MAX__, s);
 }
 
-unsigned int R3(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
-    return b + rotleft(a + H(b, c, d) + X + T[i-1], s);
+// a = b + ((a + H(b,c,d) + X + T[i]) <<< s)
+uint32_t R3(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t X, uint32_t* T, unsigned int s, unsigned int i) {
+    return b + rotleft((a + H(b, c, d) + X + T[i-1]) & __UINT32_MAX__, s);
 }
 
-unsigned int R4(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int X, unsigned int* T, unsigned int s, unsigned int i) {
-    return b + rotleft(a + I(b, c, d) + X + T[i-1], s);
+// a = b + ((a + I(b,c,d) + X + T[i]) <<< s)
+uint32_t R4(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t X, uint32_t* T, unsigned int s, unsigned int i) {
+    return b + rotleft((a + I(b, c, d) + X + T[i-1]) & __UINT32_MAX__, s);
 }
 
 
 // Load constant T (pre-calculated) from file
 // T[1, 2, ..., 64]
 // T[i] = int(abs(sin(i)) * 2**32)
-unsigned int* getT(char* constant_t_file) {
+uint32_t* getT(char* constant_t_file) {
     // Read file
     FILE *ptr;
     char* line = NULL;
     size_t len_line = 0;
     ssize_t read_line;
-    unsigned int *T;
+    uint32_t *T;
     int i = 0;
-    T = (unsigned int*) malloc(64 * sizeof(unsigned int));
+    T = (uint32_t*) malloc(64 * sizeof(uint32_t));
 
     ptr = fopen(constant_t_file, "r");
     if(ptr == NULL) {
@@ -238,13 +266,14 @@ unsigned int* getT(char* constant_t_file) {
     fclose(ptr);
     return T;
 }
-      
+
 
 // Get the current message block
-unsigned int* getCurrentBlock(unsigned int* message_all_block, unsigned int i) {
-    unsigned int* current_message = (unsigned int*) malloc(BLOCK_SIZE_INT * sizeof(unsigned int));
+uint32_t* getCurrentBlock(uint32_t* message_all_block, unsigned int i) {
+    uint32_t* current_message = (uint32_t*) malloc(BLOCK_SIZE_INT * sizeof(uint32_t));
     for (int j=0; j<BLOCK_SIZE_INT; j++) {
         current_message[j] = message_all_block[i];
+        i++;
     }
     return current_message;
 }
@@ -256,16 +285,25 @@ unsigned int* getCurrentBlock(unsigned int* message_all_block, unsigned int i) {
 // X : Message (32 bits) in block (512 bits)
 // T[i] : Constant T, index i
 // NOTE // Attention: In the algo, T[i] is T[1..64] --> Need conversion to T[0..63]
-void processBlock (unsigned int* current_message, unsigned int* T, unsigned int A, unsigned int B, unsigned int C, unsigned int D) {
-    unsigned int AA, BB, CC, DD;
+void processBlock (uint32_t* current_message, uint32_t* T, uint32_t* buffer) {
+    uint32_t A, B, C, D, AA, BB, CC, DD;
 
     // Init
+    A = buffer[0];
+    B = buffer[1];
+    C = buffer[2];
+    D = buffer[3];
+
     AA = A;
     BB = B;
     CC = C;
     DD = D;
 
+
+    // Test if return is good
     // Round 1: 16 operations
+    // IN PROGRESS: DEBUGGING ROUND 1
+    // BUG: First operation wrong
     A = R1(A,B,C,D,current_message[0], T, 7, 1);
     D = R1(D,A,B,C,current_message[1],T, 12, 2);
     C = R1(C,D,A,B,current_message[2],T, 17, 3);
@@ -283,7 +321,17 @@ void processBlock (unsigned int* current_message, unsigned int* T, unsigned int 
     C = R1(C,D,A,B,current_message[14], T, 17, 15);
     B = R1(B,C,D,A,current_message[15], T, 22, 16);
 
-     // Round 2: 16 operations
+    // // Print test result
+    // // BUG HERE : First round is false
+    // // A: 1554849209 = 0x5CAD1DB9
+	// // B: -1348562154 = 0xAF9E9316
+	// // C: 90059437 = 0x055E32AD
+	// // D :-1523046642 = 0xA538270E
+    // printf("Round 1:");
+    // printf("\nA = %x\nB = %x\nC = %x\nD = %x\n", A, B, C, D);
+    
+
+    // Round 2: 16 operations
     A = R2(A,B,C,D,current_message[1], T, 5, 17);
     D = R2(D,A,B,C,current_message[6], T, 9, 18);
     C = R2(C,D,A,B,current_message[11], T, 14, 19);
@@ -337,52 +385,80 @@ void processBlock (unsigned int* current_message, unsigned int* T, unsigned int 
     C = R4(C,D,A,B,current_message[2], T, 15, 63);
     B = R4(B,C,D,A,current_message[9], T, 21, 64);
 
-     // Last step:
-     A = (A + AA) % __UINT32_MAX__;
-     B = (B + BB) % __UINT32_MAX__;
-     C = (C + CC) % __UINT32_MAX__;
-     D = (D + DD) % __UINT32_MAX__;
+    // Last step
+    A = (A + AA) & __UINT32_MAX__;
+    B = (B + BB) & __UINT32_MAX__;
+    C = (C + CC) & __UINT32_MAX__;
+    D = (D + DD) & __UINT32_MAX__;
 
-    // Print test
-    printf("A = %X\nB = %X\nC = %X\nD = %X\n", A, B, C, D);
+    // Save buffer
+    saveBuffer(buffer, A, B, C, D);
 }
 
 
-// Input: Array of int (or char...)
-// Output: Array of hexa char as md5 hash
-unsigned char* hashmd5(unsigned char* data_buffer, unsigned int total_size) {
-    //TODO 2
-    
-}
+// Provide output hash from A B C D
+void getOutputHash (unsigned char* output_hash, uint32_t A, uint32_t B, uint32_t C, uint32_t D) {
+    // num & 0xFF000000; // MSB byte - 1st byte
+    // num & 0x00FF0000; // MSB byte - 2nd byte
+    // num & 0x0000FF00; // MSB byte - 3rd byte
+    // num & 0x000000FF; // MSB byte - 4th byte
+
+    output_hash[0] = (A & 0x000000FF);
+    output_hash[1] = (A & 0x0000FF00) >> 8;
+    output_hash[2] = (A & 0x00FF0000) >> 16;
+    output_hash[3] = (A & 0xFF000000) >> 24;
+    output_hash[4] = (B & 0x000000FF);
+    output_hash[5] = (B & 0x0000FF00) >> 8;
+    output_hash[6] = (B & 0x00FF0000) >> 16;
+    output_hash[7] = (B & 0xFF000000) >> 24;
+    output_hash[8] = (C & 0x000000FF);
+    output_hash[9] = (C & 0x0000FF00) >> 8;
+    output_hash[10] = (C & 0x00FF0000) >> 16;
+    output_hash[11] = (C & 0xFF000000) >> 24;
+    output_hash[12] = (D & 0x000000FF);
+    output_hash[13] = (D & 0x0000FF00) >> 8;
+    output_hash[14] = (D & 0x00FF0000) >> 16;
+    output_hash[15] = (D & 0xFF000000) >> 24;
+
+}    
 
 
-void main(int argc, char *argv[]) {
-    unsigned char *file_buffer, *data_buffer;
-    unsigned int *message_all_block, *current_message, *T;
 
-    char input_file[] = "md5_data_test";
-    char constant_t_file[] = "constant_t.txt";
+// Input: String array (unsigned char)
+// Output: Array of unsigned char as md5 hash
+unsigned char* hashmd5(unsigned char* file_buffer) {
+    unsigned char *data_buffer;
+
+    unsigned char* output_hash;
+    output_hash = (unsigned char*) malloc(16 * sizeof(unsigned char*));
+
+    uint32_t *message_all_block, *current_message, *T, *buffer;
+
+    char constant_t_file[] = "constant_t_md5.txt";
+    // char constant_t_file[] = "data.txt";
 
     unsigned int i, j;
     unsigned int file_size, total_size, message_len; // 32 bits
-    unsigned int A, B, C, D; // Buffer value
+    uint32_t A, B, C, D; // Buffer value
+    uint32_t result_A, result_B, result_C, result_D; // Final value
 
     // Buffer initialization
-    A = 0x01234567;
-    B = 0x89abcdef;
-    C = 0xfedcba98;
-    D = 0x76543210;
+
+    A = 0x67452301;
+    B = 0xEFCDAB89;
+    C = 0x98BADCFE;
+    D = 0x10325476;
 
 
-    // Determine file size (in bytes)
-    file_size = findSize(input_file);
-    if (file_size == -1) {
-        printf("Problem while reading file.\n");
-        exit(EXIT_FAILURE);
-    }
+    buffer = (uint32_t*) malloc(4 * sizeof(uint32_t));
+    saveBuffer(buffer, A, B, C, D);
 
-    // Read file
-    file_buffer = readBinary(input_file);
+
+    // Test input file
+    // unsigned char file_buffer[] = "They are deterministic";
+
+    // file_size - 1 because it also contains the null termination string
+    file_size = sizeof(file_buffer) / sizeof(file_buffer[0]) - 1;
 
     // Calculate total data size (in bytes)
     total_size = getDataSize(file_buffer, file_size);
@@ -397,7 +473,7 @@ void main(int argc, char *argv[]) {
     // Recover constant T
     T = getT(constant_t_file);
 
-    // 
+
     // Main algorithm
     // Each block is 512 bits = 16 elements of message_all_block (each elem is 32 bits)
     // Output: concat(A, B, C, D)
@@ -407,37 +483,156 @@ void main(int argc, char *argv[]) {
         current_message = getCurrentBlock(message_all_block, i);
 
         // Process the current block
-        processBlock(current_message, T, A, B, C, D);
+        processBlock(current_message, T, buffer);
     }
 
-    // md5sum md5_data_test
-    // 23db6982caef9e9152f1a5b2589e6ca3
+    // Load output
+    A = buffer[0];
+    B = buffer[1];
+    C = buffer[2];
+    D = buffer[3];
 
-    // Print test message
-    printf("\n");
-    printf("File size: %u bytes\nPadded size: %u bytes = %u uint32\n", file_size, total_size, message_len);
-    printf("\nMessage bytes:\n");
-    for (i=0; i<total_size; i++) {
-        printf("%4u", data_buffer[i]);
-    }
-    printf("\n\n");
-    printf("Message in word (int):\n");
-    for (j=0; j<message_len; j++) {
-        printf("%u ", message_all_block[j]);
-    }
-    printf("\n");
+    // Get output hash (the little-endian way)
+    getOutputHash(output_hash, A, B, C, D);
 
-    // // Print test constant
-    // printf("\nConstant T: \n");
-    // for (i=0; i<64; i++) {
-    //     printf("%X\n", T[i]);
-    // }
-
-
-    // Main MD5 functions
-    hashmd5(data_buffer, total_size);
+    return output_hash;
 }
 
 
-// TODO 2: https://stackoverflow.com/questions/23667497/update-int-variable-in-c-inside-a-function
-// Pass a pointer to change int inside func params
+
+
+// void main(int argc, char *argv[]) {
+//     unsigned char *data_buffer;
+//     uint32_t *message_all_block, *current_message, *T, *buffer;
+
+//     unsigned char* output_hash;
+//     output_hash = (unsigned char*) malloc(16 * sizeof(unsigned char*));
+
+//     char input_file[] = "md5_data_test";
+//     char constant_t_file[] = "constant_t_md5.txt";
+//     // char constant_t_file[] = "data.txt";
+
+//     unsigned int i, j;
+//     unsigned int file_size, total_size, message_len; // 32 bits
+//     uint32_t A, B, C, D; // Buffer value
+
+//     // Buffer initialization
+
+//     A = 0x67452301;
+//     B = 0xEFCDAB89;
+//     C = 0x98BADCFE;
+//     D = 0x10325476;
+
+
+//     buffer = (uint32_t*) malloc(4 * sizeof(uint32_t));
+//     saveBuffer(buffer, A, B, C, D);
+
+
+//     // // TEST read input string from file
+//     // // Read file
+//     // unsigned char *file_buffer;
+//     // file_buffer = readBinary(input_file);
+//     // file_size = findSize(input_file);
+//     // if (file_size == -1) {
+//     //     printf("Problem while reading file.\n");
+//     //     exit(EXIT_FAILURE);
+//     // }
+
+
+//     // Test input file
+//     unsigned char file_buffer[] = "They are deterministic";
+
+
+//     file_size = sizeof(file_buffer) / sizeof(file_buffer[0]) - 1;
+
+//     // Calculate total data size (in bytes)
+//     total_size = getDataSize(file_buffer, file_size);
+//     message_len = total_size / 4; // Message len (in int32)
+
+//     // Padding
+//     data_buffer = padding(file_buffer, file_size, total_size);
+
+//     // Convert message to int
+//     message_all_block = convertUint(data_buffer, total_size, message_len);
+
+//     // Recover constant T
+//     T = getT(constant_t_file);
+
+
+//     // Main algorithm
+//     // Each block is 512 bits = 16 elements of message_all_block (each elem is 32 bits)
+//     // Output: concat(A, B, C, D)
+//     for (i=0; i<message_len; i+=BLOCK_SIZE_INT) {
+
+//         // Get the current block
+//         current_message = getCurrentBlock(message_all_block, i);
+
+//         // // Test printf current message
+//         // printf("Current message:\n");
+//         // for (j=0; j<BLOCK_SIZE_INT; j++) {
+//         // printf("%u ", current_message[j]);
+//         // }
+//         // printf("\n\n");
+
+//         // Process the current block
+//         processBlock(current_message, T, buffer);
+//     }
+
+//     // Load output
+//     A = buffer[0];
+//     B = buffer[1];
+//     C = buffer[2];
+//     D = buffer[3];
+
+//     // md5sum md5_data_test
+//     // 23db6982caef9e9152f1a5b2589e6ca3
+
+//     // Print test message
+//     // OK
+//     // printf("\n");
+//     // printf("File size: %u bytes\nPadded size: %u bytes = %u uint32\n", file_size, total_size, message_len);
+//     // printf("\nMessage bytes:\n");
+//     // for (i=0; i<total_size; i++) {
+//     //     printf("%4u", data_buffer[i]);
+//     // }
+//     // printf("\n\n");
+//     // printf("Message in word (int):\n");
+//     // for (j=0; j<message_len; j++) {
+//     //     printf("%u ", message_all_block[j]);
+//     // }
+//     // printf("\n");
+
+//     // Print test circular left shift
+//     // OK
+//     uint32_t rot_num = 0x01234567;
+//     unsigned int left_shift = 24;
+//     printf("\nTestrotleft:\nrotleft by %u bits of %#x: %#x\n", left_shift, rot_num, rotleft(rot_num, left_shift));
+
+
+//     // // Print test constant
+//     // printf("\nConstant T: \n");
+//     // for (i=0; i<64; i++) {
+//     //     printf("%x\n", T[i]);
+//     // }
+
+//     // Print test result
+//     printf("\nA = %x\nB = %x\nC = %x\nD = %x\n", A, B, C, D);
+
+//     A = 0x60cdceb1;
+//     B = 0x7d502063;
+//     C = 0x8b3d715d;
+//     D = 0x1de3a739;
+
+//     printf("I: %X\n", I(B,C,D));
+
+
+//     output_hash = hashmd5(file_buffer);
+
+//     for(i=0; i<16; i++) {
+//         printf("%x", output_hash[i]);
+//     }
+//     printf("\n\n");
+
+// }
+
+
