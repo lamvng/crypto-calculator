@@ -1,10 +1,11 @@
 #include "gmp.h"
 #include "src/libs/RSA.h"
 #include <stdio.h>
+#include <string.h>
 
 int main()
 {
-    printf("OK!\n");
-    //encrypt();
-    return 0;
+
+    printf("Test libs OK!\n");
+
 }

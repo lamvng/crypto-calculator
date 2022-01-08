@@ -115,6 +115,14 @@ int generateKey_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, 
 }
 
 
+<<<<<<< HEAD
+
+int generateKey_RSA();
+
+
+int encrypt_RSA(){
+    // TO DO
+=======
 int encrypt_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
   printf(" === ENCRYPTION RSA === \n");
   mpz_powm(c, m, e, n); //m^e mod n
@@ -258,4 +266,20 @@ int main(){
   //encrypt();
   return 0;
 
+>>>>>>> main
+}
+
+
+int decrypt_RSA() {
+    // TODO
+}
+
+
+int sign_RSA() {
+    //TODO
+}
+
+
+int verify_RSA() {
+    //TODO
 }
