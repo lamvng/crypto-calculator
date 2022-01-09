@@ -20,10 +20,10 @@ MODE_AES = 1
 MODE_ECB = 0
 MODE_CBC = 1
 
-so_file = "./crypto_cal_lib.so"
-c_lib = CDLL(so_file)
-gl_filename = ''
-gl_keyfile = ''
+# so_file = "./crypto_cal_lib.so"
+# c_lib = CDLL(so_file)
+# gl_filename = ''
+# gl_keyfile = ''
 
 
 # Function for opening the file explorer window
@@ -131,6 +131,60 @@ def popup_RSA():
     Button(fInfos, text='Quit', fg="red", command=fInfos.destroy).pack(side=BOTTOM, ipady=10, padx=10, pady=5)
 
 
+
+
+
+### PART ECB ###
+def encrypt_ecb_des(mode):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    c_lib.encryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+def decrypt_ecb_des(mode):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    c_lib.decryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+
+
+### PART CBC ###
+def encrypt_cbc_des(mode):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    c_lib.encryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+def decrypt_cbc_des(mode):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    c_lib.decryptFile_cbc(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+### PART ENCRYPT AND DECRYPT FOR DES ###
+def encrypt_des(mode):
+    if mode.get() == MODE_ECB:
+        c_lib.encrypt_ecb_des(mode)
+        print("Encrypt DES with ECB mode")
+    elif mode.get() == MODE_CBC:
+        c_lib.encrypt_cbc_des(mode)
+        print("Encrypt DES with CBC mode")
+
+def decrypt_des(mode):
+    if mode.get() == MODE_ECB:
+        c_lib.decrypt_ecb_des(mode)
+        print("Decrypt DES with ECB mode")
+    elif mode.get() == MODE_CBC:
+        c_lib.decrypt_cbc_des(mode)
+        print("Decrypt DES with CBC mode")
+
+
+### DES UI ###
 def popup_DES():
     global MODE_ECB, MODE_CBC
     fInfos = Toplevel()
@@ -149,8 +203,8 @@ def popup_DES():
     # Frame button calcul
     label_calcul = LabelFrame(fInfos, text="Select an operation")
     label_calcul.pack(fill="both", ipady=10, padx=5, pady=5)
-    choice_encryption = Button(label_calcul, text="Encryption").pack(side=LEFT, padx=5)  # add command
-    choice_decryption = Button(label_calcul, text="Decryption").pack(side=LEFT, padx=5)  # add command
+    choice_encryption = Button(label_calcul, text="Encryption", command = partial(encrypt_des,mode)).pack(side=LEFT, padx=5)
+    choice_decryption = Button(label_calcul, text="Decryption", command = partial(decrypt_des,mode)).pack(side=LEFT, padx=5)
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
@@ -160,6 +214,41 @@ def popup_DES():
     Button(fInfos, text='Quit', fg="red", command=fInfos.destroy).pack(side=BOTTOM, ipady=10, padx=10, pady=5)
 
 
+### PART ECB ###
+def encrypt_ecb_aes(mode):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    c_lib.encryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+def decrypt_ecb_aes(mode):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    c_lib.decryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+
+
+### PART CBC ###
+def encrypt_cbc_aes(mode):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    c_lib.encryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+def decrypt_cbc_aes(mode):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    c_lib.decryptFile_cbc(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+
+
+### AES UI ###
 def popup_AES():
     global MODE_ECB, MODE_CBC
     fInfos = Toplevel()
