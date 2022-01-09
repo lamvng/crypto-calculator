@@ -246,7 +246,21 @@ def decrypt_cbc_aes(mode):
         return
     c_lib.decryptFile_cbc(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
 
+def encrypt_aes(mode):
+    if mode.get() == MODE_ECB:
+        c_lib.encrypt_ecb_des(mode)
+        print("Encrypt DES with ECB mode")
+    elif mode.get() == MODE_CBC:
+        c_lib.encrypt_cbc_des(mode)
+        print("Encrypt DES with CBC mode")
 
+def decrypt_aes(mode):
+    if mode.get() == MODE_ECB:
+        c_lib.decrypt_ecb_aes(mode)
+        print("Decrypt DES with ECB mode")
+    elif mode.get() == MODE_CBC:
+        c_lib.decrypt_cbc_aes(mode)
+        print("Decrypt DES with CBC mode")
 
 ### AES UI ###
 def popup_AES():
@@ -268,8 +282,8 @@ def popup_AES():
     # Frame button calcul
     label_calcul = LabelFrame(fInfos, text="Select an operation")
     label_calcul.pack(fill="both", ipady=10, padx=5, pady=5)
-    choice_encryption = Button(label_calcul, text="Encryption").pack(side=LEFT, padx=5)  # add command
-    choice_decryption = Button(label_calcul, text="Decryption").pack(side=LEFT, padx=5)  # add command
+    choice_encryption = Button(label_calcul, text="Encryption", command=partial(encrypt_aes,mode)).pack(side=LEFT, padx=5)
+    choice_decryption = Button(label_calcul, text="Decryption", command=partial(decrypt_aes,mode)).pack(side=LEFT, padx=5)
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
