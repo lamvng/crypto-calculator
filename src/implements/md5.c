@@ -22,7 +22,7 @@ void toggleBit(unsigned char* array, unsigned int value, long unsigned int k) {
         flag = flag << pos; // Left shift to set bit position
         array[i] = array[i] | flag;
     }
-    
+
     // Clear bit
     else if (value == 0) {
         flag = flag << pos; // Left shift to set bit position
@@ -38,7 +38,7 @@ unsigned int findSize(const char* file_name)
     /*get the size using stat()*/
     if (stat(file_name, &st) == 0)
         return (st.st_size);
-    else 
+    else
         return -1;
 }
 
@@ -191,7 +191,7 @@ unsigned char* outputHash () {
 // Output: Array of hexa char as md5 hash
 unsigned char* hashmd5(unsigned char* data_buffer, unsigned int total_size) {
     //TODO: Split data_buffer into block, each block is splitted into messages
-    
+
 }
 
 
