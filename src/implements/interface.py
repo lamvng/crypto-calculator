@@ -321,12 +321,11 @@ def popup_HASH():
 
     frame_files(fInfos)
 
-    labelframe = LabelFrame(fInfos, text="Select mode")
+    labelframe = LabelFrame(fInfos, text="Select an operation")
     labelframe.pack(fill="both", ipady=10, padx=5, pady=5)
-    # Frame mode
-
-    choice_hash = Radiobutton(labelframe, text="Hash", value="hash").pack(side=LEFT)
-    choice_verify = Radiobutton(labelframe, text="Verify", value="verify").pack(side=LEFT)
+    # Frame button calcul
+    choice_hash = Button(labelframe, text="Hash").pack(side=LEFT, padx=5)
+    choice_verify = Button(labelframe, text="Verify").pack(side=LEFT, padx=5)
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
