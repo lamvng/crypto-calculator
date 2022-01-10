@@ -38,7 +38,7 @@ void toggleBit(unsigned char* array, uint32_t value, unsigned int k) {
         flag = flag << pos; // Left shift to set bit position
         array[i] = array[i] | flag;
     }
-
+    
     // Clear bit
     else if (value == 0) {
         flag = flag << pos; // Left shift to set bit position
@@ -54,7 +54,7 @@ unsigned int findSize(const char* file_name)
     /*get the size using stat()*/
     if (stat(file_name, &st) == 0)
         return (st.st_size);
-    else
+    else 
         return -1;
 }
 
@@ -268,13 +268,6 @@ uint32_t* getT(char* constant_t_file) {
 }
 
 
-<<<<<<< HEAD
-// Input: Array of int (0 or 1)
-// Output: Array of hexa char as md5 hash
-unsigned char* hashmd5(unsigned char* data_buffer, unsigned int total_size) {
-    //TODO: Split data_buffer into block, each block is splitted into messages
-
-=======
 // Get the current message block
 uint32_t* getCurrentBlock(uint32_t* message_all_block, unsigned int i) {
     uint32_t* current_message = (uint32_t*) malloc(BLOCK_SIZE_INT * sizeof(uint32_t));
@@ -336,7 +329,7 @@ void processBlock (uint32_t* current_message, uint32_t* T, uint32_t* buffer) {
 	// // D :-1523046642 = 0xA538270E
     // printf("Round 1:");
     // printf("\nA = %x\nB = %x\nC = %x\nD = %x\n", A, B, C, D);
-
+    
 
     // Round 2: 16 operations
     A = R2(A,B,C,D,current_message[1], T, 5, 17);
@@ -400,7 +393,6 @@ void processBlock (uint32_t* current_message, uint32_t* T, uint32_t* buffer) {
 
     // Save buffer
     saveBuffer(buffer, A, B, C, D);
->>>>>>> 4af6264092ee9c55ca901829be59b11ccc68c31b
 }
 
 
@@ -428,7 +420,7 @@ void getOutputHash (unsigned char* output_hash, uint32_t A, uint32_t B, uint32_t
     output_hash[14] = (D & 0x00FF0000) >> 16;
     output_hash[15] = (D & 0xFF000000) >> 24;
 
-}
+}    
 
 
 
@@ -644,9 +636,3 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
 // }
 
 
-<<<<<<< HEAD
-    // Main MD5 functions
-    hashmd5(data_buffer, total_size);
-}
-=======
->>>>>>> 4af6264092ee9c55ca901829be59b11ccc68c31b
