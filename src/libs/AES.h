@@ -6,7 +6,7 @@
 // Output: A STRING (using string.h ) of 128 bit - Which is AES key
 void generateKey_AES(char *key);
 
-char *processKey_AES(char *bit_key, char *subkeys[]);
+void *processKey_AES(char *bit_key, char *subkeys[]);
 
 // Input: a 128-bit STRING of data, and 128-bit STRING of key
 // Output: 128-bit string of encrypted data
