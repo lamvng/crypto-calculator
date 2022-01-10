@@ -190,12 +190,13 @@ void *processKey_AES(char *keyAES, char *subkeys[])
     unsigned char round_key[Nb*(ROUND_NUMBER+1)*4];//Array of Nb*(ROUND_NUMBER+1) words for round key (each round takes Nb words)
 
     //First Nb words are the key itself
-    for (i = 0; i < Nk; ++i) {
-        round_key[i*4 + 0] =  (unsigned char) keyAES[i*4 + 0];
-        round_key[i*4 + 1] =  (unsigned char) keyAES[i*4 + 1];
-        round_key[i*4 + 2] =  (unsigned char) keyAES[i*4 + 2];
-        round_key[i*4 + 3] =  (unsigned char) keyAES[i*4 + 3];
-    }
+//    for (i = 0; i < Nk; ++i) {
+//        round_key[i*4 + 0] =  (unsigned char) keyAES[i*4 + 0];
+//        round_key[i*4 + 1] =  (unsigned char) keyAES[i*4 + 1];
+//        round_key[i*4 + 2] =  (unsigned char) keyAES[i*4 + 2];
+//        round_key[i*4 + 3] =  (unsigned char) keyAES[i*4 + 3];
+//    }
+    memcpy(round_key, keyAES, 16);
 
     unsigned char temp_word[4];
     unsigned char temp_char;
