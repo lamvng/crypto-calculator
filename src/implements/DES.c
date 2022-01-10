@@ -2,15 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define TAILLE_CLE 8
-
-typedef unsigned char tab;
-typedef tab cle[TAILLE_CLE];
-
-typedef struct {
-    tab *data;
-    int len;
-} String;
 
 int IP[] = {
     58, 50, 42, 34, 26, 18, 10, 2, 60,
@@ -217,7 +208,6 @@ static void decal(const tab *src, int len, int pos, tab *dst) {
 /*
 Calcule les sous clés pour DES
 */
-typedef tab sClefs[17][6]; /* 17 sets of 48 bits */
 static void calcCle(const cle key, sClefs ks) {
     tab c[17][7];
     tab d[17][4];
@@ -339,7 +329,7 @@ static void algDes(const tab *message, sClefs ks, tab *ep) {
     }
 }
 
-String encrypt(const cle key, const tab *message, int len) {
+String encrypt_DES(const cle key, const tab *message, int len) {
     String result = { 0, 0 };
     sClefs ks;
     tab byte;
@@ -358,7 +348,7 @@ String encrypt(const cle key, const tab *message, int len) {
 }
 
 
-String decrypt(const cle key, const tab *message, int len) {
+String decrypt_DES(const cle key, const tab *message, int len) {
     String result = { 0, 0 };
     sClefs ks;
     tab padByte;
@@ -403,10 +393,10 @@ void DES(const cle key, const tab *message, int len) {
 
     toString(message, len, buffer);
     printf("Message en hexa: %s\n", buffer);
-    chiff = encrypt(key, message, len);
+    chiff = encrypt_DES(key, message, len);
     toString(chiff.data, chiff.len, buffer);
     printf("chiffre : %s\n", buffer);
-    clair = decrypt(key, chiff.data, chiff.len);
+    clair = decrypt_DES(key, chiff.data, chiff.len);
     toString(clair.data, clair.len, buffer);
 
     printf("decode en hexa: %s\n", buffer);
@@ -421,6 +411,8 @@ void DES(const cle key, const tab *message, int len) {
     free(clair.data);
     clair.data = 0;
 }
+
+
 
 int main() {
     const cle clefs[] = {
