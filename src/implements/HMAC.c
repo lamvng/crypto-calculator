@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 //#include "../libs/md5.h"
-//#include <openssl/md5.h>
+#include <openssl/md5.h>
 #include <ctype.h>
 #define char_to_hex(c) ( (toupper((c)) >= 'A' && toupper((c)) <= 'F')? toupper((c)) - 'A' + 10 : (c) - '0')
 
