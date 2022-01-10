@@ -96,6 +96,22 @@ def generateRSA(mode):
         print("generate RSA CRT key")
 
 
+def signatureRSA(mode):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    c_lib.signFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+def verifyRSA(mode):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    c_lib.verifyFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+
+
 def popup_RSA():
     global MODE_STANDARD, MODE_CRT
 
@@ -164,7 +180,7 @@ def decrypt_cbc_des(mode):
     print(gl_filename, gl_keyfile, mode.get())
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_cbc(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.decryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
 
 ### PART ENCRYPT AND DECRYPT FOR DES ###
 def encrypt_des(mode):
@@ -182,6 +198,11 @@ def decrypt_des(mode):
     elif mode.get() == MODE_CBC:
         c_lib.decrypt_cbc_des(mode)
         print("Decrypt DES with CBC mode")
+
+
+def generateDES(mode):
+    generateFileKey_DES()
+
 
 
 ### DES UI ###
@@ -209,7 +230,7 @@ def popup_DES():
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
     label_gen.pack(fill="both", ipady=10, padx=5, pady=5)
-    choice_gen = Button(label_gen, text="Generate Key").pack(side=LEFT, padx=5)
+    choice_gen = Button(label_gen, text="Generate Key", command=partial(generateDES)).pack(side=LEFT, padx=5)
 
     Button(fInfos, text='Quit', fg="red", command=fInfos.destroy).pack(side=BOTTOM, ipady=10, padx=10, pady=5)
 
