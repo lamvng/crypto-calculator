@@ -1,15 +1,29 @@
 #include "../libs/HMAC.h"
-//#include "gmp.h"
+#include "gmp.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "../libs/md5.h"
 #include <openssl/md5.h>
 #include <ctype.h>
+#include <time.h>
 #define char_to_hex(c) ( (toupper((c)) >= 'A' && toupper((c)) <= 'F')? toupper((c)) - 'A' + 10 : (c) - '0')
 
-int generateKey_HMAC(int key_size){
-
+int generateKey_HMAC(int keySize, char* keyFileName){
+    gmp_randstate_t r_gen;
+    gmp_randinit_default(r_gen);
+    gmp_randseed_ui(r_gen, time(NULL));
+    mpz_t key;
+    mpz_init(key);
+    while (mpz_cmp_ui(key, 0) == 0){
+        mpz_urandomb(key, r_gen, keySize);
+    }
+    FILE *fp;
+    fp = fopen(keyFileName, "w+");
+    if(fp == NULL){
+        perror("Failed: ");
+        return -1;
+    }
+    mpz_out_str(fp, 16, key);
     return 0;
 }
 
@@ -119,23 +133,11 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     memmove(k_ipad,hmac_key, key_size);
     memmove(k_opad,hmac_key,  key_size);
 
-    //test
-    printf("ipad: ");
-    for (int j = 0; j < 64; ++j) {
-        printf("%02x ", k_ipad[i]);
-    }
-    printf("\n");
 
     for (int j = 0; j < 64; ++j) {
         k_ipad[j] ^= 0x36;
         k_opad[j] ^= 0x5c;
     }
-    //test
-    printf("ipad: ");
-    for (int j = 0; j < 64; ++j) {
-        printf("%02x ", k_ipad[i]);
-    }
-    printf("\n");
 
     unsigned char digest[16];
     //Inner MD5
@@ -151,12 +153,6 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     MD5_Update(&ctx, k_opad, 64);
     MD5_Update(&ctx, digest, 16);
     MD5_Final(digest, &ctx);
-
-    printf("Digest: ");
-    for (int j = 0; j < 16; ++j) {
-        printf("%02x ", digest[j]);
-    }
-    printf("\n");
 
     //Write hmac
     fp = fopen(hmacFileName, "w+");
@@ -207,7 +203,7 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     char* hmac;
     hmac = malloc(hmac_size*sizeof(char));
     fgets(hmac, hmac_size, fp);
-    printf("work\n");
+    printf("Verify\n");
 
 //    Read new hmac file
     fp = fopen(hmac_file, "r");
@@ -230,8 +226,9 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     return 0;
 }
 
-//int main(){
-////    hashing_HMAC("data", "key", "hmac1");
-////    verify_HMAC("data", "key", "hmac1");
-//    return 0;
-//}
+int main(){
+    generateKey_HMAC(128, "keyx");
+    hashing_HMAC("data", "keyx", "hmac1");
+    verify_HMAC("data", "keyx", "hmac1");
+    return 0;
+}
