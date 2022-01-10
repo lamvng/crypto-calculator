@@ -226,9 +226,9 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     return 0;
 }
 
-int main(){
-    generateKey_HMAC(128, "keyx");
-    hashing_HMAC("data", "keyx", "hmac1");
-    verify_HMAC("data", "keyx", "hmac1");
-    return 0;
-}
+// int main(){
+//     generateKey_HMAC(128, "keyx");
+//     hashing_HMAC("data", "keyx", "hmac1");
+//     verify_HMAC("data", "keyx", "hmac1");
+//     return 0;
+// }

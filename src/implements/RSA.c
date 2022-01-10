@@ -212,50 +212,50 @@ int verify_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n) {
 
 }
 
-int main(){
-  /* PART 1*/
-  mpz_t e, n, d;
-  mpz_inits(e,n,d,NULL);
+// int main(){
+//   /* PART 1*/
+//   mpz_t e, n, d;
+//   mpz_inits(e,n,d,NULL);
+//
+//   mpz_set_ui(e,17);
+//   mpz_set_ui(d,1);
+//   mpz_set_ui(n,1);
+//
+//   generateKey_RSA(e,d,n);
+//
+//   /* PART 2
+//   mpz_t m1, c1, e, n1;
+//   mpz_inits(m1, c1, e, n1, NULL);
+//
+//   mpz_set_ui(m1,456);
+//   mpz_set_ui(c1, 0);
+//   mpz_set_ui(e,5);
+//   mpz_set_ui(n1,0);
+//   encrypt_RSA(m1,c1,e,n1);*/
+//
+//   /*PART 3
+//   mpz_t m2, c2, d, n2;
+//   mpz_inits(m2, c2, d, n2, NULL);
+//
+//   mpz_set_ui(m2,0);
+//   mpz_set_ui(c2, 562);
+//   mpz_set_ui(d,0);
+//   mpz_set_ui(n2,0);
+//   decrypt_RSA(m2, c2, d, n2);*/
+//
+//   /* Decrypt RSA CRT Mode
+//   mpz_t m, c, dp, dq, Ip, p, q;
+//   mpz_inits(m,c, dp, dq, Ip, p, q, NULL);
+//
+//   mpz_set_ui(p, 547);
+//   mpz_set_ui(q, 797);
+//   mpz_set_ui(dp, 149);
+//   mpz_set_ui(dq, 579);
+//   mpz_set_ui(Ip, 424);
+//   mpz_set_ui(c, 77111);
+//   decrypt_RSA_CRT(m, c, dp,  dq, Ip, p, q);*/
+//
+//   //encrypt();
+//   return 0;
 
-  mpz_set_ui(e,17);
-  mpz_set_ui(d,1);
-  mpz_set_ui(n,1);
-
-  generateKey_RSA(e,d,n);
-
-  /* PART 2
-  mpz_t m1, c1, e, n1;
-  mpz_inits(m1, c1, e, n1, NULL);
-
-  mpz_set_ui(m1,456);
-  mpz_set_ui(c1, 0);
-  mpz_set_ui(e,5);
-  mpz_set_ui(n1,0);
-  encrypt_RSA(m1,c1,e,n1);*/
-
-  /*PART 3
-  mpz_t m2, c2, d, n2;
-  mpz_inits(m2, c2, d, n2, NULL);
-
-  mpz_set_ui(m2,0);
-  mpz_set_ui(c2, 562);
-  mpz_set_ui(d,0);
-  mpz_set_ui(n2,0);
-  decrypt_RSA(m2, c2, d, n2);*/
-
-  /* Decrypt RSA CRT Mode
-  mpz_t m, c, dp, dq, Ip, p, q;
-  mpz_inits(m,c, dp, dq, Ip, p, q, NULL);
-
-  mpz_set_ui(p, 547);
-  mpz_set_ui(q, 797);
-  mpz_set_ui(dp, 149);
-  mpz_set_ui(dq, 579);
-  mpz_set_ui(Ip, 424);
-  mpz_set_ui(c, 77111);
-  decrypt_RSA_CRT(m, c, dp,  dq, Ip, p, q);*/
-
-  //encrypt();
-  return 0;
-
-}
+//}
