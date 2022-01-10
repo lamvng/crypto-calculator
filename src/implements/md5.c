@@ -336,7 +336,7 @@ void processBlock (uint32_t* current_message, uint32_t* T, uint32_t* buffer) {
 	// // D :-1523046642 = 0xA538270E
     // printf("Round 1:");
     // printf("\nA = %x\nB = %x\nC = %x\nD = %x\n", A, B, C, D);
-    
+
 
     // Round 2: 16 operations
     A = R2(A,B,C,D,current_message[1], T, 5, 17);
@@ -428,7 +428,7 @@ void getOutputHash (unsigned char* output_hash, uint32_t A, uint32_t B, uint32_t
     output_hash[14] = (D & 0x00FF0000) >> 16;
     output_hash[15] = (D & 0xFF000000) >> 24;
 
-}    
+}
 
 
 
