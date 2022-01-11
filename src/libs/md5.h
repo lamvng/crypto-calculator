@@ -13,7 +13,8 @@ unsigned char* readBinary(char* filename);
 
 
 
-// Input: Array (unsigned char*) of input
+// Input: Array (char*) of input
+// Example input: char file_buffer[] = "They are deterministic";
 // Output hash: array of (unsigned char*) with 16 elements
 // Output hash size: 16 * 8 = 128 bits
 unsigned char* hashmd5(unsigned char* file_buffer);
