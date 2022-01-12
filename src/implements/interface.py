@@ -20,10 +20,10 @@ MODE_AES = 1
 MODE_ECB = 0
 MODE_CBC = 1
 
-so_file = "./crypto_cal_lib.so"
-c_lib = CDLL(so_file)
-gl_filename = ''
-gl_keyfile = ''
+# so_file = "./crypto_cal_lib.so"
+# c_lib = CDLL(so_file)
+# gl_filename = ''
+# gl_keyfile = ''
 
 
 # Function for opening the file explorer window
