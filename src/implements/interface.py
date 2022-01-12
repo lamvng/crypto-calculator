@@ -136,8 +136,8 @@ def popup_RSA():
                                                                                                          padx=5)  # add command
     choice_decryption = Button(label_calcul, text="Decryption", command=partial(decrypt_rsa, mode)).pack(side=LEFT,
                                                                                                          padx=5)  # add command
-    choice_sign = Button(label_calcul, text="Signature").pack(side=LEFT, padx=5)  # add command
-    choice_verify = Button(label_calcul, text="Verify").pack(side=LEFT, padx=5)  # add command
+    choice_sign = Button(label_calcul, text="Signature", command=partial(signatureRSA, mode)).pack(side=LEFT, padx=5)  # add command
+    choice_verify = Button(label_calcul, text="Verify", command=partial(verifyRSA,mode)).pack(side=LEFT, padx=5)  # add command
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
