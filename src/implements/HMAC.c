@@ -6,6 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
+#include <openssl/md5.h>
 #define char_to_hex(c) ( (toupper((c)) >= 'A' && toupper((c)) <= 'F')? toupper((c)) - 'A' + 10 : (c) - '0')
 
 #define HASH_SIZE 16
@@ -29,28 +30,30 @@ int generateKey_HMAC(int keySize, char* keyFileName){
     return 1;
 }
 
-void read_file(FILE *fp, long file_size, unsigned char *file_content){
+unsigned char* read_file(FILE *fp, long file_size){
     char prefix[3];
+    unsigned char *file_content;
     fgets(prefix, 3, fp);
-
     if (!strcmp(prefix, "0x")){
         unsigned char c1, c2, c;
         file_size = file_size/2 - 1;
-        file_content = (unsigned char*) malloc(file_size*sizeof(char));
+        file_content = malloc(file_size*sizeof(char));
 
         for (int i = 0; i < file_size; ++i) {
             c1 = fgetc(fp);
             c2 = fgetc(fp);
             c = 16*char_to_hex(c1) + char_to_hex(c2);
             file_content[i] = c;
-
         }
+
+
     } else{
+
         fseek(fp, 0, SEEK_SET);
-        file_content = (unsigned char*) malloc(file_size*sizeof(unsigned char));
+        file_content = malloc(file_size*sizeof(char));
         fread(file_content, 1, file_size, fp);
     }
-    printf("work content: %s\n", file_content);
+    return file_content;
 }
 
 int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
@@ -74,29 +77,11 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
 
     unsigned char *hmac_key;
-
-    char prefix[3];
-    fgets(prefix, 3, fp);
-    if (!strcmp(prefix, "0x")){
-        unsigned char c1, c2, c;
-        key_size = key_size/2 - 1;
-        hmac_key = malloc(key_size*sizeof(char));
-
-        for (int i = 0; i < key_size; ++i) {
-            c1 = fgetc(fp);
-            c2 = fgetc(fp);
-            c = 16*char_to_hex(c1) + char_to_hex(c2);
-            hmac_key[i] = c;
-
-        }
-    } else{
-        fseek(fp, 0, SEEK_SET);
-        hmac_key = malloc(key_size*sizeof(char));
-        fread(hmac_key, 1, key_size, fp);
-    }
+    hmac_key = read_file(fp, key_size);
 
     fclose(fp);
     //Read message
+
     fp = fopen(fileName, "rb");
     if(fp == NULL){
         perror("Failed: ");
@@ -107,26 +92,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     fseek(fp, 0, SEEK_SET);
 
     unsigned char *file_content;
-
-    fgets(prefix, 3, fp);
-    if (!strcmp(prefix, "0x")){
-        unsigned char c1, c2, c;
-        file_size = file_size/2 - 1;
-        file_content = malloc(file_size*sizeof(char));
-
-        for (int i = 0; i < file_size; ++i) {
-            c1 = fgetc(fp);
-            c2 = fgetc(fp);
-            c = 16*char_to_hex(c1) + char_to_hex(c2);
-            file_content[i] = c;
-        }
-
-
-    } else{
-        fseek(fp, 0, SEEK_SET);
-        file_content = malloc(file_size*sizeof(char));
-        fread(file_content, 1, file_size, fp);
-    }
+    file_content = read_file(fp, file_size);
 
     fclose(fp);
 
@@ -135,22 +101,21 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     unsigned char k_opad[65];
 
     unsigned char *tkey;
-//    tkey = (unsigned char*) malloc(16 * sizeof(unsigned char));
+    tkey = (unsigned char*) malloc(16 * sizeof(unsigned char));
 //    int i;
 
     //Hash key if len key > 64
     if(key_size > 64){
         //test
         printf("key size exceeded\n");
-//        MD5_CTX kctx;
-//        MD5_Init(&kctx);
-//        MD5_Update(&kctx, hmac_key, key_size);
-//        MD5_Final(tkey, &kctx);
-        tkey = hashmd5(hmac_key);
+        MD5_CTX kctx;
+        MD5_Init(&kctx);
+        MD5_Update(&kctx, hmac_key, key_size);
+        MD5_Final(tkey, &kctx);
+//        tkey = hashmd5(hmac_key);
         hmac_key = tkey;
         key_size = 16;
     }
-
 
     //XOR key with ipad, opad
 
@@ -158,7 +123,6 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     memset(k_opad, 0, sizeof(k_opad) );
     memcpy(k_ipad,hmac_key, key_size);
     memcpy(k_opad,hmac_key,  key_size);
-    printf("Hash key %ld\n", key_size);
 
 
 
@@ -168,32 +132,32 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     }
 
     unsigned char *digest;
-//    digest = (unsigned char*)malloc(sizeof(char)*HASH_SIZE);
+    digest = (unsigned char*)malloc(sizeof(char)*HASH_SIZE);
     //Inner MD5: MD5(K_ipad || text)
 
-//    MD5_CTX ctx;
-//    MD5_Init(&ctx);
-//    MD5_Update(&ctx, k_ipad, 64);
-//    MD5_Update(&ctx, file_content, file_size);
-//    MD5_Final(digest, &ctx);
+    MD5_CTX ctx;
+    MD5_Init(&ctx);
+    MD5_Update(&ctx, k_ipad, 64);
+    MD5_Update(&ctx, file_content, file_size);
+    MD5_Final(digest, &ctx);
 
     //Concat k_ipad & file_content
-    unsigned char inner_content[file_size+64];
-    memcpy(inner_content, k_ipad, 64);
-    memcpy(inner_content+64, file_content, file_size);
-    digest = hashmd5(inner_content);
+//    unsigned char inner_content[file_size+64];
+//    memcpy(inner_content, k_ipad, 64);
+//    memcpy(inner_content+64, file_content, file_size);
+//    digest = hashmd5(inner_content);
 
 
 
     //Outer MD5: MD5(k_opad||innerMD5)
-//    MD5_Init(&ctx);
-//    MD5_Update(&ctx, k_opad, 64);
-//    MD5_Update(&ctx, digest, 16);
-//    MD5_Final(digest, &ctx);
-    unsigned char outer_content[HASH_SIZE+64];
-    memcpy(outer_content, k_opad, 64);
-    memcpy(outer_content+64, digest, HASH_SIZE);
-    digest = hashmd5(outer_content);
+    MD5_Init(&ctx);
+    MD5_Update(&ctx, k_opad, 64);
+    MD5_Update(&ctx, digest, 16);
+    MD5_Final(digest, &ctx);
+//    unsigned char outer_content[HASH_SIZE+64];
+//    memcpy(outer_content, k_opad, 64);
+//    memcpy(outer_content+64, digest, HASH_SIZE);
+//    digest = hashmd5(outer_content);
 
 
     //Write hmac
@@ -224,7 +188,6 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
     strcpy(hmac_file, hmacFileName);
     strcat(hmac_file, "_temp");
-    printf("%s\n", hmac_file);
     if(hashing_HMAC(fileName, keyFileName, hmac_file) != 0){
         return -1;
     }
@@ -244,7 +207,6 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     char* hmac;
     hmac = malloc(hmac_size*sizeof(char));
     fgets(hmac, hmac_size, fp);
-    printf("Verify\n");
 
 //    Read new gen hmac file
     fp = fopen(hmac_file, "r");
@@ -270,7 +232,7 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
  int main(){
      generateKey_HMAC(128, "keyx");
-     hashing_HMAC("data", "key", "hmac1");
-     verify_HMAC("data", "key", "hmac1");
+     hashing_HMAC("data", "keyx", "hmac1");
+     verify_HMAC("data", "keyx", "hmac1");
      return 0;
  }
