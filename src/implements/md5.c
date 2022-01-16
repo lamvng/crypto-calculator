@@ -458,18 +458,16 @@ void getOutputHash (unsigned char* output_hash, uint32_t A, uint32_t B, uint32_t
 // Output: Array of unsigned char as md5 hash
 unsigned char* hashmd5(unsigned char* file_buffer) {
     unsigned char *data_buffer;
+    uint32_t *message_all_block, *current_message, *T, *buffer;
 
     unsigned char* output_hash;
     output_hash = (unsigned char*) malloc(16 * sizeof(unsigned char*));
-
-    uint32_t *message_all_block, *current_message, *T, *buffer;
 
     char constant_t_file[] = "constant_t_md5.txt";
 
     unsigned int i, j;
     unsigned int file_size, total_size, message_len_int32; // 32 bits
     uint32_t A, B, C, D; // Buffer value
-    uint32_t result_A, result_B, result_C, result_D; // Final value
 
     // Buffer initialization
 
@@ -483,11 +481,24 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     saveBuffer(buffer, A, B, C, D);
 
 
-    // Test input file
-    // unsigned char file_buffer[] = "They are deterministic";
+    // // TEST read input string from file
+    // // Read file
+    // unsigned char *file_buffer;
+    // file_buffer = readBinary(input_file);
+    // file_size = findSize(input_file);
+    // if (file_size == -1) {
+    //     printf("Problem while reading file.\n");
+    //     exit(EXIT_FAILURE);
+    // }
 
-    // file_size - 1 because it also contains the null termination string
-    file_size = sizeof(file_buffer) / sizeof(file_buffer[0]) - 1;
+    // Example input string
+    // unsigned char file_buffer[] = "They are deterministic";
+    file_size = strlen(file_buffer);
+    for (i=0; i<file_size; i++) {
+        printf("%c", file_buffer[i]);
+    }
+    printf("\n\n");
+
 
     // Calculate total data size (in bytes)
     total_size = getDataSize(file_buffer, file_size);
@@ -512,11 +523,18 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
         // Get the current block
         current_message = getCurrentBlock(message_all_block, i);
 
+        // // Print current block
+        // printf("Current block:\n");
+        // for (j=0; j<BLOCK_SIZE_INT; j++) {
+        // printf("%x ", current_message[j]);
+        // }
+        // printf("\n");
+
         // Process the current block
         md5Block(current_message, T, buffer);
     }
 
-    // Load output buffer
+    // Load output
     A = buffer[0];
     B = buffer[1];
     C = buffer[2];
@@ -525,100 +543,56 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     // Get output hash (the little-endian way)
     getOutputHash(output_hash, A, B, C, D);
 
+    // Final hash
+    printf("Final MD5 hash:\n");
+    for (i = 0; i<16; i++) {
+        printf("%02x", output_hash[i]);
+    }
+    printf("\n\n");
+
+    // Data array in char
+    printf("\n");
+    printf("File size: %u bytes\nPadded size: %u bytes = %u uint32\n", file_size, total_size, message_len_int32);
+    printf("\nMessage bytes:\n");
+    for (i=0; i<total_size; i++) {
+        printf("%4x", data_buffer[i]);
+    }
+    printf("\n\n");
+
+    // Data array in int32
+    printf("Message in word (32 bits):\n");
+    for (j=0; j<message_len_int32; j++) {
+        printf("%x ", message_all_block[j]);
+    }
+    printf("\n");
+
+    // // Print test circular left shift
+    // uint32_t rot_num = 0x01234567;
+    // unsigned int left_shift = 12;
+    // printf("\nTestrotleft:\nrotleft by %u bits of %#x: %#x\n", left_shift, rot_num, rotleft(rot_num, left_shift));
+
+
+    // // Constant T
+    // printf("\nConstant T: \n");
+    // for (i=0; i<64; i++) {
+    //     printf("%x\n", T[i]);
+    // }
+
+    // Result
+    // printf("\nFinal results:\n");
+    // printf("A = %x\nB = %x\nC = %x\nD = %x\n", A, B, C, D);
+
     return output_hash;
 }
 
 
 // void main(int argc, char *argv[]) {
-//     unsigned char *data_buffer;
-//     uint32_t *message_all_block, *current_message, *T, *buffer;
-
 //     unsigned char* output_hash;
-//     output_hash = (unsigned char*) malloc(16 * sizeof(unsigned char*));
+//     unsigned int i;
 
-//     char input_file[] = "md5_data_test";
-//     char constant_t_file[] = "constant_t_md5.txt";
-//     // char constant_t_file[] = "data.txt";
-
-//     unsigned int i, j;
-//     unsigned int file_size, total_size, message_len_int32; // 32 bits
-//     uint32_t A, B, C, D; // Buffer value
-
-//     // Buffer initialization
-
-//     A = 0x67452301;
-//     B = 0xEFCDAB89;
-//     C = 0x98BADCFE;
-//     D = 0x10325476;
-
-//     // A = 0x01234567;
-//     // B = 0x89ABCDEF;
-//     // C = 0xFEDCBA98;
-//     // D = 0x76543210;
-
-
-//     buffer = (uint32_t*) malloc(4 * sizeof(uint32_t));
-//     saveBuffer(buffer, A, B, C, D);
-
-
-//     // // TEST read input string from file
-//     // // Read file
-//     // unsigned char *file_buffer;
-//     // file_buffer = readBinary(input_file);
-//     // file_size = findSize(input_file);
-//     // if (file_size == -1) {
-//     //     printf("Problem while reading file.\n");
-//     //     exit(EXIT_FAILURE);
-//     // }
-
-//     // Example input string
 //     unsigned char file_buffer[] = "They are deterministic";
-//     // file_size - 1 : Ignore the string termination
-//     file_size = sizeof(file_buffer) / sizeof(file_buffer[0]) - 1;
 
-
-//     // Calculate total data size (in bytes)
-//     total_size = getDataSize(file_buffer, file_size);
-//     message_len_int32 = total_size / 4; // Message len (in int32)
-
-//     // Padding
-//     data_buffer = padding(file_buffer, file_size, total_size);
-
-//     // Convert message to int
-//     message_all_block = convertUint(data_buffer, total_size, message_len_int32);
-
-//     // Recover constant T
-//     // calculateT("constant_t_md5.txt");
-//     T = getT(constant_t_file);
-
-
-//     // Main algorithm
-//     // Each block is 512 bits = 16 elements of message_all_block (each elem is 32 bits)
-//     // Output: concat(A, B, C, D)
-//     for (i=0; i<message_len_int32; i+=BLOCK_SIZE_INT) {
-
-//         // Get the current block
-//         current_message = getCurrentBlock(message_all_block, i);
-
-//         // // Print current block
-//         // printf("Current block:\n");
-//         // for (j=0; j<BLOCK_SIZE_INT; j++) {
-//         // printf("%x ", current_message[j]);
-//         // }
-//         // printf("\n");
-
-//         // Process the current block
-//         md5Block(current_message, T, buffer);
-//     }
-
-//     // Load output
-//     A = buffer[0];
-//     B = buffer[1];
-//     C = buffer[2];
-//     D = buffer[3];
-
-//     // Get output hash (the little-endian way)
-//     getOutputHash(output_hash, A, B, C, D);
+//     output_hash = hashmd5(file_buffer);
 
 //     // Final hash
 //     printf("Final MD5 hash:\n");
@@ -627,35 +601,4 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
 //     }
 //     printf("\n\n");
 
-//     // // Data array in char
-//     // printf("\n");
-//     // printf("File size: %u bytes\nPadded size: %u bytes = %u uint32\n", file_size, total_size, message_len_int32);
-//     // printf("\nMessage bytes:\n");
-//     // for (i=0; i<total_size; i++) {
-//     //     printf("%4x", data_buffer[i]);
-//     // }
-//     // printf("\n\n");
-
-//     // // Data array in int32
-//     // printf("Message in word (32 bits):\n");
-//     // for (j=0; j<message_len_int32; j++) {
-//     //     printf("%x ", message_all_block[j]);
-//     // }
-//     // printf("\n");
-
-//     // // Print test circular left shift
-//     // uint32_t rot_num = 0x01234567;
-//     // unsigned int left_shift = 12;
-//     // printf("\nTestrotleft:\nrotleft by %u bits of %#x: %#x\n", left_shift, rot_num, rotleft(rot_num, left_shift));
-
-
-//     // // Constant T
-//     // printf("\nConstant T: \n");
-//     // for (i=0; i<64; i++) {
-//     //     printf("%x\n", T[i]);
-//     // }
-
-//     // // Result
-//     // printf("\nFinal results:\n");
-//     // printf("A = %x\nB = %x\nC = %x\nD = %x\n", A, B, C, D);
 // }
