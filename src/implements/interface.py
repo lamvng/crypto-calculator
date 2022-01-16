@@ -20,11 +20,11 @@ MODE_AES = 1
 MODE_ECB = 0
 MODE_CBC = 1
 
-# so_file = "./crypto_cal_lib.so"
-# c_lib = CDLL(so_file)
-# gl_filename = ''
-# gl_keyfile = ''
-
+so_file = "./crypto_cal_lib.so"
+c_lib = CDLL(so_file)
+gl_filename = ''
+gl_keyfile = ''
+gl_signfile = ''
 
 # Function for opening the file explorer window
 def browseFiles(fInfos, textfile):
@@ -104,11 +104,11 @@ def signatureRSA(mode):
     c_lib.signFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
 
 def verifyRSA(mode):
-    global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
+    global gl_filename, gl_signfile, gl_keyfile
+    print(gl_filename, gl_signfile, gl_keyfile, mode.get())
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.verifyFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.verifyFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_signfile.encode()), c_char_p(gl_keyfile.encode()), mode.get())
 
 
 
@@ -185,18 +185,18 @@ def decrypt_cbc_des(mode):
 ### PART ENCRYPT AND DECRYPT FOR DES ###
 def encrypt_des(mode):
     if mode.get() == MODE_ECB:
-        c_lib.encrypt_ecb_des(mode)
+        encrypt_ecb_des(mode)
         print("Encrypt DES with ECB mode")
     elif mode.get() == MODE_CBC:
-        c_lib.encrypt_cbc_des(mode)
+        encrypt_cbc_des(mode)
         print("Encrypt DES with CBC mode")
 
 def decrypt_des(mode):
     if mode.get() == MODE_ECB:
-        c_lib.decrypt_ecb_des(mode)
+        decrypt_ecb_des(mode)
         print("Decrypt DES with ECB mode")
     elif mode.get() == MODE_CBC:
-        c_lib.decrypt_cbc_des(mode)
+        decrypt_cbc_des(mode)
         print("Decrypt DES with CBC mode")
 
 
@@ -269,18 +269,18 @@ def decrypt_cbc_aes(mode):
 
 def encrypt_aes(mode):
     if mode.get() == MODE_ECB:
-        c_lib.encrypt_ecb_des(mode)
+        encrypt_ecb_des(mode)
         print("Encrypt DES with ECB mode")
     elif mode.get() == MODE_CBC:
-        c_lib.encrypt_cbc_des(mode)
+        encrypt_cbc_des(mode)
         print("Encrypt DES with CBC mode")
 
 def decrypt_aes(mode):
     if mode.get() == MODE_ECB:
-        c_lib.decrypt_ecb_aes(mode)
+        decrypt_ecb_aes(mode)
         print("Decrypt DES with ECB mode")
     elif mode.get() == MODE_CBC:
-        c_lib.decrypt_cbc_aes(mode)
+        decrypt_cbc_aes(mode)
         print("Decrypt DES with CBC mode")
 
 ### AES UI ###
