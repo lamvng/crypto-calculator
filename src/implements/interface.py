@@ -12,7 +12,7 @@ import tkFileDialog
 MODE_STANDARD = 0
 MODE_CRT = 1
 
-# Option - encryption - AES, DES
+# Option - encryption & decryption - AES, DES
 MODE_DES = 0
 MODE_AES = 1
 
@@ -24,7 +24,7 @@ so_file = "./crypto_cal_lib.so"
 c_lib = CDLL(so_file)
 gl_filename = ''
 gl_keyfile = ''
-
+gl_signfile = ''
 
 # Function for opening the file explorer window
 def browseFiles(fInfos, textfile):
@@ -104,15 +104,16 @@ def signatureRSA(mode):
     c_lib.signFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
 
 def verifyRSA(mode):
-    global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
+    global gl_filename, gl_signfile, gl_keyfile
+    print(gl_filename, gl_signfile, gl_keyfile, mode.get())
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.verifyFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.verifyFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_signfile.encode()), c_char_p(gl_keyfile.encode()), mode.get())
 
 
 
 def popup_RSA():
+    print("RSA calculator open")
     global MODE_STANDARD, MODE_CRT
 
     fInfos = Tk()
@@ -136,8 +137,8 @@ def popup_RSA():
                                                                                                          padx=5)  # add command
     choice_decryption = Button(label_calcul, text="Decryption", command=partial(decrypt_rsa, mode)).pack(side=LEFT,
                                                                                                          padx=5)  # add command
-    choice_sign = Button(label_calcul, text="Signature").pack(side=LEFT, padx=5)  # add command
-    choice_verify = Button(label_calcul, text="Verify").pack(side=LEFT, padx=5)  # add command
+    choice_sign = Button(label_calcul, text="Signature", command=partial(signatureRSA, mode)).pack(side=LEFT, padx=5)  # add command
+    choice_verify = Button(label_calcul, text="Verify", command=partial(verifyRSA,mode)).pack(side=LEFT, padx=5)  # add command
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
@@ -151,53 +152,57 @@ def popup_RSA():
 
 
 ### PART ECB ###
-def encrypt_ecb_des(mode):
+def encrypt_ecb_des():
     global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
+    #print(gl_filename, gl_keyfile, MODE_DES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.encryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.encryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
 
-def decrypt_ecb_des(mode):
+def decrypt_ecb_des():
     global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
+    #print(gl_filename, gl_keyfile, MODE_DES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.decryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
 
 
 
 ### PART CBC ###
-def encrypt_cbc_des(mode):
+def encrypt_cbc_des():
     global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
+    #print(gl_filename, gl_keyfile, MODE_DES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.encryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.encryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
 
-def decrypt_cbc_des(mode):
+def decrypt_cbc_des():
     global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
+    #print(gl_filename, gl_keyfile, MODE_DES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.decryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
 
 ### PART ENCRYPT AND DECRYPT FOR DES ###
 def encrypt_des(mode):
     if mode.get() == MODE_ECB:
-        c_lib.encrypt_ecb_des(mode)
+        encrypt_ecb_des()
         print("Encrypt DES with ECB mode")
+        print(gl_filename, gl_keyfile, mode.get())
     elif mode.get() == MODE_CBC:
-        c_lib.encrypt_cbc_des(mode)
+        encrypt_cbc_des()
         print("Encrypt DES with CBC mode")
+        print(gl_filename, gl_keyfile, mode.get())
 
 def decrypt_des(mode):
     if mode.get() == MODE_ECB:
-        c_lib.decrypt_ecb_des(mode)
+        decrypt_ecb_des()
         print("Decrypt DES with ECB mode")
+        print(gl_filename, gl_keyfile, mode.get())
     elif mode.get() == MODE_CBC:
-        c_lib.decrypt_cbc_des(mode)
+        decrypt_cbc_des()
         print("Decrypt DES with CBC mode")
+        print(gl_filename, gl_keyfile, mode.get())
 
 
 def generateDES(mode):
@@ -207,6 +212,7 @@ def generateDES(mode):
 
 ### DES UI ###
 def popup_DES():
+    print("DES calculator open")
     global MODE_ECB, MODE_CBC
     fInfos = Toplevel()
     fInfos.title('Cryptographic Calculator - DES')
@@ -236,55 +242,60 @@ def popup_DES():
 
 
 ### PART ECB ###
-def encrypt_ecb_aes(mode):
+def encrypt_ecb_aes():
     global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
+    #print(gl_filename, gl_keyfile, MODE_AES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.encryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.encryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
 
-def decrypt_ecb_aes(mode):
+def decrypt_ecb_aes():
     global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
+    #print(gl_filename, gl_keyfile, MODE_AES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.decryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
 
 
 
 ### PART CBC ###
-def encrypt_cbc_aes(mode):
+def encrypt_cbc_aes():
     global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
+    #print(gl_filename, gl_keyfile, MODE_AES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.encryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.encryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
 
-def decrypt_cbc_aes(mode):
+def decrypt_cbc_aes():
     global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
+    #print(gl_filename, gl_keyfile, MODE_AES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_cbc(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    c_lib.decryptFile_cbc(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
 
 def encrypt_aes(mode):
     if mode.get() == MODE_ECB:
-        c_lib.encrypt_ecb_des(mode)
-        print("Encrypt DES with ECB mode")
+        encrypt_ecb_des()
+        print("Encrypt AES with ECB mode")
+        print(gl_filename, gl_keyfile, mode.get())
     elif mode.get() == MODE_CBC:
-        c_lib.encrypt_cbc_des(mode)
-        print("Encrypt DES with CBC mode")
+        encrypt_cbc_des()
+        print("Encrypt AES with CBC mode")
+        print(gl_filename, gl_keyfile, mode.get())
 
 def decrypt_aes(mode):
     if mode.get() == MODE_ECB:
-        c_lib.decrypt_ecb_aes(mode)
-        print("Decrypt DES with ECB mode")
+        decrypt_ecb_aes()
+        print("Decrypt AES with ECB mode")
+        print(gl_filename, gl_keyfile, mode.get())
     elif mode.get() == MODE_CBC:
-        c_lib.decrypt_cbc_aes(mode)
-        print("Decrypt DES with CBC mode")
+        decrypt_cbc_aes()
+        print("Decrypt AES with CBC mode")
+        print(gl_filename, gl_keyfile, mode.get())
 
 ### AES UI ###
 def popup_AES():
+    print("AES calculator open")
     global MODE_ECB, MODE_CBC
     fInfos = Toplevel()
     fInfos.title('Cryptographic Calculator - AES')
@@ -315,6 +326,7 @@ def popup_AES():
 
 
 def popup_HASH():
+    print("Hash calculator open")
     fInfos = Toplevel()
     fInfos.title('Cryptographic Calculator - Hash')
     fInfos.geometry('600x400+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
