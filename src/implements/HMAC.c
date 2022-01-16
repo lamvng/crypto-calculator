@@ -101,18 +101,17 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     unsigned char k_opad[65];
 
     unsigned char *tkey;
-    tkey = (unsigned char*) malloc(16 * sizeof(unsigned char));
-//    int i;
+//    tkey = (unsigned char*) malloc(16 * sizeof(unsigned char));
 
     //Hash key if len key > 64
     if(key_size > 64){
         //test
         printf("key size exceeded\n");
-        MD5_CTX kctx;
-        MD5_Init(&kctx);
-        MD5_Update(&kctx, hmac_key, key_size);
-        MD5_Final(tkey, &kctx);
-//        tkey = hashmd5(hmac_key);
+//        MD5_CTX kctx;
+//        MD5_Init(&kctx);
+//        MD5_Update(&kctx, hmac_key, key_size);
+//        MD5_Final(tkey, &kctx);
+        tkey = hashmd5(hmac_key);
         hmac_key = tkey;
         key_size = 16;
     }
@@ -132,32 +131,32 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     }
 
     unsigned char *digest;
-    digest = (unsigned char*)malloc(sizeof(char)*HASH_SIZE);
+//    digest = (unsigned char*)malloc(sizeof(char)*HASH_SIZE);
     //Inner MD5: MD5(K_ipad || text)
 
-    MD5_CTX ctx;
-    MD5_Init(&ctx);
-    MD5_Update(&ctx, k_ipad, 64);
-    MD5_Update(&ctx, file_content, file_size);
-    MD5_Final(digest, &ctx);
+//    MD5_CTX ctx;
+//    MD5_Init(&ctx);
+//    MD5_Update(&ctx, k_ipad, 64);
+//    MD5_Update(&ctx, file_content, file_size);
+//    MD5_Final(digest, &ctx);
 
     //Concat k_ipad & file_content
-//    unsigned char inner_content[file_size+64];
-//    memcpy(inner_content, k_ipad, 64);
-//    memcpy(inner_content+64, file_content, file_size);
-//    digest = hashmd5(inner_content);
+    unsigned char inner_content[file_size+64];
+    memcpy(inner_content, k_ipad, 64);
+    memcpy(inner_content+64, file_content, file_size);
+    digest = hashmd5(inner_content);
 
 
 
     //Outer MD5: MD5(k_opad||innerMD5)
-    MD5_Init(&ctx);
-    MD5_Update(&ctx, k_opad, 64);
-    MD5_Update(&ctx, digest, 16);
-    MD5_Final(digest, &ctx);
-//    unsigned char outer_content[HASH_SIZE+64];
-//    memcpy(outer_content, k_opad, 64);
-//    memcpy(outer_content+64, digest, HASH_SIZE);
-//    digest = hashmd5(outer_content);
+//    MD5_Init(&ctx);
+//    MD5_Update(&ctx, k_opad, 64);
+//    MD5_Update(&ctx, digest, 16);
+//    MD5_Final(digest, &ctx);
+    unsigned char outer_content[HASH_SIZE+64];
+    memcpy(outer_content, k_opad, 64);
+    memcpy(outer_content+64, digest, HASH_SIZE);
+    digest = hashmd5(outer_content);
 
 
     //Write hmac
