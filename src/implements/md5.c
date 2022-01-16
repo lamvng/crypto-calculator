@@ -138,12 +138,11 @@ unsigned char* padding(unsigned char* file_buffer, unsigned int file_size, unsig
     long unsigned int pad_bit = file_size*8 + 7;
     toggleBit(data_buffer, 1, pad_bit);
 
-    // Get file size in 64 bits = 8 bytes
-    // AND with 0xFF (2 F - since file_size_padding is in bytes)
-    file_size_padding = (file_size & 0xFF);
+    // File size should be < 2^64 bits
+    // AND with 0x(16 F) - since file_size_padding is in bytes)
+    file_size_padding = (file_size & 0xFFFFFFFFFFFFFFFF);
 
     // Pad the last 64 bits (8 bytes) as data size
-    // FIXME: Problem with data len padding
     file_size_padding_bit = file_size_padding << 3; // Data size in bit
 
     // Append each (len) byte from left to right, from LSB to MSB
@@ -491,8 +490,7 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     //     exit(EXIT_FAILURE);
     // }
 
-    // Example input string
-    // unsigned char file_buffer[] = "They are deterministic";
+    // Calculate string size
     file_size = strlen(file_buffer);
 
     // Calculate total data size (in bytes)
@@ -538,12 +536,6 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     // Get output hash (the little-endian way)
     getOutputHash(output_hash, A, B, C, D);
 
-    // // Final hash
-    // printf("Final MD5 hash:\n");
-    // for (i = 0; i<16; i++) {
-    //     printf("%02x", output_hash[i]);
-    // }
-    // printf("\n\n");
 
     // // Data array in char
     // printf("\n");
@@ -573,7 +565,7 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     //     printf("%x\n", T[i]);
     // }
 
-    // Result
+    // // Result
     // printf("\nFinal results:\n");
     // printf("A = %x\nB = %x\nC = %x\nD = %x\n", A, B, C, D);
 
@@ -585,7 +577,7 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
 //     unsigned char* output_hash;
 //     unsigned int i;
 
-//     unsigned char file_buffer[] = "They are deterministic";
+//     unsigned char file_buffer[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 //     output_hash = hashmd5(file_buffer);
 
