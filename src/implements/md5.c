@@ -494,11 +494,6 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     // Example input string
     // unsigned char file_buffer[] = "They are deterministic";
     file_size = strlen(file_buffer);
-    for (i=0; i<file_size; i++) {
-        printf("%c", file_buffer[i]);
-    }
-    printf("\n\n");
-
 
     // Calculate total data size (in bytes)
     total_size = getDataSize(file_buffer, file_size);
@@ -543,28 +538,28 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     // Get output hash (the little-endian way)
     getOutputHash(output_hash, A, B, C, D);
 
-    // Final hash
-    printf("Final MD5 hash:\n");
-    for (i = 0; i<16; i++) {
-        printf("%02x", output_hash[i]);
-    }
-    printf("\n\n");
+    // // Final hash
+    // printf("Final MD5 hash:\n");
+    // for (i = 0; i<16; i++) {
+    //     printf("%02x", output_hash[i]);
+    // }
+    // printf("\n\n");
 
-    // Data array in char
-    printf("\n");
-    printf("File size: %u bytes\nPadded size: %u bytes = %u uint32\n", file_size, total_size, message_len_int32);
-    printf("\nMessage bytes:\n");
-    for (i=0; i<total_size; i++) {
-        printf("%4x", data_buffer[i]);
-    }
-    printf("\n\n");
+    // // Data array in char
+    // printf("\n");
+    // printf("File size: %u bytes\nPadded size: %u bytes = %u uint32\n", file_size, total_size, message_len_int32);
+    // printf("\nMessage bytes:\n");
+    // for (i=0; i<total_size; i++) {
+    //     printf("%4x", data_buffer[i]);
+    // }
+    // printf("\n\n");
 
-    // Data array in int32
-    printf("Message in word (32 bits):\n");
-    for (j=0; j<message_len_int32; j++) {
-        printf("%x ", message_all_block[j]);
-    }
-    printf("\n");
+    // // Data array in int32
+    // printf("Message in word (32 bits):\n");
+    // for (j=0; j<message_len_int32; j++) {
+    //     printf("%x ", message_all_block[j]);
+    // }
+    // printf("\n");
 
     // // Print test circular left shift
     // uint32_t rot_num = 0x01234567;
