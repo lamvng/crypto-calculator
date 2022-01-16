@@ -131,20 +131,40 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     }
 
     unsigned char *digest;
-//    digest = (unsigned char*)malloc(sizeof(char)*HASH_SIZE);
+    digest = (unsigned char*)malloc(sizeof(char)*HASH_SIZE);
     //Inner MD5: MD5(K_ipad || text)
-
-//    MD5_CTX ctx;
-//    MD5_Init(&ctx);
-//    MD5_Update(&ctx, k_ipad, 64);
-//    MD5_Update(&ctx, file_content, file_size);
-//    MD5_Final(digest, &ctx);
-
-    //Concat k_ipad & file_content
     unsigned char inner_content[file_size+64];
     memcpy(inner_content, k_ipad, 64);
     memcpy(inner_content+64, file_content, file_size);
+//    MD5_CTX ctx;
+//    MD5_Init(&ctx);
+////    MD5_Update(&ctx, k_ipad, 64);
+//    MD5_Update(&ctx, inner_content, file_size+64);
+//    MD5_Final(digest, &ctx);
+
+    //Concat k_ipad & file_content
+    printf("Inner hash\n");
+//    unsigned char inner_content[file_size+64];
+//    memcpy(inner_content, k_ipad, 64);
+//    memcpy(inner_content+64, file_content, file_size);
     digest = hashmd5(inner_content);
+//    printf("\nk_ipad: ");
+//    for (int i = 0; i < 64; ++i) {
+//        printf("%02x", k_ipad[i]);
+//    }
+//    printf("\nfile_content: ");
+//    for (int i = 0; i < file_size; ++i) {
+//        printf("%02x", file_content[i]);
+//    }
+//    printf("\ninner_content: ");
+//    for (int i = 0; i < file_size+64; ++i) {
+//        printf("%02x", inner_content[i]);
+//    }
+    printf("\ndigest:");
+    for (int i = 0; i < 16; ++i) {
+        printf("%02x", digest[i]);
+    }
+    printf("\n");
 
 
 
@@ -157,6 +177,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     memcpy(outer_content, k_opad, 64);
     memcpy(outer_content+64, digest, HASH_SIZE);
     digest = hashmd5(outer_content);
+
 
 
     //Write hmac
@@ -187,6 +208,7 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
     strcpy(hmac_file, hmacFileName);
     strcat(hmac_file, "_temp");
+    printf("New hash to compare\n");
     if(hashing_HMAC(fileName, keyFileName, hmac_file) != 0){
         return -1;
     }
@@ -231,7 +253,7 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
  int main(){
      generateKey_HMAC(128, "keyx");
-     hashing_HMAC("data", "keyx", "hmac1");
-     verify_HMAC("data", "keyx", "hmac1");
+     hashing_HMAC("data", "key", "hmac1");
+     verify_HMAC("data", "key", "hmac1");
      return 0;
  }
