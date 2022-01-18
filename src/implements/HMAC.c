@@ -27,35 +27,39 @@ int generateKey_HMAC(int keySize, char* keyFileName){
         return 0;
     }
     mpz_out_str(fp, 16, key);
+    fclose(fp);
+    mpz_clear(key);
+    gmp_randclear(r_gen);
     return 1;
 }
-
-unsigned char* read_file(FILE *fp, long file_size){
-    char prefix[3];
-    unsigned char *file_content;
-    fgets(prefix, 3, fp);
-    if (!strcmp(prefix, "0x")){
-        unsigned char c1, c2, c;
-        file_size = file_size/2 - 1;
-        file_content = malloc(file_size*sizeof(char));
-
-        for (int i = 0; i < file_size; ++i) {
-            c1 = fgetc(fp);
-            c2 = fgetc(fp);
-            c = 16*char_to_hex(c1) + char_to_hex(c2);
-            file_content[i] = c;
-        }
-
-
-    } else{
-
-        fseek(fp, 0, SEEK_SET);
-        file_content = malloc(file_size*sizeof(char));
-        fread(file_content, 1, file_size, fp);
-    }
-    return file_content;
-}
-
+//
+//unsigned char* read_file(FILE *fp, long file_size){
+//    char prefix[3];
+//    unsigned char *file_content;
+//    fgets(prefix, 3, fp);
+//    if (!strcmp(prefix, "0x")){
+//        unsigned char c1, c2, c;
+//        file_size = file_size/2 - 1;
+//        file_content = malloc(file_size*sizeof(char));
+//
+//        for (int i = 0; i < file_size; ++i) {
+//            c1 = fgetc(fp);
+//            c2 = fgetc(fp);
+//            c = 16*char_to_hex(c1) + char_to_hex(c2);
+//            file_content[i] = c;
+//        }
+//
+//
+//    } else{
+//
+//        fseek(fp, 0, SEEK_SET);
+//        file_content = malloc(file_size*sizeof(char));
+//        fread(file_content, 1, file_size, fp);
+//    }
+//    return file_content;
+//}
+//
+//TODO: delete keyFilename
 int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     /*hashing_HMAC: produce hmac for a given pair of (message, key)
      * fileName: message file
@@ -131,7 +135,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     }
 
     unsigned char *digest;
-    digest = (unsigned char*)malloc(sizeof(char)*HASH_SIZE);
+//    digest = (unsigned char*)malloc(sizeof(char)*HASH_SIZE);
     //Inner MD5: MD5(K_ipad || text)
     unsigned char inner_content[file_size+64];
     memcpy(inner_content, k_ipad, 64);
@@ -147,7 +151,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 //    unsigned char inner_content[file_size+64];
 //    memcpy(inner_content, k_ipad, 64);
 //    memcpy(inner_content+64, file_content, file_size);
-    digest = hashmd5(inner_content);
+    digest = hashmd5(file_content);
 //    printf("\nk_ipad: ");
 //    for (int i = 0; i < 64; ++i) {
 //        printf("%02x", k_ipad[i]);
@@ -156,10 +160,10 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 //    for (int i = 0; i < file_size; ++i) {
 //        printf("%02x", file_content[i]);
 //    }
-//    printf("\ninner_content: ");
-//    for (int i = 0; i < file_size+64; ++i) {
-//        printf("%02x", inner_content[i]);
-//    }
+    printf("\ninner_content: ");
+    for (int i = 0; i < file_size+64; ++i) {
+        printf("%02x", inner_content[i]);
+    }
     printf("\ndigest:");
     for (int i = 0; i < 16; ++i) {
         printf("%02x", digest[i]);
@@ -192,7 +196,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
     return 0;
 }
-
+//TODO: delete hmacFileName
 int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     /*Verify HMAC: given the message, key and correspond hmac, check if the hmac is HMAC(mess, key)
      * fileName: message file
@@ -253,7 +257,21 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
  int main(){
      generateKey_HMAC(128, "keyx");
-     hashing_HMAC("data", "key", "hmac1");
-     verify_HMAC("data", "key", "hmac1");
+//     hashing_HMAC("data", "key", "hmac1");
+//     verify_HMAC("data", "key", "hmac1");
+
+
+    unsigned char* m = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+//     unsigned char* m = "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
+     unsigned char *x;
+
+     x = hashmd5(m);
+     printf("Digest: ");
+     for (int i = 0; i < 16; ++i) {
+         printf("%02x", x[i]);
+     }
+     printf("\n");
+
+
      return 0;
  }
