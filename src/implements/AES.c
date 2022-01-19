@@ -202,12 +202,12 @@ void *processKey_AES(char *keyAES, char *subkeys[])
     unsigned char temp_char;
     for (i = Nk; i < Nb*(ROUND_NUMBER+1); i++)
     {
-        printf("i = %d\n", i);
+        // printf("i = %d\n", i);
         temp_word[0] = round_key[(i-1)*4 + 0];
         temp_word[1] = round_key[(i-1)*4 + 1];
         temp_word[2] = round_key[(i-1)*4 + 2];
         temp_word[3] = round_key[(i-1)*4 + 3];
-        printf("temp word: %02x%02x%02x%02x\n", temp_word[0], temp_word[1], temp_word[2], temp_word[3]);
+        // printf("temp word: %02x%02x%02x%02x\n", temp_word[0], temp_word[1], temp_word[2], temp_word[3]);
         if (i%Nk == 0){
            //Rotword
             temp_char = temp_word[0];
@@ -216,7 +216,7 @@ void *processKey_AES(char *keyAES, char *subkeys[])
             temp_word[2] = temp_word[3];
             temp_word[3] = temp_char;
 
-            printf("temp word after rotword: %02x%02x%02x%02x\n", temp_word[0], temp_word[1], temp_word[2], temp_word[3]);
+            // printf("temp word after rotword: %02x%02x%02x%02x\n", temp_word[0], temp_word[1], temp_word[2], temp_word[3]);
 
             //Subword
             temp_word[0] = SBOX_256[temp_word[0]];
@@ -224,10 +224,10 @@ void *processKey_AES(char *keyAES, char *subkeys[])
             temp_word[2] = SBOX_256[temp_word[2]];
             temp_word[3] = SBOX_256[temp_word[3]];
 
-            printf("temp word after subword: %02x%02x%02x%02x\n", temp_word[0], temp_word[1], temp_word[2], temp_word[3]);
+            // printf("temp word after subword: %02x%02x%02x%02x\n", temp_word[0], temp_word[1], temp_word[2], temp_word[3]);
             //XOR Rcon
             temp_word[0] = temp_word[0]^Rcon[i/Nk];
-            printf("temp word after xor rcon: %02x%02x%02x%02x\n", temp_word[0], temp_word[1], temp_word[2], temp_word[3]);
+            // printf("temp word after xor rcon: %02x%02x%02x%02x\n", temp_word[0], temp_word[1], temp_word[2], temp_word[3]);
 
         }
         //round_key[i] = round_key[i-Nk]^temp_word;
@@ -236,23 +236,17 @@ void *processKey_AES(char *keyAES, char *subkeys[])
         round_key[i*4 + 2] = round_key[(i-Nk)*4 + 2]^temp_word[2];
         round_key[i*4 + 3] = round_key[(i-Nk)*4 + 3]^temp_word[3];
 
-        printf("Final word = %x%x%x%x\n", round_key[i*4 + 0], round_key[i*4 + 1], round_key[i*4 + 2], round_key[i*4 + 3]);
+        // printf("Final word = %x%x%x%x\n", round_key[i*4 + 0], round_key[i*4 + 1], round_key[i*4 + 2], round_key[i*4 + 3]);
     }
-    unsigned char *sub_keys[16];
+
     for (int j = 0; j < ROUND_NUMBER + 1; ++j) {
         subkeys[j] = (char*)malloc(sizeof(char)*Nk*4);
-        sub_keys[j] = (unsigned char*)malloc(sizeof(char)*Nk*4);
         memcpy(subkeys[j], round_key+(j*16), 16);
-        memcpy(sub_keys[j], round_key+(j*16), 16);
-        printf("Subkey round %d: ", j);
-        for (int k = 0; k < 16; ++k) {
-            printf("%02x", subkeys[j][k]);
-        }
-        printf("\n");
-        for (int k = 0; k < 16; ++k) {
-            printf("%02x", sub_keys[j][k]);
-        }
-        printf("\n");
+        // printf("Subkey round %d: ", j);
+        // for (int k = 0; k < 16; ++k) {
+        //     printf("%d", (unsigned char) subkeys[j][k]);
+        // }
+        // printf("\n");
     }
 
 }
