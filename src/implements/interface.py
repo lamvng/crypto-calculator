@@ -20,6 +20,9 @@ MODE_AES = 1
 MODE_ECB = 0
 MODE_CBC = 1
 
+# Default signature RSA File Name
+NAME_FILE_SIGN = "signature.txt"
+
 so_file = "./crypto_cal_lib.so"
 c_lib = CDLL(so_file)
 gl_filename = ''
@@ -31,7 +34,11 @@ def browseFiles(fInfos, textfile):
     global gl_filename
 
     filename = tkFileDialog.askopenfilename(parent=fInfos, initialdir=os.getcwd(), title="Select a File",
-                                            filetypes=(("Text files", "*.txt*"), ("all files", "*.*")))
+                                            filetypes=(("Text files", "*"), ("all files", "*.*")))
+
+    if filename == '':
+        return
+
     gl_filename = filename
     if len(filename) > 50:
         textfile.set("..." + filename[len(filename)-30:len(filename)])
@@ -43,7 +50,11 @@ def browseFiles(fInfos, textfile):
 def browseKeyFiles(fInfos, keyfile):
     global gl_keyfile
     filename = tkFileDialog.askopenfilename(parent=fInfos, initialdir=os.getcwd(), title="Select a Key",
-                                            filetypes=(("Text files", "*.txt*"), ("all files", "*.*")))
+                                            filetypes=(("Ket files", "*"), ("all files", "*.*")))
+    
+    if filename == '':
+        return
+        
     gl_keyfile = filename
 
     if len(filename) > 50:
@@ -71,46 +82,68 @@ def frame_files(fInfos):
     file_name_label.grid(sticky=W, row=1, column=2)
 
 
-def encrypt_rsa(mode):
+def encrypt_rsa(mode, notifyText):
     global gl_filename, gl_keyfile
     print(gl_filename, gl_keyfile, mode.get())
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.encryptFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    rs = c_lib.encryptFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
 
+    if rs == 0:
+        notifyText.set("Encrypt success");
+    else:
+        notifyText.set("Encrypt fail");
 
-def decrypt_rsa(mode):
+def decrypt_rsa(mode, notifyText):
     global gl_filename, gl_keyfile
     print(gl_filename, gl_keyfile, mode.get())
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    rs = c_lib.decryptFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
 
+    if rs == 0:
+        notifyText.set("Decrypt success");
+    else:
+        notifyText.set("Decrypt fail");
 
-def generateRSA(mode):
+def generateRSA(mode, notifyText):
+    rs = -1
     if mode.get() == MODE_STANDARD:
-        c_lib.generateFileKey_RSA()
+        rs = c_lib.generateFileKey_RSA()
         print("generate RSA Standard key")
     elif mode.get() == MODE_CRT:
-        c_lib.generateFileKey_RSA_CRT()
+        rs = c_lib.generateFileKey_RSA_CRT()
         print("generate RSA CRT key")
+    
+    if rs == 0:
+        notifyText.set("Generate success");
+    else:
+        notifyText.set("Generate fail");
 
-
-def signatureRSA(mode):
+def signatureRSA(mode, notifyText):
     global gl_filename, gl_keyfile
     print(gl_filename, gl_keyfile, mode.get())
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.signFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    rs = c_lib.signFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
 
-def verifyRSA(mode):
+    if rs == 0:
+        notifyText.set("Sign success");
+    else:
+        notifyText.set("Sign fail");
+
+def verifyRSA(mode, notifyText):
     global gl_filename, gl_signfile, gl_keyfile
+    gl_signfile = NAME_FILE_SIGN
     print(gl_filename, gl_signfile, gl_keyfile, mode.get())
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.verifyFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_signfile.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+    rs = c_lib.verifyFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_signfile.encode()), c_char_p(gl_keyfile.encode()), mode.get())
 
-
+    if rs == 1:
+        notifyText.set("Valid signature");
+    else:
+        notifyText.set("Verify fail");
 
 def popup_RSA():
     print("RSA calculator open")
@@ -118,7 +151,9 @@ def popup_RSA():
 
     fInfos = Tk()
     fInfos.title('Cryptographic Calculator - RSA')
-    fInfos.geometry('600x400+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
+    fInfos.geometry('600x450+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
+
+    notifyText = StringVar(fInfos)
 
     frame_files(fInfos)
     mode = IntVar(fInfos)
@@ -133,17 +168,21 @@ def popup_RSA():
     # Frame bouton calcul
     label_calcul = LabelFrame(fInfos, text="Select an operation")
     label_calcul.pack(fill="both", ipady=10, padx=5, pady=5)
-    choice_encryption = Button(label_calcul, text="Encryption", command=partial(encrypt_rsa, mode)).pack(side=LEFT,
+    choice_encryption = Button(label_calcul, text="Encryption", command=partial(encrypt_rsa, mode, notifyText)).pack(side=LEFT,
                                                                                                          padx=5)  # add command
-    choice_decryption = Button(label_calcul, text="Decryption", command=partial(decrypt_rsa, mode)).pack(side=LEFT,
+    choice_decryption = Button(label_calcul, text="Decryption", command=partial(decrypt_rsa, mode, notifyText)).pack(side=LEFT,
                                                                                                          padx=5)  # add command
-    choice_sign = Button(label_calcul, text="Signature", command=partial(signatureRSA, mode)).pack(side=LEFT, padx=5)  # add command
-    choice_verify = Button(label_calcul, text="Verify", command=partial(verifyRSA,mode)).pack(side=LEFT, padx=5)  # add command
+    choice_sign = Button(label_calcul, text="Signature", command=partial(signatureRSA, mode, notifyText)).pack(side=LEFT, padx=5)  # add command
+    choice_verify = Button(label_calcul, text="Verify", command=partial(verifyRSA,mode, notifyText)).pack(side=LEFT, padx=5)  # add command
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
     label_gen.pack(fill="both", ipady=10, padx=5, pady=5)
-    choice_gen = Button(label_gen, text="Generate Key", command=partial(generateRSA, mode)).pack(side=LEFT, padx=5)
+    choice_gen = Button(label_gen, text="Generate Key", command=partial(generateRSA, mode, notifyText)).pack(side=LEFT, padx=5)
+
+
+    notify_label = Label(fInfos, textvariable=notifyText,width=40, anchor="w")
+    notify_label.pack(fill="both", ipady=10, padx=5, pady=5)
 
     Button(fInfos, text='Quit', fg="red", command=fInfos.destroy).pack(side=BOTTOM, ipady=10, padx=10, pady=5)
 

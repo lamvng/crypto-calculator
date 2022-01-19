@@ -8,6 +8,8 @@
 
 #define NAME_FILE_PK_RSA "PK_standard_RSA.txt"
 #define NAME_FILE_SK_RSA "SK_standard_RSA.txt"
+#define NAME_FILE_PK_RSA_CRT "PK_CRT_RSA.txt"
+#define NAME_FILE_SK_RSA_CRT "SK_CRT_RSA.txt"
 #define NAME_FILE_K_DES "K_DES.txt"
 #define NAME_FILE_K_AES "K_AES.txt"
 
