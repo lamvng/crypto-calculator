@@ -32,33 +32,33 @@ int generateKey_HMAC(int keySize, char* keyFileName){
     gmp_randclear(r_gen);
     return 1;
 }
-//
-//unsigned char* read_file(FILE *fp, long file_size){
-//    char prefix[3];
-//    unsigned char *file_content;
-//    fgets(prefix, 3, fp);
-//    if (!strcmp(prefix, "0x")){
-//        unsigned char c1, c2, c;
-//        file_size = file_size/2 - 1;
-//        file_content = malloc(file_size*sizeof(char));
-//
-//        for (int i = 0; i < file_size; ++i) {
-//            c1 = fgetc(fp);
-//            c2 = fgetc(fp);
-//            c = 16*char_to_hex(c1) + char_to_hex(c2);
-//            file_content[i] = c;
-//        }
-//
-//
-//    } else{
-//
-//        fseek(fp, 0, SEEK_SET);
-//        file_content = malloc(file_size*sizeof(char));
-//        fread(file_content, 1, file_size, fp);
-//    }
-//    return file_content;
-//}
-//
+
+unsigned char* read_file(FILE *fp, long file_size){
+    char prefix[3];
+    unsigned char *file_content;
+    fgets(prefix, 3, fp);
+    if (!strcmp(prefix, "0x")){
+        unsigned char c1, c2, c;
+        file_size = file_size/2 - 1;
+        file_content = malloc(file_size*sizeof(char));
+
+        for (int i = 0; i < file_size; ++i) {
+            c1 = fgetc(fp);
+            c2 = fgetc(fp);
+            c = 16*char_to_hex(c1) + char_to_hex(c2);
+            file_content[i] = c;
+        }
+
+
+    } else{
+
+        fseek(fp, 0, SEEK_SET);
+        file_content = malloc(file_size*sizeof(char));
+        fread(file_content, 1, file_size, fp);
+    }
+    return file_content;
+}
+
 //TODO: delete keyFilename
 int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     /*hashing_HMAC: produce hmac for a given pair of (message, key)
