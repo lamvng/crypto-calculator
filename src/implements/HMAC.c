@@ -1,12 +1,15 @@
 #include "../libs/HMAC.h"
+#include "../libs/md5.h"
 #include "gmp.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <openssl/md5.h>
 #include <ctype.h>
 #include <time.h>
+#include <openssl/md5.h>
 #define char_to_hex(c) ( (toupper((c)) >= 'A' && toupper((c)) <= 'F')? toupper((c)) - 'A' + 10 : (c) - '0')
+
+#define HASH_SIZE 16
 
 int generateKey_HMAC(int keySize, char* keyFileName){
     gmp_randstate_t r_gen;
@@ -21,12 +24,42 @@ int generateKey_HMAC(int keySize, char* keyFileName){
     fp = fopen(keyFileName, "w+");
     if(fp == NULL){
         perror("Failed: ");
-        return -1;
+        return 0;
     }
     mpz_out_str(fp, 16, key);
-    return 0;
+    fclose(fp);
+    mpz_clear(key);
+    gmp_randclear(r_gen);
+    return 1;
 }
-
+//
+//unsigned char* read_file(FILE *fp, long file_size){
+//    char prefix[3];
+//    unsigned char *file_content;
+//    fgets(prefix, 3, fp);
+//    if (!strcmp(prefix, "0x")){
+//        unsigned char c1, c2, c;
+//        file_size = file_size/2 - 1;
+//        file_content = malloc(file_size*sizeof(char));
+//
+//        for (int i = 0; i < file_size; ++i) {
+//            c1 = fgetc(fp);
+//            c2 = fgetc(fp);
+//            c = 16*char_to_hex(c1) + char_to_hex(c2);
+//            file_content[i] = c;
+//        }
+//
+//
+//    } else{
+//
+//        fseek(fp, 0, SEEK_SET);
+//        file_content = malloc(file_size*sizeof(char));
+//        fread(file_content, 1, file_size, fp);
+//    }
+//    return file_content;
+//}
+//
+//TODO: delete keyFilename
 int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     /*hashing_HMAC: produce hmac for a given pair of (message, key)
      * fileName: message file
@@ -48,31 +81,11 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
 
     unsigned char *hmac_key;
-
-    char prefix[3];
-    fgets(prefix, 3, fp);
-    if (!strcmp(prefix, "0x")){
-        unsigned char c1, c2, c;
-        key_size = key_size/2 - 1;
-        hmac_key = malloc(key_size*sizeof(char));
-
-        for (int i = 0; i < key_size; ++i) {
-            c1 = fgetc(fp);
-            c2 = fgetc(fp);
-            c = 16*char_to_hex(c1) + char_to_hex(c2);
-            hmac_key[i] = c;
-
-        }
-    } else{
-        fseek(fp, 0, SEEK_SET);
-        hmac_key = malloc(key_size*sizeof(char));
-        fread(hmac_key, 1, key_size, fp);
-    }
+    hmac_key = read_file(fp, key_size);
 
     fclose(fp);
-    hmac_key[key_size] = 0;
-
     //Read message
+
     fp = fopen(fileName, "rb");
     if(fp == NULL){
         perror("Failed: ");
@@ -83,45 +96,26 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     fseek(fp, 0, SEEK_SET);
 
     unsigned char *file_content;
-
-    fgets(prefix, 3, fp);
-    if (!strcmp(prefix, "0x")){
-        unsigned char c1, c2, c;
-        file_size = file_size/2 - 1;
-        file_content = malloc(file_size*sizeof(char));
-
-        for (int i = 0; i < file_size; ++i) {
-            c1 = fgetc(fp);
-            c2 = fgetc(fp);
-            c = 16*char_to_hex(c1) + char_to_hex(c2);
-            file_content[i] = c;
-        }
-
-
-    } else{
-        fseek(fp, 0, SEEK_SET);
-        file_content = malloc(file_size*sizeof(char));
-        fread(file_content, 1, file_size, fp);
-    }
+    file_content = read_file(fp, file_size);
 
     fclose(fp);
-
 
     //XOR key with ipad
     unsigned char k_ipad[65];
     unsigned char k_opad[65];
 
-    unsigned char tkey[16];
-    int i;
+    unsigned char *tkey;
+//    tkey = (unsigned char*) malloc(16 * sizeof(unsigned char));
 
     //Hash key if len key > 64
     if(key_size > 64){
         //test
         printf("key size exceeded\n");
-        MD5_CTX kctx;
-        MD5_Init(&kctx);
-        MD5_Update(&kctx, hmac_key, key_size);
-        MD5_Final(tkey, &kctx);
+//        MD5_CTX kctx;
+//        MD5_Init(&kctx);
+//        MD5_Update(&kctx, hmac_key, key_size);
+//        MD5_Final(tkey, &kctx);
+        tkey = hashmd5(hmac_key);
         hmac_key = tkey;
         key_size = 16;
     }
@@ -130,8 +124,9 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
     memset(k_ipad, 0, sizeof(k_ipad));
     memset(k_opad, 0, sizeof(k_opad) );
-    memmove(k_ipad,hmac_key, key_size);
-    memmove(k_opad,hmac_key,  key_size);
+    memcpy(k_ipad,hmac_key, key_size);
+    memcpy(k_opad,hmac_key,  key_size);
+
 
 
     for (int j = 0; j < 64; ++j) {
@@ -139,24 +134,58 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
         k_opad[j] ^= 0x5c;
     }
 
-    unsigned char digest[16];
-    //Inner MD5
+    unsigned char *digest;
+//    digest = (unsigned char*)malloc(sizeof(char)*HASH_SIZE);
+    //Inner MD5: MD5(K_ipad || text)
+    unsigned char inner_content[file_size+64];
+    memcpy(inner_content, k_ipad, 64);
+    memcpy(inner_content+64, file_content, file_size);
+//    MD5_CTX ctx;
+//    MD5_Init(&ctx);
+////    MD5_Update(&ctx, k_ipad, 64);
+//    MD5_Update(&ctx, inner_content, file_size+64);
+//    MD5_Final(digest, &ctx);
 
-    MD5_CTX ctx;
-    MD5_Init(&ctx);
-    MD5_Update(&ctx, k_ipad, 64);
-    MD5_Update(&ctx, file_content, file_size);
-    MD5_Final(digest, &ctx);
+    //Concat k_ipad & file_content
+    printf("Inner hash\n");
+//    unsigned char inner_content[file_size+64];
+//    memcpy(inner_content, k_ipad, 64);
+//    memcpy(inner_content+64, file_content, file_size);
+    digest = hashmd5(file_content);
+//    printf("\nk_ipad: ");
+//    for (int i = 0; i < 64; ++i) {
+//        printf("%02x", k_ipad[i]);
+//    }
+//    printf("\nfile_content: ");
+//    for (int i = 0; i < file_size; ++i) {
+//        printf("%02x", file_content[i]);
+//    }
+    printf("\ninner_content: ");
+    for (int i = 0; i < file_size+64; ++i) {
+        printf("%02x", inner_content[i]);
+    }
+    printf("\ndigest:");
+    for (int i = 0; i < 16; ++i) {
+        printf("%02x", digest[i]);
+    }
+    printf("\n");
 
-    //Outer MD5
-    MD5_Init(&ctx);
-    MD5_Update(&ctx, k_opad, 64);
-    MD5_Update(&ctx, digest, 16);
-    MD5_Final(digest, &ctx);
+
+
+    //Outer MD5: MD5(k_opad||innerMD5)
+//    MD5_Init(&ctx);
+//    MD5_Update(&ctx, k_opad, 64);
+//    MD5_Update(&ctx, digest, 16);
+//    MD5_Final(digest, &ctx);
+    unsigned char outer_content[HASH_SIZE+64];
+    memcpy(outer_content, k_opad, 64);
+    memcpy(outer_content+64, digest, HASH_SIZE);
+    digest = hashmd5(outer_content);
+
+
 
     //Write hmac
     fp = fopen(hmacFileName, "w+");
-    printf("Write file\n");
     if(fp == NULL){
         perror("Failed: ");
         return -1;
@@ -167,7 +196,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
     return 0;
 }
-
+//TODO: delete hmacFileName
 int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     /*Verify HMAC: given the message, key and correspond hmac, check if the hmac is HMAC(mess, key)
      * fileName: message file
@@ -183,14 +212,14 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
     strcpy(hmac_file, hmacFileName);
     strcat(hmac_file, "_temp");
-    printf("%s\n", hmac_file);
+    printf("New hash to compare\n");
     if(hashing_HMAC(fileName, keyFileName, hmac_file) != 0){
         return -1;
     }
 
 
     FILE *fp;
-    //Read hmac file
+    //Read input hmac file
     fp = fopen(hmacFileName, "r");
     if(fp == NULL){
         perror("Failed: ");
@@ -203,9 +232,8 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     char* hmac;
     hmac = malloc(hmac_size*sizeof(char));
     fgets(hmac, hmac_size, fp);
-    printf("Verify\n");
 
-//    Read new hmac file
+//    Read new gen hmac file
     fp = fopen(hmac_file, "r");
     if(fp == NULL){
         perror("Failed: ");
@@ -219,6 +247,7 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     hmac2 = malloc(hmac_size*sizeof(char));
     fgets(hmac2, hmac_size2, fp);
     fclose(fp);
+    remove(hmac_file);
 
     if(!strcmp(hmac, hmac2)){
         printf("HMAC verified!\n");
@@ -226,9 +255,23 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     return 0;
 }
 
-// int main(){
-//     generateKey_HMAC(128, "keyx");
-//     hashing_HMAC("data", "keyx", "hmac1");
-//     verify_HMAC("data", "keyx", "hmac1");
-//     return 0;
-// }
+ int main(){
+     generateKey_HMAC(128, "keyx");
+//     hashing_HMAC("data", "key", "hmac1");
+//     verify_HMAC("data", "key", "hmac1");
+
+
+    unsigned char* m = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+//     unsigned char* m = "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
+     unsigned char *x;
+
+     x = hashmd5(m);
+     printf("Digest: ");
+     for (int i = 0; i < 16; ++i) {
+         printf("%02x", x[i]);
+     }
+     printf("\n");
+
+
+     return 0;
+ }

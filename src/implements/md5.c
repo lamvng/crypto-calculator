@@ -123,6 +123,7 @@ unsigned char* padding(unsigned char* file_buffer, unsigned int file_size, unsig
 
     // Allocate array to store data of all blocks
     unsigned char* data_buffer = (unsigned char*) malloc(total_size * sizeof(unsigned char)); // Return a copy of file_buffer with more space
+    // data_buffer[total_size] = '\0';
     if (!data_buffer) {
         printf("Cannot allocate buffer.\n");
         exit(EXIT_FAILURE);
@@ -133,10 +134,18 @@ unsigned char* padding(unsigned char* file_buffer, unsigned int file_size, unsig
         data_buffer[i] = file_buffer[i];
     }
 
+    // Firstly, pad the rest of the data as 0
+    for (i=file_size; i<total_size; i++) {
+        data_buffer[i] = 0x00;
+    }
+
     // The next bit is 1
     // It is the MSB of the next byte
+    // data_buffer[file_size] = 0x80;
     long unsigned int pad_bit = file_size*8 + 7;
     toggleBit(data_buffer, 1, pad_bit);
+
+
 
     // File size should be < 2^64 bits
     // AND with 0x(16 F) - since file_size_padding is in bytes)
@@ -499,6 +508,9 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
 
     // Padding
     data_buffer = padding(file_buffer, file_size, total_size);
+    
+
+    // printf("\n");
 
     // Convert message to int
     message_all_block = convertUint(data_buffer, total_size, message_len_int32);
@@ -537,7 +549,7 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     getOutputHash(output_hash, A, B, C, D);
 
 
-    // // Data array in char
+    // Data array in char
     // printf("\n");
     // printf("File size: %u bytes\nPadded size: %u bytes = %u uint32\n", file_size, total_size, message_len_int32);
     // printf("\nMessage bytes:\n");
@@ -546,7 +558,7 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     // }
     // printf("\n\n");
 
-    // // Data array in int32
+    // Data array in int32
     // printf("Message in word (32 bits):\n");
     // for (j=0; j<message_len_int32; j++) {
     //     printf("%x ", message_all_block[j]);
@@ -577,7 +589,7 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
 //     unsigned char* output_hash;
 //     unsigned int i;
 
-//     unsigned char file_buffer[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+//     unsigned char file_buffer[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
 //     output_hash = hashmd5(file_buffer);
 
@@ -587,5 +599,4 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
 //         printf("%02x", output_hash[i]);
 //     }
 //     printf("\n\n");
-
 // }
