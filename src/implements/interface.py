@@ -205,8 +205,9 @@ def decrypt_des(mode):
         print(gl_filename, gl_keyfile, mode.get())
 
 
-def generateDES(mode):
-    generateFileKey_DES()
+def generateDES():
+    print("Generate Key DES")
+    c_lib.generateFileKey_DES()
 
 
 
@@ -293,6 +294,11 @@ def decrypt_aes(mode):
         print("Decrypt AES with CBC mode")
         print(gl_filename, gl_keyfile, mode.get())
 
+def generateAES():
+    print("Generate key with AES")
+    c_lib.generateFileKey_AES()
+
+
 ### AES UI ###
 def popup_AES():
     print("AES calculator open")
@@ -320,7 +326,7 @@ def popup_AES():
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
     label_gen.pack(fill="both", ipady=10, padx=5, pady=5)
-    choice_gen = Button(label_gen, text="Generate Key").pack(side=LEFT, padx=5)
+    choice_gen = Button(label_gen, text="Generate Key", command=partial(generateAES)).pack(side=LEFT, padx=5)
 
     Button(fInfos, text='Quit', fg="red", command=fInfos.destroy).pack(side=BOTTOM, ipady=10, padx=10, pady=5)
 
