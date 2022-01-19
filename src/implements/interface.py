@@ -51,10 +51,10 @@ def browseKeyFiles(fInfos, keyfile):
     global gl_keyfile
     filename = tkFileDialog.askopenfilename(parent=fInfos, initialdir=os.getcwd(), title="Select a Key",
                                             filetypes=(("Ket files", "*"), ("all files", "*.*")))
-    
+
     if filename == '':
         return
-        
+
     gl_keyfile = filename
 
     if len(filename) > 50:
@@ -114,7 +114,7 @@ def generateRSA(mode, notifyText):
     elif mode.get() == MODE_CRT:
         rs = c_lib.generateFileKey_RSA_CRT()
         print("generate RSA CRT key")
-    
+
     if rs == 0:
         notifyText.set("Generate success");
     else:
@@ -311,15 +311,15 @@ def decrypt_cbc_aes():
     #print(gl_filename, gl_keyfile, MODE_AES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_cbc(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
+    c_lib.decryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
 
 def encrypt_aes(mode):
     if mode.get() == MODE_ECB:
-        encrypt_ecb_des()
+        encrypt_ecb_aes()
         print("Encrypt AES with ECB mode")
         print(gl_filename, gl_keyfile, mode.get())
     elif mode.get() == MODE_CBC:
-        encrypt_cbc_des()
+        encrypt_cbc_aes()
         print("Encrypt AES with CBC mode")
         print(gl_filename, gl_keyfile, mode.get())
 
