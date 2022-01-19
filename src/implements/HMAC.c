@@ -72,12 +72,15 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
      * hmacFileName: file name to save produced hmac
      * return 0 if hashing successes -1 otherwise
      */
-
+    printf("%s\n", fileName);
+    printf("%s\n", keyFileName);
+    printf("%s\n", hmacFileName);
     FILE *fp;
     //Read key
     fp = fopen(keyFileName, "rb");
     if(fp == NULL){
         perror("Failed: ");
+        printf("%s\n", fileName);
         return -1;
     }
     fseek(fp, 0, SEEK_END);
@@ -94,6 +97,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     fp = fopen(fileName, "rb");
     if(fp == NULL){
         perror("Failed: ");
+        printf("%s\n", fileName);
         return -1;
     }
     fseek(fp, 0, SEEK_END);
@@ -180,6 +184,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     fp = fopen(hmacFileName, "w+");
     if(fp == NULL){
         perror("Failed: ");
+        printf("%s\n", hmacFileName);
         return -1;
     }
 
@@ -216,6 +221,7 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     fp = fopen(hmacFileName, "r");
     if(fp == NULL){
         perror("Failed: ");
+        printf("%s\n", hmacFileName);
         return -1;
     }
     fseek(fp, 0, SEEK_END);
@@ -230,6 +236,7 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     fp = fopen(hmac_file, "r");
     if(fp == NULL){
         perror("Failed: ");
+        printf("%s\n", hmac_file);
         return -1;
     }
     fseek(fp, 0, SEEK_END);
@@ -249,27 +256,27 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     return -1;
 }
 
- int main(){
-//    int x;
-     generateKey_HMAC(128, "keyx");
-//     hashing_HMAC("data", "key", "hmac1");
-//     x = verify_HMAC("data", "key", "hmac1");
-//     if(x == 1){
-//         printf("verified!");
-//     }
-
-    unsigned char* m = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-////     unsigned char* m = "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
-     unsigned char *x, *y;
+// int main(){
+////    int x;
+//     generateKey_HMAC(128, "keyx");
+////     hashing_HMAC("data", "key", "hmac1");
+////     x = verify_HMAC("data", "key", "hmac1");
+////     if(x == 1){
+////         printf("verified!");
+////     }
 //
-     x = hashmd5(m);
-     y = hashmd5(x);
-     printf("Digest: ");
-     for (int i = 0; i < 16; ++i) {
-         printf("%02x", y[i]);
-     }
-     printf("\n");
-
-
-     return 0;
- }
+//    unsigned char* m = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+//////     unsigned char* m = "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
+//     unsigned char *x, *y;
+////
+//     x = hashmd5(m);
+//     y = hashmd5(x);
+//     printf("Digest: ");
+//     for (int i = 0; i < 16; ++i) {
+//         printf("%02x", y[i]);
+//     }
+//     printf("\n");
+//
+//
+//     return 0;
+// }
