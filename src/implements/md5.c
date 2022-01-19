@@ -599,5 +599,4 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
 //         printf("%02x", output_hash[i]);
 //     }
 //     printf("\n\n");
-
 // }
