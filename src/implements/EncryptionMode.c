@@ -66,7 +66,8 @@ int encryptFile_ECB(char *fileName, char *keyFileName, int mode)
         int blockSize = 8;
 
         int paddSize = blockSize - (dataSize % blockSize);
-        char *paddData = (char *)malloc((dataSize + paddSize) * sizeof(char));
+        char *paddData = (char *)malloc((1 + dataSize + paddSize) * sizeof(char));
+        paddData[dataSize + paddSize] = 0;
 
         memcpy(paddData, data, dataSize);
         int i;
@@ -81,7 +82,7 @@ int encryptFile_ECB(char *fileName, char *keyFileName, int mode)
         int count = 0, j = 0;
         mpz_t z_m, z_c;
         mpz_inits(z_m, z_c, NULL);
-        char *cipher = (char *)malloc((dataSize) * sizeof(char));
+        char *cipher = (char *)malloc((1 + dataSize) * sizeof(char));
 
         for (i = 0; i < dataSize; i++)
         {
@@ -136,7 +137,8 @@ int encryptFile_ECB(char *fileName, char *keyFileName, int mode)
         int blockSize = 16;
 
         int paddSize = blockSize - (dataSize % blockSize);
-        char *paddData = (char *)malloc((dataSize + paddSize) * sizeof(char));
+        char *paddData = (char *)malloc((1 + dataSize + paddSize) * sizeof(char));
+        paddData[dataSize + paddSize] = 0;
 
         memcpy(paddData, data, dataSize);
         int i;
@@ -149,7 +151,8 @@ int encryptFile_ECB(char *fileName, char *keyFileName, int mode)
 
         char subData[blockSize];
         int count = 0, j = 0;
-        char *cipher = (char *)malloc((dataSize) * sizeof(char));
+        char *cipher = (char *)malloc((1 + dataSize) * sizeof(char));
+        cipher[dataSize] = 0;
 
         char keyAES[16]; // 128 bit key size
         convertDecimalToBytes(z_keyAES, keyAES, 16);
@@ -213,7 +216,9 @@ int decryptFile_ECB(char *fileName, char *keyFileName, int mode)
         int count = 0, j = 0, i;
         mpz_t z_m, z_c;
         mpz_inits(z_m, z_c, NULL);
-        char *data = (char *)malloc((cipherSize) * sizeof(char));
+        char *data = (char *)malloc((1 + cipherSize) * sizeof(char));
+        data[cipherSize] = 0;
+
         for (i = 0; i < cipherSize; i++)
         {
             subData[count] = cipher[i];
@@ -272,7 +277,8 @@ int decryptFile_ECB(char *fileName, char *keyFileName, int mode)
 
         char subData[blockSize];
         int count = 0, j = 0, i;
-        char *data = (char *)malloc((cipherSize) * sizeof(char));
+        char *data = (char *)malloc((1 + cipherSize) * sizeof(char));
+        data[cipherSize] = 0;
 
         char keyAES[16]; // 128 bit key size
         convertDecimalToBytes(z_keyAES, keyAES, 16);
@@ -340,7 +346,8 @@ int encryptFile_CBC(char *fileName, char *keyFileName, int mode)
         int blockSize = 8;
 
         int paddSize = blockSize - (dataSize % blockSize);
-        char *paddData = (char *)malloc((dataSize + paddSize) * sizeof(char));
+        char *paddData = (char *)malloc((1 + dataSize + paddSize) * sizeof(char));
+        paddData[dataSize + paddSize] = 0;
 
         memcpy(paddData, data, dataSize);
         int i;
@@ -356,8 +363,8 @@ int encryptFile_CBC(char *fileName, char *keyFileName, int mode)
         mpz_t z_m, z_c, z_c_temp;
         mpz_inits(z_m, z_c, z_c_temp, NULL);
         mpz_set_str(z_c_temp, IV, 0);
-        char *cipher = (char *)malloc((dataSize) * sizeof(char));
-        cipher[dataSize] = '\0';
+        char *cipher = (char *)malloc((1 + dataSize) * sizeof(char));
+        cipher[dataSize] = 0;
 
         for (i = 0; i < dataSize; i++)
         {
@@ -415,7 +422,8 @@ int encryptFile_CBC(char *fileName, char *keyFileName, int mode)
         int blockSize = 16;
 
         int paddSize = blockSize - (dataSize % blockSize);
-        char *paddData = (char *)malloc((dataSize + paddSize) * sizeof(char));
+        char *paddData = (char *)malloc((1 + dataSize + paddSize) * sizeof(char));
+        paddData[dataSize + paddSize] = 0;
 
         memcpy(paddData, data, dataSize);
         int i;
@@ -432,7 +440,8 @@ int encryptFile_CBC(char *fileName, char *keyFileName, int mode)
         mpz_inits(z_m, z_c, z_c_temp, NULL);
         mpz_set_str(z_c_temp, IV, 0);
 
-        char *cipher = (char *)malloc((dataSize) * sizeof(char));
+        char *cipher = (char *)malloc((1 + dataSize) * sizeof(char));
+        cipher[dataSize] = 0;
 
         char keyAES[16]; // 128 bit key size
         convertDecimalToBytes(z_keyAES, keyAES, 16);
@@ -504,7 +513,9 @@ int decryptFile_CBC(char *fileName, char *keyFileName, int mode)
         mpz_t z_m, z_c, z_c_temp;
         mpz_inits(z_m, z_c, z_c_temp, NULL);
         mpz_set_str(z_c_temp, IV, 0);
-        char *data = (char *)malloc((cipherSize) * sizeof(char));
+        char *data = (char *)malloc((1 + cipherSize) * sizeof(char));
+        data[cipherSize] = 0;
+
         for (i = 0; i < cipherSize; i++)
         {
             subData[count] = cipher[i];
@@ -567,7 +578,8 @@ int decryptFile_CBC(char *fileName, char *keyFileName, int mode)
         mpz_t z_m, z_c, z_c_temp;
         mpz_inits(z_m, z_c, z_c_temp, NULL);
         mpz_set_str(z_c_temp, IV, 0);
-        char *data = (char *)malloc((cipherSize) * sizeof(char));
+        char *data = (char *)malloc((1 + cipherSize) * sizeof(char));
+        data[cipherSize] = 0;
 
         char keyAES[16]; // 128 bit key size
         convertDecimalToBytes(z_keyAES, keyAES, 16);
@@ -649,7 +661,8 @@ int encryptFile_RSA(char *fileName, char *keyFileName, int mode)
         int blockSize = strlen(str) / 2 - 1;
 
         int paddSize = blockSize - (dataSize % blockSize);
-        char *paddData = (char *)malloc((dataSize + paddSize) * sizeof(char));
+        char *paddData = (char *)malloc((1 + dataSize + paddSize) * sizeof(char));
+        paddData[dataSize + paddSize] = 0;
 
         memcpy(paddData, data, dataSize);
         int i;
@@ -667,7 +680,9 @@ int encryptFile_RSA(char *fileName, char *keyFileName, int mode)
         int numberBlock = dataSize / blockSize;
         int cipherSize = (blockSize + 1) * numberBlock;
 
-        char *cipher = (char *)malloc((cipherSize) * sizeof(char));
+        char *cipher = (char *)malloc((1 + cipherSize) * sizeof(char));
+        cipher[cipherSize] = 0;
+
         for (i = 0; i < dataSize; i++)
         {
             subData[count] = paddData[i];
@@ -739,7 +754,9 @@ int decryptFile_RSA(char *fileName, char *keyFileName, int mode)
         mpz_inits(z_m, z_c, NULL);
         int numberBlock = cipherSize / blockSize;
         int dataSize = (blockSize - 1) * numberBlock;
-        char *data = (char *)malloc((dataSize) * sizeof(char));
+        char *data = (char *)malloc((1 + dataSize) * sizeof(char));
+        data[dataSize] = 0;
+
         for (i = 0; i < cipherSize; i++)
         {
             subCipher[count] = cipher[i];
@@ -828,7 +845,9 @@ int decryptFile_RSA(char *fileName, char *keyFileName, int mode)
         mpz_inits(z_m, z_c, NULL);
         int numberBlock = cipherSize / blockSize;
         int dataSize = (blockSize - 1) * numberBlock;
-        char *data = (char *)malloc((dataSize) * sizeof(char));
+        char *data = (char *)malloc((1 + dataSize) * sizeof(char));
+        data[dataSize] = 0;
+
         for (i = 0; i < cipherSize; i++)
         {
             subCipher[count] = cipher[i];
@@ -902,7 +921,8 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
         int blockSize = strlen(str) / 2 - 1;
 
         int paddSize = blockSize - (dataSize % blockSize);
-        char *paddData = (char *)malloc((dataSize + paddSize) * sizeof(char));
+        char *paddData = (char *)malloc((1 + dataSize + paddSize) * sizeof(char));
+        paddData[dataSize + paddSize] = 0;
 
         memcpy(paddData, data, dataSize);
         int i;
@@ -920,7 +940,8 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
         int numberBlock = dataSize / blockSize;
         int signSize = (blockSize + 1) * numberBlock;
 
-        char *signature = (char *)malloc((signSize) * sizeof(char));
+        char *signature = (char *)malloc((1 + signSize) * sizeof(char));
+        signature[signSize] = 0;
 
         for (i = 0; i < dataSize; i++)
         {
@@ -952,7 +973,7 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
     }
     case MODE_CRT:
     {
-        mpz_inits(z_dp, z_dq, z_p, z_q, z_Ip, NULL);
+        mpz_inits(z_n, z_dp, z_dq, z_p, z_q, z_Ip, NULL);
         char *buffer;
         char str[1000];
 
@@ -1002,7 +1023,8 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
         int blockSize = strlen(str) / 2 - 1;
 
         int paddSize = blockSize - (dataSize % blockSize);
-        char *paddData = (char *)malloc((dataSize + paddSize) * sizeof(char));
+        char *paddData = (char *)malloc((1 + dataSize + paddSize) * sizeof(char));
+        paddData[dataSize + paddSize] = 0;
 
         memcpy(paddData, data, dataSize);
         int i;
@@ -1020,7 +1042,8 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
         int numberBlock = dataSize / blockSize;
         int signSize = (blockSize + 1) * numberBlock;
 
-        char *signature = (char *)malloc((signSize) * sizeof(char));
+        char *signature = (char *)malloc((1 + signSize) * sizeof(char));
+        signature[signSize] = 0;
 
         for (i = 0; i < dataSize; i++)
         {
@@ -1048,7 +1071,7 @@ int signFile_RSA(char *fileName, char *keyFileName, int mode)
         free(data);
         free(paddData);
         free(signature);
-        mpz_clears(z_dp, z_dq, z_p, z_q, z_Ip, z_m, z_s, NULL);
+        mpz_clears(z_n, z_dp, z_dq, z_p, z_q, z_Ip, z_m, z_s, NULL);
         break;
     }
     default:
@@ -1098,7 +1121,8 @@ int verifyFile_RSA(char *fileName, char *signfileName, char *keyFileName, int mo
         char *data = readFileWithLength(fileName, &dataSize);
 
         int paddSize = (blockSize - 1) - (dataSize % (blockSize - 1));
-        char *paddData = (char *)malloc((dataSize + paddSize) * sizeof(char));
+        char *paddData = (char *)malloc((1 + dataSize + paddSize) * sizeof(char));
+        paddData[dataSize + paddSize] = 0;
 
         memcpy(paddData, data, dataSize);
         paddData[dataSize] = 1;
