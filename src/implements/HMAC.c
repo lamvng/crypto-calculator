@@ -38,17 +38,17 @@ int generateKey_HMAC(int keySize, char* keyFileName){
     return 1;
 }
 
-unsigned char* read_file(FILE *fp, long file_size){
+unsigned char* read_file(FILE *fp, long *file_size){
     /*Read file in 2 mode: hex file with 0x prefix or others types of file*/
     char prefix[3];
     unsigned char *file_content;
     fgets(prefix, 3, fp);
     if (!strcmp(prefix, "0x")){
         unsigned char c1, c2, c;
-        file_size = file_size/2 - 1;
-        file_content = malloc(file_size*sizeof(char));
+        *file_size = *file_size/2 - 1;
+        file_content = malloc(*file_size*sizeof(char));
 
-        for (int i = 0; i < file_size; ++i) {
+        for (int i = 0; i < *file_size; ++i) {
             c1 = fgetc(fp);
             c2 = fgetc(fp);
             c = 16*char_to_hex(c1) + char_to_hex(c2);
@@ -59,8 +59,8 @@ unsigned char* read_file(FILE *fp, long file_size){
     } else{
 
         fseek(fp, 0, SEEK_SET);
-        file_content = malloc(file_size*sizeof(char));
-        fread(file_content, 1, file_size, fp);
+        file_content = malloc(*file_size*sizeof(char));
+        fread(file_content, 1, *file_size, fp);
     }
     return file_content;
 }
@@ -86,8 +86,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
 
     unsigned char *hmac_key;
-    hmac_key = read_file(fp, key_size);
-
+    hmac_key = read_file(fp, &key_size);
     fclose(fp);
     //Read message
 
@@ -102,7 +101,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     fseek(fp, 0, SEEK_SET);
 
     unsigned char *file_content;
-    file_content = read_file(fp, file_size);
+    file_content = read_file(fp, &file_size);
 
     fclose(fp);
 
