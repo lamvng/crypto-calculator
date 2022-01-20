@@ -775,9 +775,15 @@ int decryptFile_RSA(char *fileName, char *keyFileName, int mode)
     }
     case MODE_CRT:
     {
-        mpz_inits(z_dp, z_dq, z_p, z_q, z_Ip, NULL);
+        mpz_inits(z_n, z_dp, z_dq, z_p, z_q, z_Ip, NULL);
         char *buffer;
         char str[1000];
+
+        // read n
+        buffer = readFileByLine(keyFileName, 0);
+        strncpy(str, buffer + 4, 996);
+        mpz_set_str(z_n, str, 0);
+        free(buffer);
 
         // read dp
         buffer = readFileByLine(keyFileName, 1);
@@ -855,7 +861,7 @@ int decryptFile_RSA(char *fileName, char *keyFileName, int mode)
 
         free(cipher);
         free(data);
-        mpz_clears(z_dp, z_dq, z_p, z_q, z_Ip, z_m, z_c, NULL);
+        mpz_clears(z_n, z_dp, z_dq, z_p, z_q, z_Ip, z_m, z_c, NULL);
         break;
     }
     default:
@@ -1185,6 +1191,8 @@ int generateFileKey_RSA()
     writeFileByLine(NAME_FILE_SK_RSA, str);
 
     mpz_clears(z_n, z_e, z_d, NULL);
+
+    return 0;
 }
 
 int generateFileKey_RSA_CRT()
@@ -1203,44 +1211,46 @@ int generateFileKey_RSA_CRT()
     mpz_get_str(key, 16, z_n);
     strcat(str, key);
     strcat(str, "\n");
-    writeNewFile(NAME_FILE_PK_RSA, str);
-    writeNewFile(NAME_FILE_SK_RSA, str);
+    writeNewFile(NAME_FILE_PK_RSA_CRT, str);
+    writeNewFile(NAME_FILE_SK_RSA_CRT, str);
 
     strcpy(str, "e = 0x");
     mpz_get_str(key, 16, z_e);
     strcat(str, key);
-    writeFileByLine(NAME_FILE_PK_RSA, str);
+    writeFileByLine(NAME_FILE_PK_RSA_CRT, str);
 
     strcpy(str, "dp= 0x");
     mpz_get_str(key, 16, z_dp);
     strcat(str, key);
     strcat(str, "\n");
-    writeFileByLine(NAME_FILE_SK_RSA, str);
+    writeFileByLine(NAME_FILE_SK_RSA_CRT, str);
 
     strcpy(str, "dq= 0x");
     mpz_get_str(key, 16, z_dq);
     strcat(str, key);
     strcat(str, "\n");
-    writeFileByLine(NAME_FILE_SK_RSA, str);
+    writeFileByLine(NAME_FILE_SK_RSA_CRT, str);
 
     strcpy(str, "Ip= 0x");
     mpz_get_str(key, 16, z_Ip);
     strcat(str, key);
     strcat(str, "\n");
-    writeFileByLine(NAME_FILE_SK_RSA, str);
+    writeFileByLine(NAME_FILE_SK_RSA_CRT, str);
 
     strcpy(str, "p = 0x");
     mpz_get_str(key, 16, z_p);
     strcat(str, key);
     strcat(str, "\n");
-    writeFileByLine(NAME_FILE_SK_RSA, str);
+    writeFileByLine(NAME_FILE_SK_RSA_CRT, str);
 
     strcpy(str, "q = 0x");
     mpz_get_str(key, 16, z_q);
     strcat(str, key);
-    writeFileByLine(NAME_FILE_SK_RSA, str);
+    writeFileByLine(NAME_FILE_SK_RSA_CRT, str);
 
     mpz_clears(z_n, z_e, z_dp, z_dq, z_p, z_q, z_Ip, NULL);
+    
+    return 0;
 }
 
 int generateFileKey_DES()
@@ -1262,6 +1272,8 @@ int generateFileKey_DES()
     writeNewFile(NAME_FILE_K_DES, str);
 
     mpz_clears(z_keyDES, NULL);
+    
+    return 0;
 }
 
 int generateFileKey_AES()
@@ -1285,4 +1297,6 @@ int generateFileKey_AES()
     writeNewFile(NAME_FILE_K_AES, str);
 
     mpz_clears(z_keyAES, NULL);
+
+    return 0;
 }
