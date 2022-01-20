@@ -26,7 +26,7 @@ char *readFile(char *fileName)
 char *readFileByLine(char *fileName, int line)
 {
     int bufferLength = 1000;
-    char *buffer = (char *)malloc(bufferLength * sizeof(char));
+    char *buffer = (char *)malloc((bufferLength+1) * sizeof(char));
     FILE *fptr;
     fptr = fopen(fileName, "r");
     if (fptr == NULL)
@@ -38,8 +38,8 @@ char *readFileByLine(char *fileName, int line)
 
     while (fgets(buffer, bufferLength, fptr))
     {
-        buffer;
-        // buffer[bufferLength] = '\0';
+        // buffer;
+        buffer[bufferLength] = '\0';
         if (j == line)
         {
             break;
