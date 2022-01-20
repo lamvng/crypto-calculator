@@ -471,7 +471,7 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     unsigned char* output_hash;
     output_hash = (unsigned char*) malloc(16 * sizeof(unsigned char*));
 
-    char constant_t_file[] = "constant_t_md5.txt";
+    char constant_t_file[] = "src/implements/constant_t_md5.txt";
 
     unsigned int i, j;
     unsigned int file_size, total_size, message_len_int32; // 32 bits
@@ -581,6 +581,7 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     // printf("\nFinal results:\n");
     // printf("A = %x\nB = %x\nC = %x\nD = %x\n", A, B, C, D);
 
+    output_hash[16] = '\0';
     return output_hash;
 }
 
