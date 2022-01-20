@@ -20,8 +20,11 @@ MODE_AES = 1
 MODE_ECB = 0
 MODE_CBC = 1
 
-# Default signature RSA File Name
+
 NAME_FILE_SIGN = "signature.txt"
+NAME_FILE_K_HMAC = "K_HMAC.txt"
+#filename = "mymessage.txt"
+NAME_FILE_HMAC = "hmac.txt"
 
 so_file = "./crypto_cal_lib.so"
 c_lib = CDLL(so_file)
@@ -50,7 +53,7 @@ def browseFiles(fInfos, textfile):
 def browseKeyFiles(fInfos, keyfile):
     global gl_keyfile
     filename = tkFileDialog.askopenfilename(parent=fInfos, initialdir=os.getcwd(), title="Select a Key",
-                                            filetypes=(("Ket files", "*"), ("all files", "*.*")))
+                                            filetypes=(("Key files", "*"), ("all files", "*.*")))
 
     if filename == '':
         return
@@ -369,25 +372,79 @@ def popup_AES():
 
     Button(fInfos, text='Quit', fg="red", command=fInfos.destroy).pack(side=BOTTOM, ipady=10, padx=10, pady=5)
 
+def hashHMAC(notifyText):
+    global gl_filename, NAME_FILE_K_HMAC, NAME_FILE_HMAC
+    print("Hashing HMAC")
+    if (gl_filename == '') | (NAME_FILE_K_HMAC =='') | (NAME_FILE_HMAC == ''):
+        return
+    rs = c_lib.hashing_HMAC(c_char_p(gl_filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode()))
+
+    if rs == 1:
+        notifyText.set("Hash success");
+    else:
+        notifyText.set("Hash fail");
+
+
+def encrypt_rsa(mode, notifyText):
+    global gl_filename, gl_keyfile
+    print(gl_filename, gl_keyfile, mode.get())
+    if (gl_filename == '') | (gl_keyfile == ''):
+        return
+    rs = c_lib.encryptFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
+
+    if rs == 0:
+        notifyText.set("Encrypt success");
+    else:
+        notifyText.set("Encrypt fail");
+
+
+def verifyHMAC():
+    print("Verifying HMAC ")
+    global gl_filename
+
+    print(c_lib.verify_HMAC(c_char_p(gl_filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode())))
+
+
+
+
+
+def generateHMAC(notifyText):
+    rs = -1
+    global NAME_FILE_K_HMAC
+    print("Generate key with HMAC")
+
+    rs = c_lib.generateKey_HMAC(128, c_char_p(NAME_FILE_K_HMAC.encode()))
+    #print(rs)
+    if rs == 1:
+        notifyText.set("Generate success");
+    else:
+        notifyText.set("Generate fail");
+
+
+
 
 def popup_HASH():
     print("Hash calculator open")
-    fInfos = Toplevel()
+    fInfos = Toplevel();
     fInfos.title('Cryptographic Calculator - Hash')
     fInfos.geometry('600x400+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
 
+    notifyText = StringVar(fInfos)
     frame_files(fInfos)
 
     labelframe = LabelFrame(fInfos, text="Select an operation")
     labelframe.pack(fill="both", ipady=10, padx=5, pady=5)
     # Frame button calcul
-    choice_hash = Button(labelframe, text="Hash").pack(side=LEFT, padx=5)
-    choice_verify = Button(labelframe, text="Verify").pack(side=LEFT, padx=5)
+    choice_hash = Button(labelframe, text="Hash", command=partial(hashHMAC, notifyText)).pack(side=LEFT, padx=5)
+    choice_verify = Button(labelframe, text="Verify",command=partial(verifyHMAC)).pack(side=LEFT, padx=5)
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
     label_gen.pack(fill="both", ipady=10, padx=5, pady=5)
-    choice_gen = Button(label_gen, text="Generate Key").pack(side=LEFT, padx=5)  # add command
+    choice_gen = Button(label_gen, text="Generate Key", command=partial(generateHMAC, notifyText)).pack(side=LEFT, padx=5)  # add command
+
+    notify_label = Label(fInfos, textvariable=notifyText,width=40, anchor="w")
+    notify_label.pack(fill="both", ipady=10, padx=5, pady=5)
 
     Button(fInfos, text='Quit', fg="red", command=fInfos.destroy).pack(side=BOTTOM, ipady=10, padx=10, pady=5)
 
