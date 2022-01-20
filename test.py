@@ -41,7 +41,7 @@ c_lib = CDLL(so_file)
 # c_lib.encryptFile_RSA(c_char_p(filename.encode()), c_char_p(NAME_FILE_PK_RSA.encode()), MODE_STANDARD);
 # c_lib.decryptFile_RSA(c_char_p(NAME_FILE_CIPHER.encode()), c_char_p(NAME_FILE_SK_RSA.encode()), MODE_STANDARD);
 # c_lib.signFile_RSA(c_char_p(filename.encode()), c_char_p(NAME_FILE_SK_RSA.encode()), MODE_STANDARD);
-# print(c_lib.verifyFile_RSA(c_char_p(filename.encode()), c_char_p(NAME_FILE_SIGN.encode()), c_char_p(NAME_FILE_PK_RSA.encode()), MODE_STANDARD));
+# print(c_lib.verifyFile_RSA(c_char_p(filename.encode()), c_char_p(NAME_FILE_SIGN.encode()), c_char_p(NAME_FILE_PK_RSA.encode()), MODE_STANDARD));cx
 # # -----------------------------------------------------------------------------------------------------
 #
 # # Process Encryption AES
@@ -53,5 +53,5 @@ c_lib = CDLL(so_file)
 # Process HMAC
 c_lib.generateKey_HMAC(128, c_char_p(NAME_FILE_K_HMAC.encode()))
 c_lib.hashing_HMAC(c_char_p(filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode()))
-# c_lib.verify_HMAC(c_char_p(filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode()));
+print(c_lib.verify_HMAC(c_char_p(filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode())))
 # -----------------------------------------------------------------------------------------------------
