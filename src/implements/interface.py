@@ -23,7 +23,6 @@ MODE_CBC = 1
 
 NAME_FILE_SIGN = "signature.txt"
 NAME_FILE_K_HMAC = "K_HMAC.txt"
-#filename = "mymessage.txt"
 NAME_FILE_HMAC = "hmac.txt"
 
 so_file = "./crypto_cal_lib.so"
@@ -374,37 +373,32 @@ def popup_AES():
 
 def hashHMAC(notifyText):
     global gl_filename, NAME_FILE_K_HMAC, NAME_FILE_HMAC
-    print("Hashing HMAC")
+    #print("Hashing HMAC")
     if (gl_filename == '') | (NAME_FILE_K_HMAC =='') | (NAME_FILE_HMAC == ''):
         return
     rs = c_lib.hashing_HMAC(c_char_p(gl_filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode()))
 
     if rs == 1:
-        notifyText.set("Hash success");
+        notifyText.set("Hash : success");
     else:
-        notifyText.set("Hash fail");
+        notifyText.set("Hash : fail");
 
 
-def encrypt_rsa(mode, notifyText):
-    global gl_filename, gl_keyfile
-    print(gl_filename, gl_keyfile, mode.get())
-    if (gl_filename == '') | (gl_keyfile == ''):
-        return
-    rs = c_lib.encryptFile_RSA(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), mode.get())
-
-    if rs == 0:
-        notifyText.set("Encrypt success");
-    else:
-        notifyText.set("Encrypt fail");
 
 
-def verifyHMAC():
-    print("Verifying HMAC ")
+
+def verifyHMAC(notifyText):
+    #print("Verifying HMAC ")
     global gl_filename
+    if (gl_filename == '') | (NAME_FILE_K_HMAC =='') | (NAME_FILE_HMAC == ''):
+        return
 
-    print(c_lib.verify_HMAC(c_char_p(gl_filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode())))
+    rs = c_lib.verify_HMAC(c_char_p(gl_filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode()))
 
-
+    if rs == 1:
+        notifyText.set("Verify : success");
+    else:
+        notifyText.set("Verify : fail");
 
 
 
@@ -416,9 +410,9 @@ def generateHMAC(notifyText):
     rs = c_lib.generateKey_HMAC(128, c_char_p(NAME_FILE_K_HMAC.encode()))
     #print(rs)
     if rs == 1:
-        notifyText.set("Generate success");
+        notifyText.set("Generate Key : success");
     else:
-        notifyText.set("Generate fail");
+        notifyText.set("Generate Key : fail");
 
 
 
@@ -436,7 +430,7 @@ def popup_HASH():
     labelframe.pack(fill="both", ipady=10, padx=5, pady=5)
     # Frame button calcul
     choice_hash = Button(labelframe, text="Hash", command=partial(hashHMAC, notifyText)).pack(side=LEFT, padx=5)
-    choice_verify = Button(labelframe, text="Verify",command=partial(verifyHMAC)).pack(side=LEFT, padx=5)
+    choice_verify = Button(labelframe, text="Verify",command=partial(verifyHMAC, notifyText)).pack(side=LEFT, padx=5)
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
