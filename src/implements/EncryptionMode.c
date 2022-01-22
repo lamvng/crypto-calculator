@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include "../libs/libBinChar.h"
 #include "../libs/Module.h"
 #include "../libs/RSA.h"
 #include "../libs/DES.h"
@@ -54,10 +54,8 @@ int encryptFile_ECB(char *fileName, char *keyFileName, int mode)
         char str[1000];
 
         // read key DES
-        buffer = readFileByLine(keyFileName, 0);
-        strncpy(str, buffer + 4, 996);
-        mpz_set_str(z_keyDES, str, 0);
-        free(buffer);
+        int keySize;
+        char *keyDES = readFileWithLength(keyFileName, &keySize);
 
         // read data
         int dataSize;
@@ -80,8 +78,6 @@ int encryptFile_ECB(char *fileName, char *keyFileName, int mode)
 
         char subData[blockSize];
         int count = 0, j = 0;
-        mpz_t z_m, z_c;
-        mpz_inits(z_m, z_c, NULL);
         char *cipher = (char *)malloc((1 + dataSize) * sizeof(char));
 
         for (i = 0; i < dataSize; i++)
@@ -90,23 +86,16 @@ int encryptFile_ECB(char *fileName, char *keyFileName, int mode)
             count++;
             if (count == blockSize)
             {
-                char bin[64];
-                convertBytesToDecimal(z_m, subData, blockSize);
-                mpz_get_str(bin, 2, z_m);
-
-                // strcpy(bin, encrypt_DES());
-                // TO DO
-
-                mpz_set_str(z_c, bin, 2);
-                // gmp_printf("%Zd, %Zd\n", z_m, z_c);
-                convertDecimalToBytes(z_c, subData, blockSize);
-
+                char *bin = stringToBinaryWithLength(subData,8);
+                char *cipherText = BinaryToASCII(encrypt(bin, keyDES));
+                
                 for (count--; count > -1; count--)
                 {
-                    cipher[j + count] = subData[count];
+                    cipher[j + count] = cipherText[count];
                 }
                 j += (blockSize);
                 count = 0;
+                free(bin);
             }
         }
 
@@ -115,7 +104,7 @@ int encryptFile_ECB(char *fileName, char *keyFileName, int mode)
         free(data);
         free(paddData);
         free(cipher);
-        mpz_clears(z_keyDES, z_m, z_c, NULL);
+        free(keyDES);
         break;
     }
     case MODE_AES:
@@ -201,10 +190,8 @@ int decryptFile_ECB(char *fileName, char *keyFileName, int mode)
         char str[1000];
 
         // read key DES
-        buffer = readFileByLine(keyFileName, 0);
-        strncpy(str, buffer + 4, 996);
-        mpz_set_str(z_keyDES, str, 0);
-        free(buffer);
+        int keySize;
+        char *keyDES = readFileWithLength(keyFileName, &keySize);
 
         // read cipher
         int cipherSize;
@@ -214,8 +201,6 @@ int decryptFile_ECB(char *fileName, char *keyFileName, int mode)
 
         char subData[blockSize];
         int count = 0, j = 0, i;
-        mpz_t z_m, z_c;
-        mpz_inits(z_m, z_c, NULL);
         char *data = (char *)malloc((1 + cipherSize) * sizeof(char));
         data[cipherSize] = 0;
 
@@ -225,22 +210,16 @@ int decryptFile_ECB(char *fileName, char *keyFileName, int mode)
             count++;
             if (count == blockSize)
             {
-                char bin[64];
-                convertBytesToDecimal(z_c, subData, blockSize);
-                mpz_get_str(bin, 2, z_c);
-
-                // strcpy(bin, encrypt_DES());
-                // TO DO
-
-                mpz_set_str(z_m, bin, 2);
-                convertDecimalToBytes(z_m, subData, blockSize);
+                char *bin = stringToBinaryWithLength(subData, 8);
+                char *plainText = decrypt(bin, keyDES);
 
                 for (count--; count > -1; count--)
                 {
-                    data[j + count] = subData[count];
+                    data[j + count] = plainText[count];
                 }
                 j += (blockSize);
                 count = 0;
+                free(bin);
             }
         }
 
@@ -254,7 +233,7 @@ int decryptFile_ECB(char *fileName, char *keyFileName, int mode)
 
         free(cipher);
         free(data);
-        mpz_clears(z_keyDES, z_m, z_c, NULL);
+        free(keyDES);
         break;
     }
     case MODE_AES:
@@ -334,10 +313,8 @@ int encryptFile_CBC(char *fileName, char *keyFileName, int mode)
         char str[1000];
 
         // read key DES
-        buffer = readFileByLine(keyFileName, 0);
-        strncpy(str, buffer + 4, 996);
-        mpz_set_str(z_keyDES, str, 0);
-        free(buffer);
+        int keySize;
+        char *keyDES = readFileWithLength(keyFileName, &keySize);
 
         // read data
         int dataSize;
@@ -366,39 +343,45 @@ int encryptFile_CBC(char *fileName, char *keyFileName, int mode)
         char *cipher = (char *)malloc((1 + dataSize) * sizeof(char));
         cipher[dataSize] = 0;
 
+        printf("\n");
         for (i = 0; i < dataSize; i++)
         {
+            printf("%d ", paddData[i]);
             subData[count] = paddData[i];
             count++;
             if (count == blockSize)
             {
-                char bin[64];
                 convertBytesToDecimal(z_m, subData, blockSize);
                 mpz_xor(z_m, z_m, z_c_temp);
-                mpz_get_str(bin, 2, z_m);
+                convertDecimalToBytes(z_m, subData, blockSize);
+                
+                char *bin = stringToBinaryWithLength(subData,8);
+                char *cipherBin = encrypt(bin, keyDES);
+                char *cipherText = BinaryToASCII(cipherBin);
 
-                // strcpy(bin, encrypt_DES());
-                // TO DO
-
-                mpz_set_str(z_c, bin, 2);
+                mpz_set_str(z_c, cipherBin, 2);
                 mpz_set(z_c_temp, z_c);
-                // gmp_printf("%Zd, %Zd\n", z_m, z_c);
-                convertDecimalToBytes(z_c, subData, blockSize);
 
                 for (count--; count > -1; count--)
                 {
-                    cipher[j + count] = subData[count];
+                    cipher[j + count] = cipherText[count];
                 }
                 j += (blockSize);
                 count = 0;
+                free(bin);
+                printf("\n");
+
             }
         }
+        printf("\n");
+
 
         writeNewFileByLength(NAME_FILE_CIPHER, cipher, dataSize);
 
         free(data);
         free(paddData);
         free(cipher);
+        free(keyDES);
         mpz_clears(z_keyDES, z_m, z_c, z_c_temp, NULL);
 
         break;
@@ -498,10 +481,8 @@ int decryptFile_CBC(char *fileName, char *keyFileName, int mode)
         char str[1000];
 
         // read key DES
-        buffer = readFileByLine(keyFileName, 0);
-        strncpy(str, buffer + 4, 996);
-        mpz_set_str(z_keyDES, str, 0);
-        free(buffer);
+        int keySize;
+        char *keyDES = readFileWithLength(keyFileName, &keySize);
 
         // read cipher
         int cipherSize;
@@ -516,20 +497,19 @@ int decryptFile_CBC(char *fileName, char *keyFileName, int mode)
         char *data = (char *)malloc((1 + cipherSize) * sizeof(char));
         data[cipherSize] = 0;
 
+        printf("\n");
+
         for (i = 0; i < cipherSize; i++)
         {
             subData[count] = cipher[i];
             count++;
             if (count == blockSize)
             {
-                char bin[64];
-                convertBytesToDecimal(z_c, subData, blockSize);
-                mpz_get_str(bin, 2, z_c);
+                char *bin = stringToBinaryWithLength(subData,8);
+                mpz_set_str(z_c, bin, 2);
+                char *plainText = decrypt(bin, keyDES);
 
-                // strcpy(bin, decrypt_DES());
-                // TO DO
-
-                mpz_set_str(z_m, bin, 2);
+                convertBytesToDecimal(z_m, plainText, blockSize);
                 mpz_xor(z_m, z_m, z_c_temp);
                 mpz_set(z_c_temp, z_c);
                 convertDecimalToBytes(z_m, subData, blockSize);
@@ -538,10 +518,19 @@ int decryptFile_CBC(char *fileName, char *keyFileName, int mode)
                 {
                     data[j + count] = subData[count];
                 }
+
+                for(count = 0;count < blockSize;count++){
+                    printf("%d ", data[j + count]);
+                }
+                printf("\n");
+
                 j += (blockSize);
                 count = 0;
+                free(bin);
             }
         }
+        printf("\n");
+
 
         while (data[cipherSize - 1] != 1)
         {
@@ -553,6 +542,7 @@ int decryptFile_CBC(char *fileName, char *keyFileName, int mode)
 
         free(cipher);
         free(data);
+        free(keyDES);
         mpz_clears(z_keyDES, z_m, z_c, z_c_temp, NULL);
         break;
     }
@@ -1279,24 +1269,13 @@ int generateFileKey_RSA_CRT()
 
 int generateFileKey_DES()
 {
-    mpz_inits(z_keyDES, NULL);
-
-    // get key for DES z_keyDES
-    mpz_set_str(z_keyDES, "18446744073709551615", 0);
-
-    // TO DO
-    // generateKey_DES();
+    char *keyDES = generateKey_DES();
 
     // Save to file
     char key[1000];
-    char str[1000] = "k = 0x";
-    mpz_get_str(key, 16, z_keyDES);
-    strcat(str, key);
-    strcat(str, "\n");
-    writeNewFile(NAME_FILE_K_DES, str);
+    writeNewFileByLength(NAME_FILE_K_DES, keyDES, 64);
 
-    mpz_clears(z_keyDES, NULL);
-    
+    free(keyDES);
     return 0;
 }
 

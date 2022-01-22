@@ -4,8 +4,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-
-/*input char* of binary
-* output : char*  ascii conversion of the input
-*/
+char* stringToBinaryWithLength(char* s, int size);
+char* stringToBinary(char* s);
+int BinaryToDecimal(char* bin);
 char* BinaryToASCII(char* bin);
