@@ -1,4 +1,4 @@
-#include "../libs/d.h"
+#include "../libs/DES.h"
 #include "libBinChar.c"
 #include <stdbool.h>
 #include <math.h>
@@ -503,7 +503,7 @@ char *generateKey_DES(){
   //printMatrint(ret,64);
   return ret;
 }
-
+/*
 int main(){
     char * cle = generateKey_DES();
     char message1[8] = "abcdefgh";
@@ -518,3 +518,4 @@ int main(){
 
     return 0;
 }
+*/
