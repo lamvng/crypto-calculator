@@ -4,7 +4,6 @@
 
 
 
-
 // Input: Nothing
 // Output: char[64] ->64 bits
 char* generateKey_DES();
