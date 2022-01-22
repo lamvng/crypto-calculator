@@ -1,6 +1,5 @@
 #include "../libs/DES.h"
 #include "../libs/libBinChar.h"
-//#include "libBinChar.c"
 #include <stdbool.h>
 #include <math.h>
 #include <time.h>

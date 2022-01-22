@@ -6,6 +6,7 @@
 #include <math.h>
 
 
+
 char* stringToBinary(char* s) {
     if(s == NULL) return 0; /* no input string */
     size_t len = strlen(s);
