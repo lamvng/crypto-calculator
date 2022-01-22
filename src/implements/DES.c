@@ -1,38 +1,23 @@
-#include "../libs/DES.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "../libs/d.h"
+#include "lib.c"
+#include <stdbool.h>
+#include <math.h>
+#include <time.h>
 
-int IP[] = {
-    58, 50, 42, 34, 26, 18, 10, 2, 60,
-    52, 44, 36, 28, 20, 12, 4, 62, 54,
-    46, 38, 30, 22, 14, 6, 64, 56, 48,
-    40, 32, 24, 16, 8, 57, 49, 41, 33,
-    25, 17, 9, 1, 59, 51, 43, 35, 27,
-    19, 11, 3, 61, 53, 45, 37, 29, 21,
-    13, 5, 63, 55, 47, 39, 31, 23, 15, 7
-};
+char resultatFinalafP[64];
+char resultatFinalafPD[64];
+char solution[64] = {0};
+char final[16][48];
 
-int PC1[] = {
-    57, 49, 41, 33, 25, 17, 9,
-     1, 58, 50, 42, 34, 26, 18,
-    10, 2, 59, 51, 43, 35, 27,
-    19, 11, 3, 60, 52, 44, 36,
-    63, 55, 47, 39, 31, 23, 15,
-     7, 62, 54, 46, 38, 30, 22,
-    14, 6, 61, 53, 45, 37, 29,
-    21, 13, 5, 28, 20, 12, 4
-};
 
-int PC2[] = {
-    14, 17, 11, 24, 1, 5,
-     3, 28, 15, 6, 21, 10,
-    23, 19, 12, 4, 26, 8,
-    16, 7, 27, 20, 13, 2,
-    41, 52, 31, 37, 47, 55,
-    30, 40, 51, 45, 33, 48,
-    44, 49, 39, 56, 34, 53,
-    46, 42, 50, 36, 29, 32
+int IP[64] = {
+  58, 50, 42, 34, 26, 18, 10, 2, 60,
+  52, 44, 36, 28, 20, 12, 4, 62, 54,
+  46, 38, 30, 22, 14, 6, 64, 56, 48,
+  40, 32, 24, 16, 8, 57, 49, 41, 33,
+  25, 17, 9, 1, 59, 51, 43, 35, 27,
+  19, 11, 3, 61, 53, 45, 37, 29, 21,
+  13, 5, 63, 55, 47, 39, 31, 23, 15, 7
 };
 
 int E[] = {
@@ -46,7 +31,33 @@ int E[] = {
     28, 29, 30, 31, 32, 1
 };
 
-int S[][64] = {
+int cp1[] = {
+    57, 49, 41, 33, 25, 17, 9,
+     1, 58, 50, 42, 34, 26, 18,
+    10, 2, 59, 51, 43, 35, 27,
+    19, 11, 3, 60, 52, 44, 36,
+    63, 55, 47, 39, 31, 23, 15,
+     7, 62, 54, 46, 38, 30, 22,
+    14, 6, 61, 53, 45, 37, 29,
+    21, 13, 5, 28, 20, 12, 4
+};
+
+int cp2[] = {
+    14, 17, 11, 24, 1, 5,
+     3, 28, 15, 6, 21, 10,
+    23, 19, 12, 4, 26, 8,
+    16, 7, 27, 20, 13, 2,
+    41, 52, 31, 37, 47, 55,
+    30, 40, 51, 45, 33, 48,
+    44, 49, 39, 56, 34, 53,
+    46, 42, 50, 36, 29, 32
+};
+
+int LS[] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
+
+
+
+int sbox[][64] = {
     {
         14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7,
         0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8,
@@ -97,6 +108,7 @@ int S[][64] = {
     }
 };
 
+
 int P[] = {
     16, 7, 20, 21,
     29, 12, 28, 17,
@@ -108,7 +120,7 @@ int P[] = {
     22, 11, 4, 25
 };
 
-int IP2[] = {
+int PI1[] = {
     40, 8, 48, 16, 56, 24, 64, 32,
     39, 7, 47, 15, 55, 23, 63, 31,
     38, 6, 46, 14, 54, 22, 62, 30,
@@ -119,314 +131,390 @@ int IP2[] = {
     33, 1, 41, 9, 49, 17, 57, 25
 };
 
-int SHIFTS[] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
-
 
 /*
-binaire vers hexa
+*
 */
-static char toHex(int b) {
-    char o;
-
-    //printf("\n--- %i ---\n",in);
-    if (b >= 0x00 && b < 0x0A) {
-        o = '0' + b;
-      //  printf("\nsortie1 %i--- 0x%02hhx ---\n",in,o);
-        return o;
+void printMatr(char * ret, int size){
+  int n = 0;
+  for (int i = 0 ; i < size ; i++){
+    printf(" %c ", ret[i]);
+    n++;
+    if(n == 6){
+      printf("\n");
+      n=0;
     }
-    if (b >= 0x0A && b <= 0x0F){
-        o ='A' + b - 0x0A;
-        //printf("\nsortie2 %i--- 0x%02hhx ---\n",in,in);
-        return o;
-    }
-    return 0;
-
+  }
 }
 
+
 /*
-retourne la valeur d'un tableau à un index donné
+*
+*
 */
-static int getVal(const tab *mat, int index) {
-    int i = index / 8;
-    int bit = 7 - index % 8;
-    return (mat[i] & (1 << bit)) != 0;
+void printMatrint(char * ret, int size){
+  int n = 0;
+  for (int i = 0 ; i < size ; i++){
+    printf(" %i ", ret[i]);
+    n++;
+    if(n == 6){
+      printf("\n");
+      n=0;
+    }
+  }
 }
 
-
 /*
-tableau d'octet en chaine de caractère
-en entrée : le tableau d'octet, le nombre d'octet
+*
+*
 */
-static void toString(const tab *tabOct, int len, char *result) {
-    while (len-- > 0) {
-       // printf("====================%c",*tabOct);
-        *result++ = toHex(*tabOct >> 4);
-        *result++ = toHex(*tabOct & 0x0F);
-        tabOct++;
-    }
-    *result = 0;
+void decalGauche(char * init, int size, char * after){
+  for(int i = 0; i < size; i++){
+    after[i]=init[i+1];
+  }
+  after[size-1] = init[0];
 }
 
 
 /*
-mettre a jour une valeur dans un tableau
-dst: le tableau, index : l'index que l'on veux modifier, value, la valeur que l'on souhaite entrer
+*
+*
 */
-static void insert(tab *dst, int index, int value) {
-    int ind2 = index / 8;
-    int bit = 7 - index % 8;
-    if (value == 0) {
-        dst[ind2] = dst[ind2] & (~(1 << bit));
-    } else {
-        dst[ind2] = dst[ind2] | (1 << bit);
-    }
+void permut(char in1[], char out[], int perm[], int size){
+  for(int i = 0; i < size ; i++){
+    out[i] = in1[perm[i]-1];
+  }
 }
 
 
 /*
-change un tableau d"octet en declant les bits vers la gauche en fonction du nombre de case entrée
-src: le tableau
-len: longueur du tableau
-times: le nombre de positions a décaler
-dst: le tableau de destination
+*
+*
 */
-static void decal(const tab *src, int len, int pos, tab *dst) {
+void genCle(char cle[]){
+  char cp11[56];
+  char G[28];
+  char D[28];
+  char GD[56];
 
-    for (int t = 1; t <= pos; ++t) {
-        int temp = getVal(dst, 0);
-        for (int i = 1; i <= len; ++i) {
-            insert(dst, i - 1, getVal(dst, i));
-        }
-        insert(dst, len - 1, temp);
+  //permutation cp-1
+  permut(cle, cp11, cp1, 56);
+
+  for(int i = 0; i < 56; i++){
+
+    if(i > 27){
+      D[i-28]=cp11[i];
+    }else{
+      G[i]=cp11[i];
     }
-    for (int i = 0; i <= len; i++) {
-        insert(dst, i, getVal(src, i));
+  }
+
+  for(int m = 0; m< 16; m++){
+    int nbDecal = 0;
+    char Gdecal[28];
+    char Ddecal[28];
+    nbDecal = LS[m];
+
+    for(int i=0;i<nbDecal;i++){
+      decalGauche(G, 28,Gdecal);
+      decalGauche(D, 28,Ddecal);
+
+      for( int i  = 0; i< 28; i++){
+        G[i]=Gdecal[i];
+        D[i]=Ddecal[i];
+      }
     }
+
+    for(int i=0; i < 56; i++){
+      if(i>27){
+        GD[i]=Ddecal[i-28];
+      }else{
+        GD[i]=Gdecal[i];
+      }
+    }
+
+    char k[48];
+    permut(GD,k,cp2,48);
+    for(int i =0; i < 48; i++){
+      final[m][i]=k[i];
+    }
+  }
 }
-
-
 /*
-Calcule les sous clés pour DES
+*
 */
-static void calcCle(const cle key, sClefs ks) {
-    tab c[17][7];
-    tab d[17][4];
-    tab kp[7];
-
-    memset(c, 0, sizeof(c));
-    memset(d, 0, sizeof(d));
-    memset(ks, 0, sizeof(sClefs));
-
-    for (int i = 0; i < 56; ++i) {
-        insert(kp, i, getVal(key, PC1[i] - 1));
-    }
-    for (int i = 0; i < 28; ++i) {
-        insert(c[0], i, getVal(kp, i));
-        insert(d[0], i, getVal(kp, i + 28));
-    }
-    for (int i = 1; i < 17; ++i) {
-        decal(c[i - 1], 28, SHIFTS[i - 1], c[i]);
-        decal(d[i - 1], 28, SHIFTS[i - 1], d[i]);
-    }
-    for (int i = 1; i < 17; ++i) {
-        for (int j = 28; j < 56; ++j) {
-            insert(c[i], j, getVal(d[i], j - 28));
-        }
-    }
-    for (int i = 1; i < 17; ++i) {
-        for (int j = 0; j < 48; ++j) {
-            insert(ks[i], j, getVal(c[i], PC2[j] - 1));
-        }
-    }
+void xor(char d[], char k[16][48], int it, char out[]){
+  for(int i=0; i<48; i++){
+      out[i]= d[i]^k[it][i];
+  }
 }
 
-
+void xor32(char d[], char k[16][32], int it, char out[]){
+  for(int i=0; i<32; i++){
+      out[i]= d[i]^k[it][i];
+  }
+}
 
 /*
-r : tableau d'octet a traiter
-ks une des sous clés a utiliser pour le chiffrement
-sp : resultat
+*
 */
-static void f(tab *r, tab *ks, tab *sp) {
-    tab er[6]; /* 48 bits */
-    tab sr[4]; /* 32 bits */
-    int i;
-
-    memset(er, 0, sizeof(er));
-    memset(sr, 0, sizeof(sr));
-
-    for (i = 0; i < 48; ++i) {
-        insert(er, i, getVal(r, E[i] - 1));
+void scind(char d0ex[], char sc[8][6]){
+  int comp=0;
+  for(int y=0;y<8;y++){
+    for(int n = 0; n< 6;n++){
+      sc[y][n]=d0ex[comp];
+      comp++;
     }
-
-    for (i = 0; i < 6; ++i) {
-        er[i] ^= ks[i];
-    }
-
-    for (i = 0; i < 8; ++i) {
-        int j = i * 6;
-        int b[6];
-        int k, row, col, m, n;
-
-        for (k = 0; k < 6; ++k) {
-            b[k] = getVal(er, j + k) != 0 ? 1 : 0;
-        }
-
-        row = 2 * b[0] + b[5];
-        col = 8 * b[1] + 4 * b[2] + 2 * b[3] + b[4];
-        m = S[i][row * 16 + col]; /* apply table s */
-        n = 1;
-
-        while (m > 0) {
-            int p = m % 2;
-            insert(sr, (i + 1) * 4 - n, p == 1);
-            m /= 2;
-            n++;
-        }
-    }
-
-    for (i = 0; i < 32; ++i) {
-        insert(sp, i, getVal(sr, P[i] - 1));
-    }
+  }
 }
 
 /*
-
+*
 */
-static void algDes(const tab *message, sClefs ks, tab *ep) {
-    tab prtG[17][4];
-    tab prtD[17][4];
-    tab mp[8];
-    tab e[8];
-
-    for (int i = 0; i < 64; ++i) {
-        insert(mp, i, getVal(message, IP[i] - 1));
-    }
-
-    for (int i = 0; i < 32; ++i) {
-        insert(prtG[0], i, getVal(mp, i));
-        insert(prtD[0], i, getVal(mp, i + 32));
-    }
-    for (int i = 1; i < 17; ++i) {
-        tab ke[4];
-        memcpy(prtG[i], prtD[i - 1], 4);
-        f(prtD[i - 1], ks[i], ke);
-        for (int j = 0; j < 4; ++j) {
-            prtG[i - 1][j] ^= ke[j];
-        }
-        memcpy(prtD[i], prtG[i - 1], 4);
-    }
-
-    for (int i = 0; i < 32; ++i) {
-        insert(e, i, getVal(prtD[16], i));
-    }
-    for (int i = 32; i < 64; ++i) {
-        insert(e, i, getVal(prtG[16], i - 32));
-    }
-
-    for (int i = 0; i < 64; ++i) {
-        insert(ep, i, getVal(e, IP2[i] - 1));
-    }
+int getLigne(int un, int deux){
+  int ret = 0;
+  if(deux == 1){
+    ret = 2;
+  }
+  ret = ret + un;
+  return ret;
 }
 
-String encrypt_DES(const cle key, const tab *message, int len) {
-    String result = { 0, 0 };
-    sClefs ks;
-    tab byte;
+/*
+*
+*
+*/
+int getCol(int un, int deux, int quatre, int huit){
+  int ret = 0;
 
-    calcCle(key, ks);
-    byte = 8 - len % 8;
-    result.len = len + byte;
-    result.data = (tab*)malloc(result.len);
-    memcpy(result.data, message, len);
-    memset(&result.data[len], byte, byte);
-
-    for (int i = 0; i < result.len; i += 8) {
-        algDes(&result.data[i], ks, &result.data[i]);
-    }
-    return result;
+  if(deux == 1){
+    ret = ret + 2;
+  }
+  if(quatre == 1){
+    ret = ret + 4;
+  }
+  if(huit == 1){
+    ret = ret + 8;
+  }
+  ret = ret + un;
+  return ret;
 }
 
+/*
+*
+*/
+void fsbox(char sc[8][6], char resultat[32]){
 
-String decrypt_DES(const cle key, const tab *message, int len) {
-    String result = { 0, 0 };
-    sClefs ks;
-    tab padByte;
+  int comptRes = 0;
+  for(int nb = 0; nb< 8; nb++){
+    int ligne = getLigne(sc[nb][5], sc[nb][0]);
+    int col = getCol(sc[nb][4], sc[nb][3], sc[nb][2], sc[nb][1]);
 
-    calcCle(key, ks);
+    int result = sbox[nb][ligne*16+col];
 
-    for (int i = 1; i < 9; ++i) {
-        for (int j = 0; j < 6; ++j) {
-            tab temp = ks[i][j];
-            ks[i][j] = ks[17 - i][j];
-            ks[17 - i][j] = temp;
-        }
+    if(result>=8){
+      //printf("1");
+      resultat[comptRes] = 1;
+      comptRes++;
+      result = result -8;
+    }else{
+      resultat[comptRes] = 0;
+      comptRes++;
+      //printf("0");
     }
-
-    result.data = (tab*)malloc(len);
-    memcpy(result.data, message, len);
-    result.len = len;
-    for (int i = 0; i < result.len; i += 8) {
-        algDes(&result.data[i], ks, &result.data[i]);
+    if(result>=4){
+      //printf("1");
+      resultat[comptRes] = 1;
+      comptRes++;
+      result = result - 4;
+    }else{
+      resultat[comptRes] = 0;
+      comptRes++;
+      //printf("0");
     }
-
-    padByte = result.data[len - 1];
-    result.len -= padByte;
-    return result;
+    if(result>=2){
+      //printf("1");
+      resultat[comptRes] = 1;
+      comptRes++;
+      result = result - 2;
+    }else{
+      resultat[comptRes] = 0;
+      comptRes++;
+      //printf("0");
+    }
+    if(result==1){
+      //printf("1");
+      resultat[comptRes] = 1;
+      comptRes++;
+      result = result - 1;
+    }else{
+      resultat[comptRes] = 0;
+      comptRes++;
+      //printf("0");
+    }
+  }
 }
 
 
 /*
- * afficher resultat et etapes de DES
- */
-void DES(const cle key, const tab *message, int len) {
-    String chiff, clair;
-    char buffer[128];
+*
+*/
+char * encrypt(char message[], char cle[]){
+  char IP1[64];
+  char d0[17][32];
+  char g0[17][32];
+  char resultatFinal[64];
+  genCle(cle);
 
-    toString(key, TAILLE_CLE, buffer);
-    printf("cle     : %s\n", buffer);
-    printf("message initial : ");
-    for(int i=0; i< len; i++){
-      printf("%c",message[i]);
+  //permutation initiale
+  permut(message,IP1,IP,64);
+
+  //scinde IP1 en g0 et d0 de 32bits
+  for(int i=0; i < 64; i++){
+    if(i > 31){
+        d0[0][i-32]=IP1[i];
+    }else{
+        g0[0][i]=IP1[i];
     }
-    printf("\n");
+  }
 
-    toString(message, len, buffer);
-    printf("Message en hexa: %s\n", buffer);
-    chiff = encrypt_DES(key, message, len);
-    toString(chiff.data, chiff.len, buffer);
-    printf("chiffre : %s\n", buffer);
-    clair = decrypt_DES(key, chiff.data, chiff.len);
-    toString(clair.data, clair.len, buffer);
+  for(int it = 0; it < 16; it++){    //expansion D0 avec E
 
-    printf("decode en hexa: %s\n", buffer);
-    printf("message final : ");
-    for(int i=0; i< clair.len; i++){
-      printf("%c",clair.data[i]);
+//    printf("\n ------etape numéro------ %i\n", it+1);
+
+    for(int gd=0; gd< 32; gd++){
+      g0[it+1][gd]=d0[it][gd];
     }
-    printf("\n\n");
 
-    free(chiff.data);
-    chiff.data = 0;
-    free(clair.data);
-    clair.data = 0;
+    char d0E[48];
+    permut(d0[it],d0E,E,48);
+    char d0ex[48];
+    xor(d0E, final, it, d0ex);
+
+    // on scinde en 8 bloc de 6 bits
+    char sc[8][6];
+    scind(d0ex, sc);
+    char resultat[32];
+    fsbox(sc,resultat);
+    char resultatP[32];
+
+    permut(resultat, resultatP,P ,32);
+    //xor avec Gn-1
+    xor32(resultatP,g0, it, d0[it+1]);
+  }
+
+  for(int g = 0; g< 32;g++){
+    resultatFinal[g]=d0[16][g];
+  }
+  for(int d = 32; d< 64;d++){
+    resultatFinal[d]=g0[15][d];
+  }
+
+
+  permut(resultatFinal,resultatFinalafP, PI1,64);
+
+  int n = 0;
+  for (int i = 0; i < 64; i++) {
+      n += sprintf (&solution[n], "%c", resultatFinalafP[i]);
+  }
+  printf ("\n chiffré   s = %s\n", solution);
+
+  printf("%s\n", BinaryToASCII(solution) );
+
+  return solution;
 }
 
+char * decrypt(char message[],char cle[]){
+  char IP1[64];
+  char d0[17][32];
+  char g0[17][32];
+  char resultatFinal[64];
+
+  genCle(cle);
+  //permutation initiale
+  permut(message,IP1,IP,64);
 
 
-int main() {
-    const cle clefs[] = {
-        {0x4c, 0x61, 0x63, 0x6c, 0xe9, 0x44, 0x45, 0x53},
-        {0x44, 0x45, 0x53, 0x63, 0x6c, 0xe9, 0x4c, 0x41}
-    };
-    const tab message1[] = { 'h', 'e', 'l','l','o','c','r','y','p','t','i','s' };
-    const tab message2[] = { 0x63 ,0x61 ,0x6c ,0x63 ,0x75 ,0x6c ,0x61 ,0x74 ,0x72 ,0x69 ,0x63 ,0x65 ,0x20 ,0x63 ,0x72 ,0x79 ,0x70 ,0x74 ,0x6f ,0x67 ,0x72 ,0x61 ,0x70 ,0x68 ,0x69 ,0x71 ,0x75 ,0x65 };
-    int len;
+  //scinde IP1 en g0 et d0 de 32bits
+  for(int i=0; i < 64; i++){
+    if(i > 31){
+        d0[0][i-32]=IP1[i];
+    }else{
+        g0[0][i]=IP1[i];
+    }
+  }
 
-    len = sizeof(message1) / sizeof(tab);
-    DES(clefs[0], message1, len);
+  for(int it = 0; it < 16; it++){    //expansion D0 avec E
 
-    len = sizeof(message2) / sizeof(tab);
-    DES(clefs[1], message2, len);
+    char d0E[48];
+    permut(d0[it],d0E,E,48);
+
+    char d0ex[48];
+    xor(d0E, final, 15-it, d0ex);
+
+    // on scinde en 8 bloc de 6 bits
+    char sc[8][6];
+    scind(d0ex, sc);
+
+    char resultat[32];
+    fsbox(sc,resultat);
+    char resultatP[32];
+    permut(resultat, resultatP ,P ,32);
+
+    //xor avec Gn-1
+    xor32(resultatP,g0, it, d0[it+1]);
+    for(int gd=0; gd< 32; gd++){
+      g0[it+1][gd]=d0[it][gd];
+    }
+
+  }
+
+  for(int g = 0; g< 32;g++){
+    resultatFinal[g]=d0[16][g];
+  }
+  for(int d = 32; d< 64;d++){
+    resultatFinal[d]=g0[15][d];
+  }
+
+  permut(resultatFinal,resultatFinalafP, PI1,64);
+
+  int n = 0;
+  for (int i = 0; i < 64; i++) {
+      n += sprintf (&solution[n], "%c", resultatFinalafP[i]);
+  }
+  printf ("\n déchiffré   s = %s\n", solution);
+
+  printf("%s\n", BinaryToASCII(solution) );
+
+  return BinaryToASCII(solution);
+}
+
+char * password;
+/*
+*
+*/
+char *generateKey_DES(){
+  char* ret = malloc(64);
+  srand(time(NULL));
+  for (int i = 0; i < 64; i++) {
+    int c = rand()%2;
+    ret[i]=c;
+  }
+  //printMatrint(ret,64);
+  return ret;
+}
+
+int main(){
+    char * cle = generateKey_DES();
+    char message1[8] = "abcdefgh";
+    char* test = stringToBinary(message1);
+    char cle64[8] = "password";
+    char * cleBin = stringToBinary(cle64);
+    char cle65[8] = "aaaaaaaa";
+    char * cleBin2 = stringToBinary(cle65);
+
+    decrypt(encrypt(test,cle),cle);
+
+
     return 0;
 }
