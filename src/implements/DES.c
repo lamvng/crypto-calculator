@@ -417,9 +417,9 @@ char * encrypt(char message[], char cle[]){
   for (int i = 0; i < 64; i++) {
       n += sprintf (&solution[n], "%c", resultatFinalafP[i]);
   }
-  printf ("\n chiffré   s = %s\n", solution);
+  //printf ("\n chiffré   s = %s\n", solution);
 
-  printf("%s\n", BinaryToASCII(solution) );
+  //printf("%s\n", BinaryToASCII(solution) );
 
   return solution;
 }
@@ -482,9 +482,9 @@ char * decrypt(char message[],char cle[]){
   for (int i = 0; i < 64; i++) {
       n += sprintf (&solution[n], "%c", resultatFinalafP[i]);
   }
-  printf ("\n déchiffré   s = %s\n", solution);
+//   printf ("\n déchiffré   s = %s\n", solution);
 
-  printf("%s\n", BinaryToASCII(solution) );
+  //printf("%s\n", BinaryToASCII(solution) );
 
   return BinaryToASCII(solution);
 }
