@@ -10,10 +10,10 @@
 char* generateKey_DES();
 //tab generateKey_DES(void);
 
-// Input: message : 64-bits, and key: 64-bits
-// Output: 64-bit encrypted data
+// Input: message : char[64] 64-bits, and key: char[64] 64-bits
+// Output: char[64] 64-bit encrypted data
 char * encrypt(char * message, char * cle);
 
-// Input: message : 64-bits, and key: 64-bits
-// Output: 64-bit decrypted data
+// Input: message : char[64] 64-bits, and key: char[64] 64-bits
+// Output: String of 8 char
 char * decrypt(char *message, char* cle);

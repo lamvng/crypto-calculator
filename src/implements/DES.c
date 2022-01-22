@@ -1,5 +1,5 @@
 #include "../libs/d.h"
-#include "lib.c"
+#include "libBinChar.c"
 #include <stdbool.h>
 #include <math.h>
 #include <time.h>
