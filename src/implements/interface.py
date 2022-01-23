@@ -246,9 +246,16 @@ def decrypt_des(mode):
         print(gl_filename, gl_keyfile, mode.get())
 
 
-def generateDES():
+def generateDES(notifyText):
+    rs = -1
     print("Generate Key DES")
-    c_lib.generateFileKey_DES()
+    rs = c_lib.generateFileKey_DES()
+
+    if rs == 0:
+        notifyText.set("Generate Key with DES : success");
+    else:
+        notifyText.set("Generate Key with DES : fail");
+
 
 
 
@@ -259,6 +266,8 @@ def popup_DES():
     fInfos = Toplevel()
     fInfos.title('Cryptographic Calculator - DES')
     fInfos.geometry('600x400+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
+
+    notifyText = StringVar(fInfos)
 
     frame_files(fInfos)
     mode = IntVar(fInfos)
@@ -278,7 +287,10 @@ def popup_DES():
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
     label_gen.pack(fill="both", ipady=10, padx=5, pady=5)
-    choice_gen = Button(label_gen, text="Generate Key", command=partial(generateDES)).pack(side=LEFT, padx=5)
+    choice_gen = Button(label_gen, text="Generate Key", command=partial(generateDES, notifyText)).pack(side=LEFT, padx=5)
+
+    notify_label = Label(fInfos, textvariable=notifyText,width=40, anchor="w")
+    notify_label.pack(fill="both", ipady=10, padx=5, pady=5)
 
     Button(fInfos, text='Quit', fg="red", command=fInfos.destroy).pack(side=BOTTOM, ipady=10, padx=10, pady=5)
 
