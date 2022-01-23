@@ -119,7 +119,7 @@ int BinaryToDecimal(char* bin){
 *
 */
 char* BinaryToASCII(char* bin) {
-	char* ascii = "";
+	char* ascii = malloc(0);
 	int binLen = strlen(bin);
 
 	int asciiSize = 0;
@@ -128,9 +128,11 @@ char* BinaryToASCII(char* bin) {
 		char* subStr = GetSubString(bin, i, 8);
 		int dec = BinaryToDecimal(subStr);
 		char* chr = CharToString(dec);
-		ascii = AppendStringWithLength(ascii, chr, asciiSize, 1);
+		char* asciiTemp = AppendStringWithLength(ascii, chr, asciiSize, 1);
 		free(subStr);
 		free(chr);
+		free(ascii);
+		ascii = asciiTemp;
 		asciiSize++;
 	}
 
