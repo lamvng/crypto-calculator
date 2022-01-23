@@ -96,6 +96,7 @@ int encryptFile_ECB(char *fileName, char *keyFileName, int mode)
                 j += (blockSize);
                 count = 0;
                 free(bin);
+                free(cipherText);
             }
         }
 
@@ -220,6 +221,7 @@ int decryptFile_ECB(char *fileName, char *keyFileName, int mode)
                 j += (blockSize);
                 count = 0;
                 free(bin);
+                free(plainText);
             }
         }
 
@@ -343,10 +345,8 @@ int encryptFile_CBC(char *fileName, char *keyFileName, int mode)
         char *cipher = (char *)malloc((1 + dataSize) * sizeof(char));
         cipher[dataSize] = 0;
 
-        printf("\n");
         for (i = 0; i < dataSize; i++)
         {
-            printf("%d ", paddData[i]);
             subData[count] = paddData[i];
             count++;
             if (count == blockSize)
@@ -366,14 +366,13 @@ int encryptFile_CBC(char *fileName, char *keyFileName, int mode)
                 {
                     cipher[j + count] = cipherText[count];
                 }
+
                 j += (blockSize);
                 count = 0;
                 free(bin);
-                printf("\n");
-
+                free(cipherText);
             }
         }
-        printf("\n");
 
 
         writeNewFileByLength(NAME_FILE_CIPHER, cipher, dataSize);
@@ -497,17 +496,16 @@ int decryptFile_CBC(char *fileName, char *keyFileName, int mode)
         char *data = (char *)malloc((1 + cipherSize) * sizeof(char));
         data[cipherSize] = 0;
 
-        printf("\n");
-
         for (i = 0; i < cipherSize; i++)
         {
             subData[count] = cipher[i];
             count++;
             if (count == blockSize)
             {
+                convertBytesToDecimal(z_c, subData, blockSize);
+
                 char *bin = stringToBinaryWithLength(subData,8);
-                mpz_set_str(z_c, bin, 2);
-                char *plainText = decrypt(bin, keyDES);
+                char *plainText = decrypt(bin, keyDES); // ascii
 
                 convertBytesToDecimal(z_m, plainText, blockSize);
                 mpz_xor(z_m, z_m, z_c_temp);
@@ -518,19 +516,13 @@ int decryptFile_CBC(char *fileName, char *keyFileName, int mode)
                 {
                     data[j + count] = subData[count];
                 }
-
-                for(count = 0;count < blockSize;count++){
-                    printf("%d ", data[j + count]);
-                }
-                printf("\n");
-
+                
                 j += (blockSize);
                 count = 0;
                 free(bin);
+                free(plainText);
             }
         }
-        printf("\n");
-
 
         while (data[cipherSize - 1] != 1)
         {
