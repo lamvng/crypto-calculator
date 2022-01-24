@@ -66,6 +66,18 @@ char* GetSubString(char* str, int index, int count) {
 /*
 *
 */
+char* AppendStringWithLength(const char* str1, const char* str2, int str1Len, int str2Len) {
+	int strLen = str1Len + str2Len + 1;
+	char* str = malloc(strLen);
+
+	for (int i = 0; i < str1Len; i++)
+		str[i] = str1[i];
+	for (int i = 0; i < str2Len; i++)
+		str[(str1Len + i)] = str2[i];
+	str[strLen - 1] = '\0';
+	return str;
+}
+
 char* AppendString(const char* str1, const char* str2) {
 	int str1Len = strlen(str1);
 	int str2Len = strlen(str2);
@@ -107,12 +119,21 @@ int BinaryToDecimal(char* bin){
 *
 */
 char* BinaryToASCII(char* bin) {
-	char* ascii = "";
+	char* ascii = malloc(0);
 	int binLen = strlen(bin);
 
+	int asciiSize = 0;
 	for (int i = 0; i < binLen; i += 8)
 	{
-		ascii = AppendString(ascii, CharToString((char)BinaryToDecimal(GetSubString(bin, i, 8))));
+		char* subStr = GetSubString(bin, i, 8);
+		int dec = BinaryToDecimal(subStr);
+		char* chr = CharToString(dec);
+		char* asciiTemp = AppendStringWithLength(ascii, chr, asciiSize, 1);
+		free(subStr);
+		free(chr);
+		free(ascii);
+		ascii = asciiTemp;
+		asciiSize++;
 	}
 
 	return ascii;
