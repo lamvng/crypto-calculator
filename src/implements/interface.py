@@ -66,6 +66,7 @@ def browseKeyFiles(fInfos, keyfile):
     print(filename)
 
 
+
 def frame_files(fInfos):
     textfile = StringVar(fInfos)
     keyfile = StringVar(fInfos)
@@ -441,27 +442,35 @@ def generateHMAC(notifyText):
         notifyText.set("Generate Key : fail");
 
 
-def hashMD5():
+def hashMD5(text_desc):
     message = "test"
-    c = c_char_p(c_lib.hashmd5(c_char_p(message.encode()))).value.hex()
-    print(c)
+    c_char_p(c_lib.hashmd5(c_char_p(message.encode()))).value.hex()
+
 
 
 def popup_HASH():
+    text_desc =StringVar()
+
     print("Hash calculator open")
     fInfos = Toplevel();
     fInfos.title('Cryptographic Calculator - Hash')
-    fInfos.geometry('600x400+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
+    fInfos.geometry('600x500+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
 
     notifyText = StringVar(fInfos)
     frame_files(fInfos)
+
+    labeltext = LabelFrame(fInfos, text="Text zone")
+    labeltext.pack(fill="both", ipady=10, padx=5, pady=5)
+    name = Entry(labeltext, textvariable= text_desc )
+    name.focus_set()
+    name.pack()
 
     labelframe = LabelFrame(fInfos, text="Select an operation")
     labelframe.pack(fill="both", ipady=10, padx=5, pady=5)
     # Frame button calcul
     choice_HMAC = Button(labelframe, text="HMAC", command=partial(hashHMAC, notifyText)).pack(side=LEFT, padx=5)
     choice_verify = Button(labelframe, text="Verify",command=partial(verifyHMAC, notifyText)).pack(side=LEFT, padx=5)
-    choice_MD5 = Button(labelframe, text="MD5",command=partial(hashMD5)).pack(side=RIGHT, padx=5)
+    choice_MD5 = Button(labelframe, text="MD5",command=partial(hashMD5,text_desc)).pack(side=RIGHT, padx=5)
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
