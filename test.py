@@ -54,6 +54,13 @@ c_lib.encryptFile_CBC(c_char_p(filename.encode()), c_char_p(NAME_FILE_K_AES.enco
 c_lib.decryptFile_CBC(c_char_p(NAME_FILE_CIPHER.encode()), c_char_p(NAME_FILE_K_AES.encode()), MODE_AES)
 # -----------------------------------------------------------------------------------------------------
 
+
+# Process MD5
+message = "test"
+print(c_char_p(c_lib.hashmd5(c_char_p(message.encode()))).value.hex())
+# -----------------------------------------------------------------------------------------------------
+
+
 # Process HMAC
 c_lib.generateKey_HMAC(128, c_char_p(NAME_FILE_K_HMAC.encode()))
 print("hash")
