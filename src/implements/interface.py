@@ -441,6 +441,10 @@ def generateHMAC(notifyText):
         notifyText.set("Generate Key : fail");
 
 
+def hashMD5():
+    message = "test"
+    c = c_char_p(c_lib.hashmd5(c_char_p(message.encode()))).value.hex()
+    print(c)
 
 
 def popup_HASH():
@@ -455,8 +459,9 @@ def popup_HASH():
     labelframe = LabelFrame(fInfos, text="Select an operation")
     labelframe.pack(fill="both", ipady=10, padx=5, pady=5)
     # Frame button calcul
-    choice_hash = Button(labelframe, text="Hash", command=partial(hashHMAC, notifyText)).pack(side=LEFT, padx=5)
+    choice_HMAC = Button(labelframe, text="HMAC", command=partial(hashHMAC, notifyText)).pack(side=LEFT, padx=5)
     choice_verify = Button(labelframe, text="Verify",command=partial(verifyHMAC, notifyText)).pack(side=LEFT, padx=5)
+    choice_MD5 = Button(labelframe, text="MD5",command=partial(hashMD5)).pack(side=RIGHT, padx=5)
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
