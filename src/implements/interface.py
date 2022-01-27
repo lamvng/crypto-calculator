@@ -443,16 +443,16 @@ def generateHMAC(notifyText):
 
 
 def hashMD5(text_desc):
-    message = "test"
-    c_char_p(c_lib.hashmd5(c_char_p(message.encode()))).value.hex()
+
+    c_char_p(c_lib.hashmd5(c_char_p(text_desc.encode()))).value.hex()
 
 
 
 def popup_HASH():
-    text_desc =StringVar()
+    global text_desc
 
     print("Hash calculator open")
-    fInfos = Toplevel();
+    fInfos = Toplevel()
     fInfos.title('Cryptographic Calculator - Hash')
     fInfos.geometry('600x500+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
 
@@ -461,6 +461,8 @@ def popup_HASH():
 
     labeltext = LabelFrame(fInfos, text="Text zone")
     labeltext.pack(fill="both", ipady=10, padx=5, pady=5)
+    labeltext1 = Label(labeltext, text = "Input your text and click on MD5:")
+    labeltext1.pack()
     name = Entry(labeltext, textvariable= text_desc )
     name.focus_set()
     name.pack()
