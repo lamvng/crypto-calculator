@@ -49,12 +49,12 @@ int generateKey_RSA(mpz_t e, mpz_t d, mpz_t n) {
   //Part : d = e⁻1 mod phi(n)
   mpz_invert(d, e, phi_n);
 
-  printf(" === RSA STANDARD KEY GENERATION ===\n" );
-  gmp_printf("q = %Zd and size q = %d \n", q, mpz_sizeinbase(q,2));
-  gmp_printf("p = %Zd and size p = %d \n", p, mpz_sizeinbase(p,2));
-  gmp_printf("n = %Zd and size n = %d\n", n, mpz_sizeinbase(n,2));
-  gmp_printf("phi_n = %Zd and size = %d\n", phi_n, mpz_sizeinbase(phi_n,2));
-  gmp_printf("d = %Zd \n", d);
+  // printf(" === RSA STANDARD KEY GENERATION ===\n" );
+  // gmp_printf("q = %Zd and size q = %d \n", q, mpz_sizeinbase(q,2));
+  // gmp_printf("p = %Zd and size p = %d \n", p, mpz_sizeinbase(p,2));
+  // gmp_printf("n = %Zd and size n = %d\n", n, mpz_sizeinbase(n,2));
+  // gmp_printf("phi_n = %Zd and size = %d\n", phi_n, mpz_sizeinbase(phi_n,2));
+  // gmp_printf("d = %Zd \n", d);
 
   mpz_clears(p,q,temp,for_gcd,p_1,q_1,phi_n,NULL);
 
@@ -116,22 +116,22 @@ int generateKey_RSA_CRT(mpz_t n, mpz_t e, mpz_t p, mpz_t q, mpz_t dp, mpz_t dq, 
 
 
 int encrypt_RSA(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
-  printf(" === ENCRYPTION RSA === \n");
+  // printf(" === ENCRYPTION RSA === \n");
   mpz_powm(c, m, e, n); //m^e mod n
-  gmp_printf("c = %Zd\n", c);
+  // gmp_printf("c = %Zd\n", c);
 }
 
 int encrypt_RSA_CRT(mpz_t m, mpz_t c, mpz_t e, mpz_t n){
-  printf(" === CRT MODE === \n");
+  // printf(" === CRT MODE === \n");
   encrypt_RSA(c,m,e,n);
 }
 
 
 int decrypt_RSA(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
   //Receive the value of d (don't need to use e to recovery d)
-  printf(" === DECRYPTION RSA === \n");
+  // printf(" === DECRYPTION RSA === \n");
   mpz_powm(m, c, d, n);
-  gmp_printf("m = %Zd\n", m);
+  // gmp_printf("m = %Zd\n", m);
 
 }
 

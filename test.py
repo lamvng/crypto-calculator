@@ -31,6 +31,8 @@ c_lib = CDLL(so_file)
 # NOTE: All String type in python must be converted by using c_char_p("example string".encode()) to be able to pass them to C function.
 
 # Process Encryption RSA mode CRT
+print("-----------------------------------------------------------------------------------------------------")
+print("RSA CRT")
 c_lib.generateFileKey_RSA_CRT()
 c_lib.encryptFile_RSA(c_char_p(filename.encode()), c_char_p(NAME_FILE_PK_RSA_CRT.encode()), MODE_CRT)
 c_lib.decryptFile_RSA(c_char_p(NAME_FILE_CIPHER.encode()), c_char_p(NAME_FILE_SK_RSA_CRT.encode()), MODE_CRT)
@@ -39,6 +41,8 @@ print(c_lib.verifyFile_RSA(c_char_p(filename.encode()), c_char_p(NAME_FILE_SIGN.
 # -----------------------------------------------------------------------------------------------------
 
 # Process Encryption RSA mode standard
+print("-----------------------------------------------------------------------------------------------------")
+print("RSA standard")
 c_lib.generateFileKey_RSA()
 c_lib.encryptFile_RSA(c_char_p(filename.encode()), c_char_p(NAME_FILE_PK_RSA.encode()), MODE_STANDARD)
 c_lib.decryptFile_RSA(c_char_p(NAME_FILE_CIPHER.encode()), c_char_p(NAME_FILE_SK_RSA.encode()), MODE_STANDARD)
@@ -47,6 +51,8 @@ print(c_lib.verifyFile_RSA(c_char_p(filename.encode()), c_char_p(NAME_FILE_SIGN.
 # -----------------------------------------------------------------------------------------------------
 
 # Process Encryption AES
+print("-----------------------------------------------------------------------------------------------------")
+print("AES")
 c_lib.generateFileKey_AES()
 c_lib.encryptFile_ECB(c_char_p(filename.encode()), c_char_p(NAME_FILE_K_AES.encode()), MODE_AES)
 c_lib.decryptFile_ECB(c_char_p(NAME_FILE_CIPHER.encode()), c_char_p(NAME_FILE_K_AES.encode()), MODE_AES)
@@ -55,6 +61,8 @@ c_lib.decryptFile_CBC(c_char_p(NAME_FILE_CIPHER.encode()), c_char_p(NAME_FILE_K_
 # -----------------------------------------------------------------------------------------------------
 
 # Process MD5
+print("-----------------------------------------------------------------------------------------------------")
+print("MD5")
 message = "test"
 
 # #python3
@@ -71,17 +79,21 @@ print(s)
 
 
 # Process HMAC
+print("-----------------------------------------------------------------------------------------------------")
+print("HMAC")
 c_lib.generateKey_HMAC(128, c_char_p(NAME_FILE_K_HMAC.encode()))
-print("hash")
 c_lib.hashing_HMAC(c_char_p(filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode()))
-print("verify")
 print(c_lib.verify_HMAC(c_char_p(filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode())))
 # -----------------------------------------------------------------------------------------------------
 
 # Process DES
+print("-----------------------------------------------------------------------------------------------------")
+print("DES")
 c_lib.generateFileKey_DES();
 c_lib.encryptFile_ECB(c_char_p(filename.encode()), c_char_p(NAME_FILE_K_AES.encode()), MODE_DES)
 c_lib.decryptFile_ECB(c_char_p(NAME_FILE_CIPHER.encode()), c_char_p(NAME_FILE_K_AES.encode()), MODE_DES)
 c_lib.encryptFile_CBC(c_char_p(filename.encode()), c_char_p(NAME_FILE_K_AES.encode()), MODE_DES)
 c_lib.decryptFile_CBC(c_char_p(NAME_FILE_CIPHER.encode()), c_char_p(NAME_FILE_K_AES.encode()), MODE_DES)
 # -----------------------------------------------------------------------------------------------------
+
+print("Finish")
