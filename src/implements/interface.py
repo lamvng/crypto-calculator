@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from cgitb import text
 from Tkinter import *
 from functools import partial
 import os
@@ -443,20 +444,21 @@ def generateHMAC(notifyText):
 
 
 def hashMD5(text_desc):
-
-    c_char_p(c_lib.hashmd5(c_char_p(text_desc.encode()))).value.hex()
-
-
+    buffer = create_string_buffer(16)   
+    result = c_lib.hashmd5_result(c_char_p(text_desc.get().encode()), buffer)
+    result = ''
+    for bytes in buffer.value:
+        result += format(ord(bytes), '02x')
+    print(result)
 
 def popup_HASH():
-    global text_desc
-
     print("Hash calculator open")
     fInfos = Toplevel()
     fInfos.title('Cryptographic Calculator - Hash')
     fInfos.geometry('600x500+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
 
     notifyText = StringVar(fInfos)
+    text_desc = StringVar(fInfos)
     frame_files(fInfos)
 
     labeltext = LabelFrame(fInfos, text="Text zone")

@@ -469,7 +469,7 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     uint32_t *message_all_block, *current_message, *T, *buffer;
 
     unsigned char* output_hash;
-    output_hash = (unsigned char*) malloc(16 * sizeof(unsigned char*));
+    output_hash = (unsigned char*) malloc(17 * sizeof(unsigned char*));
 
     char constant_t_file[] = "src/implements/constant_t_md5.txt";
 
@@ -582,9 +582,16 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     // printf("A = %x\nB = %x\nC = %x\nD = %x\n", A, B, C, D);
 
     output_hash[16] = '\0';
+    printf("output_hash: %s\n", output_hash);
     return output_hash;
 }
 
+unsigned char* hashmd5_result(unsigned char* file_buffer, char* result){
+    unsigned char *temp = hashmd5(file_buffer);
+    memcpy(result, temp, 16);
+    free(temp);
+    return result;
+}
 
 // void main(int argc, char *argv[]) {
 //     unsigned char* output_hash;
