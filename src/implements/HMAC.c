@@ -159,12 +159,15 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     if(fp == NULL){
         perror("Failed: ");
         printf("%s\n", hmacFileName);
+        free(hmac_key);
+        free(file_content);
         return -1;
     }
 
     fputs((char*)outer_digest, fp);
     fclose(fp);
-
+    free(hmac_key);
+    free(file_content);
     return 1;
 }
 
@@ -223,8 +226,14 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     fclose(fp);
     remove(hmac_file);
     if(hmac_size == hmac_size2 && !memcmp(hmac, hmac2, hmac_size)){
+        free(hmac_file);
+        free(hmac);
+        free(hmac2);
         return 1;
     }
+    free(hmac_file);
+    free(hmac);
+    free(hmac2);
     return -1;
 }
 
