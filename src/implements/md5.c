@@ -582,7 +582,6 @@ unsigned char* hashmd5(unsigned char* file_buffer) {
     // printf("A = %x\nB = %x\nC = %x\nD = %x\n", A, B, C, D);
 
     output_hash[16] = '\0';
-    printf("output_hash: %s\n", output_hash);
     return output_hash;
 }
 
