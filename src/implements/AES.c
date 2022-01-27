@@ -256,7 +256,7 @@ void *processKey_AES(char *keyAES, char *subkeys[])
 char *encrypt_AES(char *plainText, char *keyAES, unsigned char *cipherText)
 {
     int i, j;
-    char *subkeys[ROUND_NUMBER];
+    char *subkeys[ROUND_NUMBER + 1];
     processKey_AES(keyAES, subkeys);
 
     int textSize = 16;
@@ -267,7 +267,7 @@ char *encrypt_AES(char *plainText, char *keyAES, unsigned char *cipherText)
         cipherText[j] = plainText[j] ^ subkeys[0][j];
     }
 
-    for (i = 1; i < ROUND_NUMBER; i++)
+    for (i = 1; i < ROUND_NUMBER + 1; i++)
     {
         // SubBytes
         // printf("ROUND %d: ", i);
@@ -296,7 +296,7 @@ char *encrypt_AES(char *plainText, char *keyAES, unsigned char *cipherText)
         // ---------------
 
         // mixColumns
-        if (i != ROUND_NUMBER - 1)
+        if (i != ROUND_NUMBER)
         {
             mixColumns(cipherText);
         }
@@ -325,12 +325,12 @@ char *encrypt_AES(char *plainText, char *keyAES, unsigned char *cipherText)
 char *decrypt_AES(unsigned char *cipherText, char *keyAES, char *plainText)
 {
     int i, j;
-    char *subkeys[ROUND_NUMBER];
+    char *subkeys[ROUND_NUMBER + 1];
     processKey_AES(keyAES, subkeys);
 
     int cipherSize = 16;
 
-    for (i = ROUND_NUMBER-1; i > 0; i--)
+    for (i = ROUND_NUMBER; i > 0; i--)
     {
         // AddRoundKey
         for (j = 0; j < cipherSize; j++)
@@ -344,7 +344,7 @@ char *decrypt_AES(unsigned char *cipherText, char *keyAES, char *plainText)
         //     printf(" %d", cipherText[j]);
         // }
         // printf("\n");
-        if (i != ROUND_NUMBER - 1)
+        if (i != ROUND_NUMBER)
         {
             inv_mixColumns(cipherText);
         }
