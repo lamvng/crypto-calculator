@@ -18,17 +18,20 @@ int generateKey_HMAC(char* keyFileName){
      */
     int keySize;
     srand(time(NULL));
-    keySize = rand()%(64 - 16 + 1) + 16;
-    keySize = keySize*8;
+    keySize = rand()%(64-16) + 16 + 1;
+    mpz_t key_upper_bound;
+    mpz_t key_lower_bound;
+    mpz_ui_pow_ui(key_upper_bound, 2, keySize*8);
+    mpz_ui_pow_ui(key_lower_bound, 2, 16*8);
+    mpz_sub(key_upper_bound, key_upper_bound, key_lower_bound);
 
     gmp_randstate_t r_gen;
     gmp_randinit_default(r_gen);
     gmp_randseed_ui(r_gen, time(NULL));
     mpz_t key;
     mpz_init(key);
-    while (mpz_cmp_ui(key, 0) == 0){
-        mpz_urandomb(key, r_gen, keySize);
-    }
+    mpz_urandomm(key, r_gen, key_upper_bound);
+    mpz_add(key, key, key_lower_bound);
     FILE *fp;
     fp = fopen(keyFileName, "w+");
     if(fp == NULL){
@@ -115,7 +118,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
 
     unsigned char *tkey;
 
-    //Hash key if len key > 64
+    //Hash key if len key > 64 bytes
     if(key_size > 64){
         printf("Key size exceeded, so hash\n");
         tkey = hashmd5(hmac_key);
@@ -246,13 +249,13 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     return -1;
 }
 
- int main(){
-     int i;
-     generateKey_HMAC("keyx");
-     hashing_HMAC("data", "keyx", "hmac1");
-     i = verify_HMAC("data", "keyx", "hmac1");
-     if(i == 1){
-         printf("verified!");
-     }
-     return 0;
- }
+// int main(){
+//     int i;
+//     generateKey_HMAC("keyx");
+//     hashing_HMAC("data", "keyx", "hmac1");
+//     i = verify_HMAC("data", "keyx", "hmac1");
+//     if(i == 1){
+//         printf("verified!");
+//     }
+//     return 0;
+// }
