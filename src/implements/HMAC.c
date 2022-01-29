@@ -119,6 +119,7 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     if(key_size > 64){
         printf("Key size exceeded, so hash\n");
         tkey = hashmd5(hmac_key);
+        free(hmac_key);
         hmac_key = tkey;
         key_size = 16;
     }
@@ -165,6 +166,8 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
         printf("%s\n", hmacFileName);
         free(hmac_key);
         free(file_content);
+        free(inner_digest);
+        free(outer_digest);
         return -1;
     }
 
@@ -172,6 +175,8 @@ int hashing_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     fclose(fp);
     free(hmac_key);
     free(file_content);
+    free(inner_digest);
+    free(outer_digest);
     return 1;
 }
 
