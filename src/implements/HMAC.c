@@ -19,7 +19,6 @@ int generateKey_HMAC(char* keyFileName){
     int keySize;
     srand(time(NULL));
     keySize = rand()%(64 - 16 + 1) + 16;
-    printf("key size: %d(bytes)\n", keySize);
     keySize = keySize*8;
 
     gmp_randstate_t r_gen;
