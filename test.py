@@ -62,7 +62,7 @@ print(c_char_p(c_lib.hashmd5(c_char_p(message.encode()))).value.hex())
 
 
 # Process HMAC
-c_lib.generateKey_HMAC(128, c_char_p(NAME_FILE_K_HMAC.encode()))
+c_lib.generateKey_HMAC(c_char_p(NAME_FILE_K_HMAC.encode()))
 print("hash")
 c_lib.hashing_HMAC(c_char_p(filename.encode()), c_char_p(NAME_FILE_K_HMAC.encode()), c_char_p(NAME_FILE_HMAC.encode()))
 print("verify")
