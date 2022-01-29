@@ -11,12 +11,16 @@
 #define HASH_SIZE 16
 
 
-int generateKey_HMAC(int keySize, char* keyFileName){
-    /*Generate keySize bits key and save to keyFileName file
-     * keySize: size (bit) of key
+int generateKey_HMAC(char* keyFileName){
+    /*Generate keySize (L <= keySize <= B) byte key and save to keyFileName file
      * keyFileName: name of the file to save the key
      * Return: 0 if fail, 1 otherwise
      */
+    int keySize;
+    srand(time(NULL));
+    keySize = rand()%(64 - 16 + 1) + 16;
+    keySize = keySize*8;
+
     gmp_randstate_t r_gen;
     gmp_randinit_default(r_gen);
     gmp_randseed_ui(r_gen, time(NULL));
@@ -242,13 +246,13 @@ int verify_HMAC(char* fileName, char* keyFileName, char* hmacFileName){
     return -1;
 }
 
-// int main(){
-//     int i;
-//     generateKey_HMAC(128, "keyx");
-//     hashing_HMAC("data", "keyx", "hmac1");
-//     i = verify_HMAC("data", "keyx", "hmac1");
-//     if(i == 1){
-//         printf("verified!");
-//     }
-//     return 0;
-// }
+ int main(){
+     int i;
+     generateKey_HMAC("keyx");
+     hashing_HMAC("data", "keyx", "hmac1");
+     i = verify_HMAC("data", "keyx", "hmac1");
+     if(i == 1){
+         printf("verified!");
+     }
+     return 0;
+ }

@@ -1,11 +1,10 @@
 #include "gmp.h"
 
-/*Generate keySize bits key and save to keyFileName file
- * keySize: size (bit) of key
- * keyFileName: name of the file to save the key
- * Return: 0 if fail, 1 otherwise
- */
-int generateKey_HMAC(int keySize, char* keyFileName);
+/*Generate keySize (L <= keySize <= B) byte key and save to keyFileName file
+     * keyFileName: name of the file to save the key
+     * Return: 0 if failed, 1 otherwise
+*/
+int generateKey_HMAC(char* keyFileName);
 
 /*hashing_HMAC: produce hmac for a given pair of (message, key)
  * fileName: message file
