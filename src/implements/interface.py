@@ -111,7 +111,6 @@ def decrypt_rsa(mode, notifyText):
         notifyText.set("Decrypt fail");
 
 def generateRSA(mode, notifyText):
-    rs = -1
     if mode.get() == MODE_STANDARD:
         rs = c_lib.generateFileKey_RSA()
         print("generate RSA Standard key")
@@ -195,55 +194,75 @@ def popup_RSA():
 
 
 ### PART ECB ###
-def encrypt_ecb_des():
+def encrypt_ecb_des(notifyText):
     global gl_filename, gl_keyfile
     #print(gl_filename, gl_keyfile, MODE_DES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.encryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
+    c = c_lib.encryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
 
-def decrypt_ecb_des():
+    if c == 0 :
+        notifyText.set("Encrypt DES, mode ECB : success");
+    else :
+        notifyText.set("Encrypt DES, mode ECB : fail");
+
+def decrypt_ecb_des(notifyText):
     global gl_filename, gl_keyfile
     #print(gl_filename, gl_keyfile, MODE_DES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
+    c = c_lib.decryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
 
+    if c == 0 :
+        notifyText.set("Decrypt DES, mode ECB : success");
+    else :
+        notifyText.set("Decrypt DES, mode ECB : fail");
 
 
 ### PART CBC ###
-def encrypt_cbc_des():
+def encrypt_cbc_des(notifyText):
     global gl_filename, gl_keyfile
     #print(gl_filename, gl_keyfile, MODE_DES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.encryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
+    c =c_lib.encryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
 
-def decrypt_cbc_des():
+    if c == 0 :
+        notifyText.set("Encrypt DES, mode CBC : success");
+    else :
+        notifyText.set("Encrypt DES, mode CBC : fail");
+
+def decrypt_cbc_des(notifyText):
     global gl_filename, gl_keyfile
     #print(gl_filename, gl_keyfile, MODE_DES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
+    c = c_lib.decryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_DES)
+
+    if c == 0 :
+        notifyText.set("Decrypt DES, mode CBC : success");
+    else :
+        notifyText.set("Decrypt DES, mode CBC : fail");
+
 
 ### PART ENCRYPT AND DECRYPT FOR DES ###
-def encrypt_des(mode):
+def encrypt_des(mode,notifyText):
     if mode.get() == MODE_ECB:
-        encrypt_ecb_des()
+        encrypt_ecb_des(notifyText)
         print("Encrypt DES with ECB mode")
         print(gl_filename, gl_keyfile, mode.get())
     elif mode.get() == MODE_CBC:
-        encrypt_cbc_des()
+        encrypt_cbc_des(notifyText)
         print("Encrypt DES with CBC mode")
         print(gl_filename, gl_keyfile, mode.get())
 
-def decrypt_des(mode):
+def decrypt_des(mode,notifyText):
     if mode.get() == MODE_ECB:
-        decrypt_ecb_des()
+        decrypt_ecb_des(notifyText)
         print("Decrypt DES with ECB mode")
         print(gl_filename, gl_keyfile, mode.get())
     elif mode.get() == MODE_CBC:
-        decrypt_cbc_des()
+        decrypt_cbc_des(notifyText)
         print("Decrypt DES with CBC mode")
         print(gl_filename, gl_keyfile, mode.get())
 
@@ -267,7 +286,7 @@ def popup_DES():
     global MODE_ECB, MODE_CBC
     fInfos = Toplevel()
     fInfos.title('Cryptographic Calculator - DES')
-    fInfos.geometry('600x400+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
+    fInfos.geometry('600x500+' + str(screen_width / 10 + 400 + 10) + '+' + str(screen_height / 10))
 
     notifyText = StringVar(fInfos)
 
@@ -283,8 +302,8 @@ def popup_DES():
     # Frame button calcul
     label_calcul = LabelFrame(fInfos, text="Select an operation")
     label_calcul.pack(fill="both", ipady=10, padx=5, pady=5)
-    choice_encryption = Button(label_calcul, text="Encryption", command = partial(encrypt_des,mode)).pack(side=LEFT, padx=5)
-    choice_decryption = Button(label_calcul, text="Decryption", command = partial(decrypt_des,mode)).pack(side=LEFT, padx=5)
+    choice_encryption = Button(label_calcul, text="Encryption", command = partial(encrypt_des,mode,notifyText)).pack(side=LEFT, padx=5)
+    choice_decryption = Button(label_calcul, text="Decryption", command = partial(decrypt_des,mode,notifyText)).pack(side=LEFT, padx=5)
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
@@ -298,54 +317,75 @@ def popup_DES():
 
 
 ### PART ECB ###
-def encrypt_ecb_aes():
+def encrypt_ecb_aes(notifyText):
     global gl_filename, gl_keyfile
     #print(gl_filename, gl_keyfile, MODE_AES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.encryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
+    c = c_lib.encryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
 
-def decrypt_ecb_aes():
+
+    if c == 0 :
+        notifyText.set("Encrypt AES, mode ECB : success");
+    else :
+        notifyText.set("Encrypt AES, mode ECB : fail");
+
+def decrypt_ecb_aes(notifyText):
     global gl_filename, gl_keyfile
     #print(gl_filename, gl_keyfile, MODE_AES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
+    c =c_lib.decryptFile_ECB(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
+
+    if c == 0 :
+        notifyText.set("Decrypt AES, mode ECB : success");
+    else :
+        notifyText.set("Decrypt AES, mode ECB : fail");
 
 
 
 ### PART CBC ###
-def encrypt_cbc_aes():
+def encrypt_cbc_aes(notifyText):
     global gl_filename, gl_keyfile
     #print(gl_filename, gl_keyfile, MODE_AES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.encryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
+    c =c_lib.encryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
 
-def decrypt_cbc_aes():
+    if c == 0 :
+        notifyText.set("Encrypt AES, mode CBC : success");
+    else :
+        notifyText.set("Encrypt AES, mode CBC : fail");
+
+def decrypt_cbc_aes(notifyText):
     global gl_filename, gl_keyfile
     #print(gl_filename, gl_keyfile, MODE_AES)
     if (gl_filename == '') | (gl_keyfile == ''):
         return
-    c_lib.decryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
+    c = c_lib.decryptFile_CBC(c_char_p(gl_filename.encode()), c_char_p(gl_keyfile.encode()), MODE_AES)
 
-def encrypt_aes(mode):
+    if c == 0 :
+        notifyText.set("Decrypt AES, mode CBC : success");
+    else :
+        notifyText.set("Decrypt AES, mode CBC : fail");
+
+def encrypt_aes(mode,notifyText):
     if mode.get() == MODE_ECB:
-        encrypt_ecb_aes()
+        encrypt_ecb_aes(notifyText)
         print("Encrypt AES with ECB mode")
         print(gl_filename, gl_keyfile, mode.get())
     elif mode.get() == MODE_CBC:
-        encrypt_cbc_aes()
+        encrypt_cbc_aes(notifyText)
         print("Encrypt AES with CBC mode")
         print(gl_filename, gl_keyfile, mode.get())
 
-def decrypt_aes(mode):
+def decrypt_aes(mode,notifyText):
     if mode.get() == MODE_ECB:
-        decrypt_ecb_aes()
+        decrypt_ecb_aes(notifyText)
         print("Decrypt AES with ECB mode")
         print(gl_filename, gl_keyfile, mode.get())
     elif mode.get() == MODE_CBC:
-        decrypt_cbc_aes()
+        decrypt_cbc_aes(notifyText)
         print("Decrypt AES with CBC mode")
         print(gl_filename, gl_keyfile, mode.get())
 
@@ -385,8 +425,8 @@ def popup_AES():
     # Frame button calcul
     label_calcul = LabelFrame(fInfos, text="Select an operation")
     label_calcul.pack(fill="both", ipady=10, padx=5, pady=5)
-    choice_encryption = Button(label_calcul, text="Encryption", command=partial(encrypt_aes,mode)).pack(side=LEFT, padx=5)
-    choice_decryption = Button(label_calcul, text="Decryption", command=partial(decrypt_aes,mode)).pack(side=LEFT, padx=5)
+    choice_encryption = Button(label_calcul, text="Encryption", command=partial(encrypt_aes,mode,notifyText)).pack(side=LEFT, padx=5)
+    choice_decryption = Button(label_calcul, text="Decryption", command=partial(decrypt_aes,mode,notifyText)).pack(side=LEFT, padx=5)
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
@@ -433,23 +473,26 @@ def verifyHMAC(notifyText):
 def generateHMAC(notifyText):
     rs = -1
     global NAME_FILE_K_HMAC
-    print("Generate key with HMAC")
+
 
     rs = c_lib.generateKey_HMAC(128, c_char_p(NAME_FILE_K_HMAC.encode()))
-    #print(rs)
+
     if rs == 1:
         notifyText.set("Generate Key : success");
     else:
         notifyText.set("Generate Key : fail");
 
 
-def hashMD5(text_desc):
-    buffer = create_string_buffer(16)   
+def hashMD5(text_desc,notifyText):
+    buffer = create_string_buffer(16)
     result = c_lib.hashmd5_result(c_char_p(text_desc.get().encode()), buffer)
     result = ''
     for bytes in buffer.value:
         result += format(ord(bytes), '02x')
     print(result)
+
+    notifyText.set('MD5 Hash : '+ result);
+
 
 def popup_HASH():
     print("Hash calculator open")
@@ -474,7 +517,7 @@ def popup_HASH():
     # Frame button calcul
     choice_HMAC = Button(labelframe, text="HMAC", command=partial(hashHMAC, notifyText)).pack(side=LEFT, padx=5)
     choice_verify = Button(labelframe, text="Verify",command=partial(verifyHMAC, notifyText)).pack(side=LEFT, padx=5)
-    choice_MD5 = Button(labelframe, text="MD5",command=partial(hashMD5,text_desc)).pack(side=RIGHT, padx=5)
+    choice_MD5 = Button(labelframe, text="MD5",command=partial(hashMD5,text_desc,notifyText)).pack(side=RIGHT, padx=5)
 
     # Frame bouton generation key
     label_gen = LabelFrame(fInfos, text="Generate key")
