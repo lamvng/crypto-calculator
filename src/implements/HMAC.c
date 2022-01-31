@@ -21,6 +21,8 @@ int generateKey_HMAC(char* keyFileName){
     keySize = rand()%(64-16) + 16 + 1;
     mpz_t key_upper_bound;
     mpz_t key_lower_bound;
+    mpz_init(key_upper_bound);
+    mpz_init(key_lower_bound);
     mpz_ui_pow_ui(key_upper_bound, 2, keySize*8);
     mpz_ui_pow_ui(key_lower_bound, 2, 16*8);
     mpz_sub(key_upper_bound, key_upper_bound, key_lower_bound);
@@ -40,7 +42,7 @@ int generateKey_HMAC(char* keyFileName){
     }
     gmp_fprintf(fp, "0x%Zx", key);
     fclose(fp);
-    mpz_clear(key);
+    mpz_clears(key, key_upper_bound, key_lower_bound, NULL);
     gmp_randclear(r_gen);
     return 1;
 }
