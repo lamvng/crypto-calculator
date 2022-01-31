@@ -471,11 +471,10 @@ def verifyHMAC(notifyText):
 
 
 def generateHMAC(notifyText):
-    rs = -1
     global NAME_FILE_K_HMAC
 
 
-    rs = c_lib.generateKey_HMAC(128, c_char_p(NAME_FILE_K_HMAC.encode()))
+    rs = c_lib.generateKey_HMAC(c_char_p(NAME_FILE_K_HMAC.encode()))
 
     if rs == 1:
         notifyText.set("Generate Key : success");
