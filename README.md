@@ -1,6 +1,6 @@
 # Cryptographic Calculator
 
-This project is to create a simple application allowing users to perform several cryptographic operations, such as asymmetrical encryption (RSA), asymmetric encryption (DES & AES), hash functions (MD5) and message authentication code (HMAC). 
+This project is to create a simple application allowing users to perform several cryptographic operations, such as symmetrical encryption (RSA), asymmetric encryption (DES & AES), hash functions (MD5) and message authentication code (HMAC). 
 
 ### Requirements and Installation
 
