@@ -1,24 +1,17 @@
-# crypto-calculator
+# Cryptographic Calculator
 
-To test C funtion from Python
+This project is to create a simple application allowing users to perform several cryptographic operations, such as asymmetrical encryption (RSA), asymmetric encryption (DES & AES), hash functions (MD5) and message authentication code (HMAC). 
 
-Step 1: Generate C lib from C repository. This command will create C lib generate_crypto_cal.so
+### Requirements and Installation
+
+[GMP](https://gmplib.org/), [Python 2](https://www.python.org/downloads/release/python-272/) and [Tkinter](https://docs.python.org/3/library/tkinter.html) must be installed before running the program. Then execute the following command from the source code's root directory to build the program:
+
 ```
 ./build_lib.sh
 ```
-Step 2: Run test.py to see the result.
 
-Guide:
-- In python file must import ctypes:
+Start the program by executing the following commands:
+
 ```
-from ctypes import *
+python src/implements/interface.py
 ```
-- Then, create an instance of C lib in python:
-```
-c_lib = CDLL("generate_crypto_cal.so")
-```
-- Finally, use function in c lib, for example:
-```
-c_lib.generateFileKey_RSA_CRT();
-```
-NOTE: if function has parameters with char* type, it is needed to encode() the input string and convert into char* in python by using c_char_p(). For example: c_char_p("example string".encode())
